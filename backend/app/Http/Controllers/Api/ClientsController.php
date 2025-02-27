@@ -107,6 +107,8 @@ class ClientsController extends BaseController
             $member = new FamilyMember();
             $member->client_id = $client->id;
             $member->family_member_name = $familyMember['name'];
+            $member->member_email = $familyMember['member_email'];
+            $member->member_mobile = $familyMember['member_mobile'];
             $member->relation = $familyMember['relation'];
             $member->family_member_dob = $familyMember['date_of_birth'];
             $member->save();
@@ -186,6 +188,8 @@ class ClientsController extends BaseController
                $member = new FamilyMember();
                $member->client_id = $client->id;
                $member->family_member_name = $familyMember['name'];
+               $member->member_email = $familyMember['member_email'];
+               $member->member_mobile = $familyMember['member_mobile'];
                $member->relation = $familyMember['relation'];
                $member->family_member_dob = $familyMember['date_of_birth'];
                $member->save();

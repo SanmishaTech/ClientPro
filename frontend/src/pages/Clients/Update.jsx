@@ -4,7 +4,7 @@ import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+import { Loader2, CircleX } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -87,6 +87,14 @@ const formSchema = z.object({
             "Relation can only contain letters."
           ),
         date_of_birth: z.string().min(1, "Date of birth is required"),
+        member_email: z
+          .string()
+          .email("Invalid email address")
+          .max(100, "Email must be at max 100 characters")
+          .nonempty("Email field is required"),
+        member_mobile: z.string().refine((val) => /^[0-9]{10}$/.test(val), {
+          message: "Mobile number must contain exact 10 digits.",
+        }),
       })
     )
     .optional(),
@@ -172,6 +180,8 @@ const Update = () => {
         const familyMembers = editClient.Client?.Family_members.map(
           (member) => ({
             name: member.family_member_name,
+            member_email: member.member_email,
+            member_mobile: member.member_mobile,
             relation: member.relation,
             date_of_birth: member.family_member_dob,
           })
@@ -587,6 +597,8 @@ const Update = () => {
               <TableHeader className="dark:bg-background bg-gray-100  rounded-md">
                 <TableRow>
                   <TableHead className="">Name</TableHead>{" "}
+                  <TableHead className="">Email</TableHead>{" "}
+                  <TableHead className="">Mobile</TableHead>{" "}
                   <TableHead className="">Relation</TableHead>{" "}
                   <TableHead className="">Date of Birth</TableHead>{" "}
                   {/*removed w-[100px] from here */}
@@ -624,6 +636,68 @@ const Update = () => {
                           {errors.family_members?.[index]?.name && (
                             <p className="absolute text-red-500 text-sm mt-1 left-0">
                               {errors.family_members[index].name.message}
+                            </p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium p-2">
+                        <div className="relative">
+                          {/* <Label
+                          className="font-normal"
+                          htmlFor={`family_members[${index}].name`}
+                        >
+                          Family Member Name:
+                          <span className="text-red-500">*</span>
+                        </Label> */}
+                          <Controller
+                            name={`family_members[${index}].member_email`}
+                            control={control}
+                            render={({ field }) => (
+                              <Input
+                                {...field}
+                                id={`family_members[${index}].member_email`}
+                                className="mt-1"
+                                placeholder="Enter email"
+                              />
+                            )}
+                          />
+                          {errors.family_members?.[index]?.member_email && (
+                            <p className="absolute text-red-500 text-sm mt-1 left-0">
+                              {
+                                errors.family_members[index].member_email
+                                  .message
+                              }
+                            </p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium p-2">
+                        <div className="relative">
+                          {/* <Label
+                          className="font-normal"
+                          htmlFor={`family_members[${index}].name`}
+                        >
+                          Family Member Name:
+                          <span className="text-red-500">*</span>
+                        </Label> */}
+                          <Controller
+                            name={`family_members[${index}].member_mobile`}
+                            control={control}
+                            render={({ field }) => (
+                              <Input
+                                {...field}
+                                id={`family_members[${index}].member_mobile`}
+                                className="mt-1"
+                                placeholder="Enter mobile"
+                              />
+                            )}
+                          />
+                          {errors.family_members?.[index]?.member_mobile && (
+                            <p className="absolute text-red-500 text-sm mt-1 left-0">
+                              {
+                                errors.family_members[index].member_mobile
+                                  .message
+                              }
                             </p>
                           )}
                         </div>
@@ -690,9 +764,10 @@ const Update = () => {
                         <Button
                           type="button"
                           onClick={() => remove(index)} // Remove family member
-                          className="mt-  bg-red-600 hover:bg-red-700 text-white"
+                          variant="ghost"
+                          className="text-sm  bg-slate-100 hover:bg-slate-200 dark:bg-gray-800 hover:dark:bg-gray-900"
                         >
-                          Remove
+                          <CircleX size={16} color="#fa0000" />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -705,7 +780,13 @@ const Update = () => {
               <Button
                 type="button"
                 onClick={() =>
-                  append({ name: "", relation: "", date_of_birth: "" })
+                  append({
+                    name: "",
+                    member_email: "",
+                    member_mobile: "",
+                    relation: "",
+                    date_of_birth: "",
+                  })
                 } // Add new family member
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >

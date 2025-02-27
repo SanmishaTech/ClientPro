@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('client_id'); 
             $table->string('family_member_name', 100)->nullable();
+            $table->string('member_email', 100)->nullable();
+            $table->string('member_mobile', 15)->nullable();
             $table->string('relation', 100)->nullable();
             $table->date('family_member_dob')->nullable();
             $table->timestamps();
