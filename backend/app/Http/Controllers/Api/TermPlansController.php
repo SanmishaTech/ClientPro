@@ -86,7 +86,7 @@ class TermPlansController extends BaseController
         if(!$termPlanData){
             return $this->sendError("Term Plan not found", ['error'=>'Term Plan not found']);
         }
-        return $this->sendResponse(['TermPlan'=> new TermPlanResource($termPlanData)], "Term Plan retrieved successfully");
+        return $this->sendResponse(['TermPlan'=> TermPlanResource::collection($termPlanData)], "Term Plan retrieved successfully");
     }
 
     /**
