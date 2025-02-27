@@ -1,0 +1,1357 @@
+openapi: 3.0.3
+info:
+  title: Laravel
+  description: ''
+  version: 1.0.0
+servers:
+  -
+    url: 'http://localhost'
+paths:
+  /api/denominations:
+    get:
+      summary: 'All Denominations.'
+      operationId: allDenominations
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Denomination Management'
+      security: []
+    post:
+      summary: 'Store Denomination.'
+      operationId: storeDenomination
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Denomination Management'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deposit_date:
+                  type: The
+                  description: 'date of the deposit.'
+                  example: consectetur
+                  nullable: false
+                n_2000:
+                  type: integer
+                  description: 'The name of the note 2000.'
+                  example: 17
+                  nullable: false
+                n_500:
+                  type: integer
+                  description: 'The name of the note 500.'
+                  example: 9
+                  nullable: false
+                n_200:
+                  type: integer
+                  description: 'The name of the note 200.'
+                  example: 3
+                  nullable: false
+                n_100:
+                  type: integer
+                  description: 'The name of the note 100.'
+                  example: 14
+                  nullable: false
+                n_50:
+                  type: integer
+                  description: 'The name of the note 50.'
+                  example: 3
+                  nullable: false
+                n_20:
+                  type: integer
+                  description: 'The name of the note 20.'
+                  example: 17
+                  nullable: false
+                n_10:
+                  type: integer
+                  description: 'The name of the note 10.'
+                  example: 1
+                  nullable: false
+                c_20:
+                  type: integer
+                  description: 'The name of the coin 20.'
+                  example: 1
+                  nullable: false
+                c_10:
+                  type: integer
+                  description: 'The name of the coin 10.'
+                  example: 16
+                  nullable: false
+                c_5:
+                  type: integer
+                  description: 'The name of the coin 5.'
+                  example: 8
+                  nullable: false
+                c_2:
+                  type: integer
+                  description: 'The name of the coin 2.'
+                  example: 13
+                  nullable: false
+                c_1:
+                  type: integer
+                  description: 'The name of the coin 1.'
+                  example: 2
+                  nullable: false
+                amount:
+                  type: decimal
+                  description: 'The name of the amount.'
+                  example: numquam
+                  nullable: false
+      security: []
+  '/api/denominations/{id}':
+    get:
+      summary: 'Show Denomination.'
+      operationId: showDenomination
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Denomination Management'
+      security: []
+    put:
+      summary: 'Update Denomination.'
+      operationId: updateDenomination
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Denomination Management'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deposit_date:
+                  type: The
+                  description: 'date of the deposit.'
+                  example: quis
+                  nullable: false
+                n_2000:
+                  type: integer
+                  description: 'The name of the note 2000.'
+                  example: 4
+                  nullable: false
+                n_500:
+                  type: integer
+                  description: 'The name of the note 500.'
+                  example: 17
+                  nullable: false
+                n_200:
+                  type: integer
+                  description: 'The name of the note 200.'
+                  example: 15
+                  nullable: false
+                n_100:
+                  type: integer
+                  description: 'The name of the note 100.'
+                  example: 4
+                  nullable: false
+                n_50:
+                  type: integer
+                  description: 'The name of the note 50.'
+                  example: 10
+                  nullable: false
+                n_20:
+                  type: integer
+                  description: 'The name of the note 20.'
+                  example: 8
+                  nullable: false
+                n_10:
+                  type: integer
+                  description: 'The name of the note 10.'
+                  example: 11
+                  nullable: false
+                c_20:
+                  type: integer
+                  description: 'The name of the coin 20.'
+                  example: 20
+                  nullable: false
+                c_10:
+                  type: integer
+                  description: 'The name of the coin 10.'
+                  example: 5
+                  nullable: false
+                c_5:
+                  type: integer
+                  description: 'The name of the coin 5.'
+                  example: 13
+                  nullable: false
+                c_2:
+                  type: integer
+                  description: 'The name of the coin 2.'
+                  example: 6
+                  nullable: false
+                c_1:
+                  type: integer
+                  description: 'The name of the coin 1.'
+                  example: 13
+                  nullable: false
+                amount:
+                  type: decimal
+                  description: 'The name of the amount.'
+                  example: aut
+                  nullable: false
+      security: []
+    delete:
+      summary: 'Delete Denomination'
+      operationId: deleteDenomination
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Denomination Management'
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the denomination.'
+        example: impedit
+        required: true
+        schema:
+          type: string
+  '/api/generate_denomination/{id}':
+    get:
+      summary: 'Generate Denomination'
+      operationId: generateDenomination
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Denomination Management'
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the generate denomination.'
+        example: voluptatum
+        required: true
+        schema:
+          type: string
+  /api/departments:
+    get:
+      summary: 'All Departments.'
+      operationId: allDepartments
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Department Management'
+      security: []
+    post:
+      summary: 'Store Department.'
+      operationId: storeDepartment
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Department Management'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                department_name:
+                  type: string
+                  description: 'The name of the department.'
+                  example: amet
+                  nullable: false
+      security: []
+  '/api/departments/{id}':
+    get:
+      summary: 'Show Department.'
+      operationId: showDepartment
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Department Management'
+      security: []
+    put:
+      summary: 'Update Department.'
+      operationId: updateDepartment
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Department Management'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                department_name:
+                  type: string
+                  description: 'The name of the department.'
+                  example: omnis
+                  nullable: false
+      security: []
+    delete:
+      summary: 'Delete Department'
+      operationId: deleteDepartment
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Department Management'
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the department.'
+        example: aliquam
+        required: true
+        schema:
+          type: string
+  /api/devtas:
+    get:
+      summary: 'All Devtas.'
+      operationId: allDevtas
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Devtas Management'
+      security: []
+    post:
+      summary: 'Store Devta.'
+      operationId: storeDevta
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Devtas Management'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                devta_name:
+                  type: string
+                  description: ''
+                  example: dolor
+                  nullable: false
+              required:
+                - devta_name
+      security: []
+  '/api/devtas/{id}':
+    get:
+      summary: 'Show Devta.'
+      operationId: showDevta
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Devtas Management'
+      security: []
+    put:
+      summary: 'Update Devta.'
+      operationId: updateDevta
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Devtas Management'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                devta_name:
+                  type: string
+                  description: ''
+                  example: aut
+                  nullable: false
+              required:
+                - devta_name
+      security: []
+    delete:
+      summary: 'Remove Devta.'
+      operationId: removeDevta
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Devtas Management'
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the devta.'
+        example: quas
+        required: true
+        schema:
+          type: string
+  /api/all_devtas:
+    get:
+      summary: 'Fetch All Devta.'
+      operationId: fetchAllDevta
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Devtas Management'
+      security: []
+  /api/login:
+    post:
+      summary: 'Login User'
+      operationId: loginUser
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: 'Must be a valid email address.'
+                  example: drolfson@example.net
+                  nullable: false
+                password:
+                  type: string
+                  description: 'Must be at least 6 characters.'
+                  example: '/3s:qQrXp`[TT@&ImJ\'
+                  nullable: false
+              required:
+                - email
+                - password
+      security: []
+  /api/profiles:
+    get:
+      summary: 'Display All Profiles.'
+      operationId: displayAllProfiles
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: 'Store Profile.'
+      operationId: storeProfile
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                profile_name:
+                  type: string
+                  description: 'The name of the Profile.'
+                  example: ratione
+                  nullable: false
+                email:
+                  type: string
+                  description: 'The name of the Profile.'
+                  example: caitlyn.weimann@example.com
+                  nullable: false
+                active:
+                  type: string
+                  description: 'The name of the Profile.'
+                  example: quo
+                  nullable: false
+                password:
+                  type: string
+                  description: 'The name of the Profile.'
+                  example: 'KLYB3{"?3q=ESQ.@He'
+                  nullable: false
+                role:
+                  type: string
+                  description: 'The name of the Profile.'
+                  example: totam
+                  nullable: false
+                mobile:
+                  type: string
+                  description: 'The name of the Profile.'
+                  example: animi
+                  nullable: false
+      security: []
+  '/api/profiles/{id}':
+    get:
+      summary: 'Show Profile.'
+      operationId: showProfile
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+    put:
+      summary: 'Update Profile.'
+      operationId: updateProfile
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                profile_name:
+                  type: string
+                  description: 'The name of the Profile.'
+                  example: quia
+                  nullable: false
+                email:
+                  type: string
+                  description: 'The name of the Profile.'
+                  example: connelly.genevieve@example.com
+                  nullable: false
+                active:
+                  type: string
+                  description: 'The name of the Profile.'
+                  example: ut
+                  nullable: false
+                password:
+                  type: string
+                  description: 'The name of the Profile.'
+                  example: 'vZ"h(?dCx3}vzy~_L:Fk'
+                  nullable: false
+                role:
+                  type: string
+                  description: 'The name of the Profile.'
+                  example: tempore
+                  nullable: false
+                mobile:
+                  type: string
+                  description: 'The name of the Profile.'
+                  example: natus
+                  nullable: false
+      security: []
+    delete:
+      summary: 'Remove Employee.'
+      operationId: removeEmployee
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the profile.'
+        example: quia
+        required: true
+        schema:
+          type: string
+  /api/logout:
+    get:
+      summary: 'Logout User'
+      operationId: logoutUser
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+  /api/all_receipt_heads:
+    get:
+      summary: 'Fetch All receipt Heads.'
+      operationId: fetchAllReceiptHeads
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+  /api/gurujis:
+    get:
+      summary: 'All Gurujies.'
+      operationId: allGurujies
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Guruji Management'
+      security: []
+    post:
+      summary: 'Store Guruji.'
+      operationId: storeGuruji
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Guruji Management'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                guruji_name:
+                  type: string
+                  description: 'The name of the guruji.'
+                  example: magni
+                  nullable: false
+      security: []
+  '/api/gurujis/{id}':
+    get:
+      summary: 'Show Guruji.'
+      operationId: showGuruji
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Guruji Management'
+      security: []
+    put:
+      summary: 'Update Guruji.'
+      operationId: updateGuruji
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Guruji Management'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                guruji_name:
+                  type: string
+                  description: 'The name of the guruji.'
+                  example: et
+                  nullable: false
+      security: []
+    delete:
+      summary: 'Delete Guruji.'
+      operationId: deleteGuruji
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Guruji Management'
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the guruji.'
+        example: occaecati
+        required: true
+        schema:
+          type: string
+  /api/pooja_dates:
+    get:
+      summary: 'All Pooja Dates.'
+      operationId: allPoojaDates
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Pooja Date Management'
+      security: []
+    post:
+      summary: 'Store Pooja Date.'
+      operationId: storePoojaDate
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pooja Date Management'
+      security: []
+  '/api/pooja_dates/{id}':
+    get:
+      summary: 'Show Pooja Date.'
+      operationId: showPoojaDate
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Pooja Date Management'
+      security: []
+    put:
+      summary: 'Update Pooja Date.'
+      operationId: updatePoojaDate
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pooja Date Management'
+      security: []
+    delete:
+      summary: 'Delete Pooja Date.'
+      operationId: deletePoojaDate
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pooja Date Management'
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the pooja date.'
+        example: hic
+        required: true
+        schema:
+          type: string
+  /api/pooja_types:
+    get:
+      summary: 'All Pooja Types.'
+      operationId: allPoojaTypes
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Pooja Type Management'
+      security: []
+    post:
+      summary: 'Store Pooja Type.'
+      operationId: storePoojaType
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pooja Type Management'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pooja_type:
+                  type: string
+                  description: ''
+                  example: at
+                  nullable: false
+              required:
+                - pooja_type
+      security: []
+  '/api/pooja_types/{id}':
+    get:
+      summary: 'Show Pooja Type.'
+      operationId: showPoojaType
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Pooja Type Management'
+      security: []
+    put:
+      summary: 'Update Pooja Type.'
+      operationId: updatePoojaType
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pooja Type Management'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pooja_type:
+                  type: string
+                  description: ''
+                  example: enim
+                  nullable: false
+              required:
+                - pooja_type
+      security: []
+    delete:
+      summary: 'Remove Pooja Type.'
+      operationId: removePoojaType
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Pooja Type Management'
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the pooja type.'
+        example: aliquam
+        required: true
+        schema:
+          type: string
+  /api/all_pooja_types:
+    get:
+      summary: 'Fetch All Pooja Types.'
+      operationId: fetchAllPoojaTypes
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Pooja Type Management'
+      security: []
+  /api/receipts:
+    get:
+      summary: 'All Receipt.'
+      operationId: allReceipt
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Receipt Management'
+      security: []
+    post:
+      summary: 'Store Receipt.'
+      operationId: storeReceipt
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Receipt Management'
+      security: []
+  '/api/receipts/{id}':
+    get:
+      summary: 'Show Receipt.'
+      operationId: showReceipt
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Receipt Management'
+      security: []
+    put:
+      summary: 'Update Receipt.'
+      operationId: updateReceipt
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Receipt Management'
+      security: []
+    delete:
+      summary: 'Delete Receipt.'
+      operationId: deleteReceipt
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Receipt Management'
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the receipt.'
+        example: quia
+        required: true
+        schema:
+          type: string
+  /api/receipt_types:
+    get:
+      summary: 'All Receipt Types.'
+      operationId: allReceiptTypes
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Receipt Type Management'
+      security: []
+    post:
+      summary: 'Store Receipt Type.'
+      operationId: storeReceiptType
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Receipt Type Management'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                receipt_head:
+                  type: string
+                  description: 'The name of the Receipt head.'
+                  example: voluptatem
+                  nullable: false
+                receipt_type:
+                  type: string
+                  description: 'The name of the Receipt type.'
+                  example: voluptate
+                  nullable: false
+                special_date:
+                  type: string
+                  description: 'The name of the special date.'
+                  example: in
+                  nullable: false
+                minimum_amount:
+                  type: string
+                  description: 'The name of the Minimum amount field.'
+                  example: ratione
+                  nullable: false
+                is_pooja:
+                  type: boolean
+                  description: 'The name of the pooja.'
+                  example: true
+                  nullable: false
+                show_special_date:
+                  type: boolean
+                  description: 'The name of the show_special.'
+                  example: false
+                  nullable: false
+                show_remembarance:
+                  type: boolean
+                  description: 'The name of the show_remembarance.\'
+                  example: false
+                  nullable: false
+                list_order:
+                  type: boolean
+                  description: 'The name of the List Order.'
+                  example: false
+                  nullable: false
+      security: []
+  '/api/receipt_types/{id}':
+    get:
+      summary: 'Show Receipt Type.'
+      operationId: showReceiptType
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Receipt Type Management'
+      security: []
+    put:
+      summary: 'Update Receipt Type.'
+      operationId: updateReceiptType
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Receipt Type Management'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                receipt_head:
+                  type: string
+                  description: 'The name of the Receipt head.'
+                  example: unde
+                  nullable: false
+                receipt_type:
+                  type: string
+                  description: 'The name of the Receipt type.'
+                  example: quia
+                  nullable: false
+                special_date:
+                  type: string
+                  description: 'The name of the special date.'
+                  example: est
+                  nullable: false
+                minimum_amount:
+                  type: string
+                  description: 'The name of the Minimum amount field.'
+                  example: quo
+                  nullable: false
+                is_pooja:
+                  type: boolean
+                  description: 'The name of the pooja.'
+                  example: true
+                  nullable: false
+                show_special_date:
+                  type: boolean
+                  description: 'The name of the show_special.'
+                  example: true
+                  nullable: false
+                show_remembarance:
+                  type: boolean
+                  description: 'The name of the show_remembarance.'
+                  example: true
+                  nullable: false
+                list_order:
+                  type: boolean
+                  description: 'The name of the List Order.'
+                  example: true
+                  nullable: false
+      security: []
+    delete:
+      summary: 'Delete Receipt Type.'
+      operationId: deleteReceiptType
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - 'Receipt Type Management'
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the receipt type.'
+        example: aperiam
+        required: true
+        schema:
+          type: string
+  /api/roles:
+    get:
+      summary: 'All Roles.'
+      operationId: allRoles
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - 'Roles Management'
+      security: []
+tags:
+  -
+    name: 'Denomination Management'
+    description: ''
+  -
+    name: 'Department Management'
+    description: ''
+  -
+    name: 'Devtas Management'
+    description: ''
+  -
+    name: Endpoints
+    description: ''
+  -
+    name: 'Guruji Management'
+    description: ''
+  -
+    name: 'Pooja Date Management'
+    description: ''
+  -
+    name: 'Pooja Type Management'
+    description: ''
+  -
+    name: 'Receipt Management'
+    description: ''
+  -
+    name: 'Receipt Type Management'
+    description: ''
+  -
+    name: 'Roles Management'
+    description: ''
