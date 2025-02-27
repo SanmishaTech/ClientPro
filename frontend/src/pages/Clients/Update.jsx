@@ -634,7 +634,7 @@ const Update = () => {
                             )}
                           />
                           {errors.family_members?.[index]?.name && (
-                            <p className="absolute text-red-500 text-sm mt-1 left-0">
+                            <p className=" text-red-500 text-sm mt-1 left-0">
                               {errors.family_members[index].name.message}
                             </p>
                           )}
@@ -662,7 +662,7 @@ const Update = () => {
                             )}
                           />
                           {errors.family_members?.[index]?.member_email && (
-                            <p className="absolute text-red-500 text-sm mt-1 left-0">
+                            <p className=" text-red-500 text-sm mt-1 left-0">
                               {
                                 errors.family_members[index].member_email
                                   .message
@@ -693,7 +693,7 @@ const Update = () => {
                             )}
                           />
                           {errors.family_members?.[index]?.member_mobile && (
-                            <p className="absolute text-red-500 text-sm mt-1 left-0">
+                            <p className=" text-red-500 text-sm mt-1 left-0">
                               {
                                 errors.family_members[index].member_mobile
                                   .message
@@ -723,7 +723,7 @@ const Update = () => {
                             )}
                           />
                           {errors.family_members?.[index]?.relation && (
-                            <p className="absolute text-red-500 text-sm mt-1 left-0">
+                            <p className=" text-red-500 text-sm mt-1 left-0">
                               {errors.family_members[index].relation.message}
                             </p>
                           )}
@@ -751,7 +751,7 @@ const Update = () => {
                             )}
                           />
                           {errors.family_members?.[index]?.date_of_birth && (
-                            <p className="absolute text-red-500 text-sm mt-1 left-0">
+                            <p className=" text-red-500 text-sm mt-1 left-0">
                               {
                                 errors.family_members[index].date_of_birth
                                   .message
