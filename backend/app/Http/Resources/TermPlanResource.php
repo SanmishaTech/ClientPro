@@ -18,6 +18,8 @@ class TermPlanResource extends JsonResource
             'id'                => $this->id,
             'client_id'         => $this->client_id,
             'client_name'         => $this->client ? $this->client->client_name : "",
+            'family_member_id'         => $this->family_member_id,
+            'family_members'         =>  $this->familyMember ? $this->familyMember->family_member_name : "",
             'term_company_name'      => $this->term_company_name,
             'broker_name'       => $this->broker_name,
             'proposal_date'     => $this->proposal_date,

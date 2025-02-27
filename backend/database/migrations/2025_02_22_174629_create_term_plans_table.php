@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('term_plans', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('client_id'); 
+            $table->unsignedBigInteger('family_member_id')->nullable(); 
             $table->string('term_company_name', 100)->nullable();
             $table->string('broker_name', 100)->nullable();
             $table->date('proposal_date')->nullable();

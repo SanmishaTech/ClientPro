@@ -48,23 +48,18 @@ class TermPlansController extends BaseController
      */
     public function store(StoreTermPlanRequest $request): JsonResponse
     {
-
-        $termPlanData = $request->input('term_plan_data'); // Array containing client and family member data
-
-        foreach ($termPlanData as $data) {
-            $term_plan = new TermPlan();
-            $term_plan->client_id = $data['client_id'];
-            $term_plan->family_member_id = $data['family_member_id'] ?? null;
-            $term_plan->term_company_name = $data['term_company_name'];
-            $term_plan->broker_name = $data['broker_name'];
-            $term_plan->proposal_date = $data['proposal_date'];
-            $term_plan->end_date = $data['end_date'];
-            $term_plan->premium_payment_mode = $data['premium_payment_mode'];
-            $term_plan->sum_insured = $data['sum_insured'];
-            $term_plan->save();
-        }
+        
+        $termPlan = new TermPlan();
+        $termPlan->client_id = $request->input("client_id");
+        $termPlan->term_company_name = $request->input("term_company_name");
+        $termPlan->broker_name = $request->input("broker_name");
+        $termPlan->proposal_date = $request->input("proposal_date");
+        $termPlan->end_date = $request->input("end_date");
+        $termPlan->premium_payment_mode = $request->input("premium_payment_mode");
+        $termPlan->sum_insured = $request->input("sum_insured");
+        $termPlan->save();
      
-        return $this->sendResponse(['TermPlan'=> new TermPlanResource($term_plan)], 'Term Plan Created Successfully');
+        return $this->sendResponse(['TermPlan'=> new TermPlanResource($termPlan)], 'Term Plan Created Successfully');
    
     }
 
@@ -80,13 +75,7 @@ class TermPlansController extends BaseController
         if(!$termPlan){
             return $this->sendError("Term Plan not found", ['error'=>'Term Plan not found']);
         }
-
-        $termPlanData = TermPlan::where('client_id',$termPlan->client_id)->get();
-
-        if(!$termPlanData){
-            return $this->sendError("Term Plan not found", ['error'=>'Term Plan not found']);
-        }
-        return $this->sendResponse(['TermPlan'=> new TermPlanResource($termPlanData)], "Term Plan retrieved successfully");
+        return $this->sendResponse(['TermPlan'=> new TermPlanResource($termPlan)], "Term Plan retrieved successfully");
     }
 
     /**
@@ -95,35 +84,20 @@ class TermPlansController extends BaseController
     public function update(UpdateTermPlanRequest $request, string $id): JsonResponse
     {
         $termPlan = TermPlan::find($id);
-
         if(!$termPlan){
             return $this->sendError("Term Plan not found", ['error'=>'Term Plan not found']);
         }
         
-        $termPlanData = $request->input('term_plan_data'); // Array containing client and family member data
-
-        $removeTermPlan = TermPlan::where('client_id',$termPlan->client_id)->get();
-        if(!$removeTermPlan){
-            return $this->sendError("Term Plan not found", ['error'=>'Term Plan not found']);
-        }
-        $removeTermPlan->each(function($familyMember) {
-            $familyMember->delete();
-        });
-    
-        foreach ($termPlanData as $data) {
-        $term_plan = new TermPlan();
-        $term_plan->client_id = $data['client_id'];
-        $term_plan->family_member_id = $data['family_member_id'] ?? null;
-        $term_plan->term_company_name = $data['term_company_name'];
-        $term_plan->broker_name = $data['broker_name'];
-        $term_plan->proposal_date = $data['proposal_date'];
-        $term_plan->end_date = $data['end_date'];
-        $term_plan->premium_payment_mode = $data['premium_payment_mode'];
-        $term_plan->sum_insured = $data['sum_insured'];
-        $term_plan->save();
-       }
+        $termPlan->client_id = $request->input("client_id");
+        $termPlan->term_company_name = $request->input("term_company_name");
+        $termPlan->broker_name = $request->input("broker_name");
+        $termPlan->proposal_date = $request->input("proposal_date");
+        $termPlan->end_date = $request->input("end_date");
+        $termPlan->premium_payment_mode = $request->input("premium_payment_mode");
+        $termPlan->sum_insured = $request->input("sum_insured");
+        $termPlan->save();
        
-        return $this->sendResponse(['TermPlan'=> new TermPlanResource($term_plan)], "Term Plan updated successfully");
+        return $this->sendResponse(['TermPlan'=> new TermPlanResource($termPlan)], "Term Plan updated successfully");
     }
 
     /**

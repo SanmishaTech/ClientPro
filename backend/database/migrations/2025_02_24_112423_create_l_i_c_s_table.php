@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('client_id'); 
             $table->string('company_name', 100)->nullable();
+            $table->unsignedBigInteger('family_member_id')->nullable(); 
             $table->string('broker_name', 100)->nullable();
             $table->date('proposal_date')->nullable();
             $table->date('end_date')->nullable();

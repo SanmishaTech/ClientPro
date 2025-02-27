@@ -76,6 +76,10 @@ class MediclaimInsurancesController extends BaseController
     public function show(string $id): JsonResponse
     {
         $mediclaimInsurance = MediclaimInsurance::find($id);
+        
+        if(!$mediclaimInsurance){
+            return $this->sendError("Mediclaim Insurance not found", ['error'=>'Mediclaim Insurance not found']);
+        }
 
         $mediclaimInsuranceData = MediclaimInsurance::where('client_id',$mediclaimInsurance->client_id)->get();
 

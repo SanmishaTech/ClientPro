@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('mutual_funds', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('client_id'); 
+            $table->unsignedBigInteger('family_member_id')->nullable(); 
             $table->boolean("have_mutual_fund_account");
             $table->string('account_number')->nullable();
             $table->string('service_provider')->nullable();

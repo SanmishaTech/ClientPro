@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('general_insurances', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('client_id'); 
+            $table->unsignedBigInteger('family_member_id')->nullable(); 
             $table->boolean("vehicle")->nullable();
             $table->boolean("fire")->nullable();
             $table->boolean("society")->nullable();

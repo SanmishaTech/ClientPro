@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('demat_accounts', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('client_id'); 
+            $table->unsignedBigInteger('family_member_id')->nullable(); 
             $table->boolean("have_demat_account");
             $table->string('account_number')->nullable();
             $table->string('service_provider')->nullable();
