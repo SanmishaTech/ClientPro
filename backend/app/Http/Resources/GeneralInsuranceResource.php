@@ -18,6 +18,8 @@ class GeneralInsuranceResource extends JsonResource
             'id' => $this->id,
             'client_id' => $this->client_id,
             'client_name'         => $this->client ? $this->client->client_name : "",
+            'family_member_id'         => $this->family_member_id,
+            'family_members'         =>  $this->familyMember ? $this->familyMember->family_member_name : "",
             'vehicle' => $this->vehicle,
             'fire' => $this->fire,
             'society' => $this->society,

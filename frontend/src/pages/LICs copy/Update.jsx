@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import DatePicker from "react-multi-date-picker";
-import TimePicker from "react-multi-date-picker/plugins/time_picker";
+
 import {
   Select,
   SelectContent,
@@ -17,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2, Check, ChevronsUpDown } from "lucide-react";
@@ -38,27 +37,53 @@ import {
 
 const formSchema = z.object({
   // devta_name: z.string().min(2, "Name must be at least 2 characters"),
-  client_id: z.coerce.number().min(1, "client field is required."),
-  family_member_id: z.coerce.number().optional(),
-  home: z.coerce.number().min(0, "home loan field is required."),
-  car: z.coerce.number().min(0, "home loan field is required."),
-  personal: z.coerce.number().min(0, "home loan field is required."),
-  business: z.coerce.number().min(0, "home loan field is required."),
+  client_id: z.coerce.number().min(1, "Client field is required."),
+  company_name: z
+    .string()
+    .min(2, "Company name must be at least 2 characters")
+    .max(100, "Company name must be at max 100 characters")
+    .regex(
+      /^[A-Za-z\s\u0900-\u097F]+$/,
+      "Company name can only contain letters."
+    ),
+  sum_insured: z.coerce
+    .number()
+    .min(1, "Sum Insured field is required")
+    .max(99999999, "Sum Insured must not exceed 9,99,99,999"),
+  broker_name: z
+    .string()
+    .min(2, "Broker name must be at least 2 characters")
+    .max(100, "Broker name must be at max 100 characters")
+    .regex(
+      /^[A-Za-z\s\u0900-\u097F]+$/,
+      "Broker name can only contain letters."
+    ),
+  proposal_date: z.string().min(1, "Proposal date field is required."),
+  premium_payment_mode: z
+    .string()
+    .min(1, "Premium payment mode field is required.")
+    .max(100, "Premium payment mode field must be at max 100 characters"),
+  end_date: z.string().optional(),
 });
-const Create = () => {
+
+const Update = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [openClient, setOpenClient] = useState(false);
   const queryClient = useQueryClient();
+  const { id } = useParams();
   const user = JSON.parse(localStorage.getItem("user"));
   const token = user.token;
   const navigate = useNavigate();
+
   const defaultValues = {
     client_id: "",
-    home: "",
-    car: "",
-    personal: "",
-    business: "",
-    family_member_id: "",
+    company_name: "",
+    broker_name: "",
+    proposal_date: "",
+    company_name: "",
+    premium_payment_mode: "",
+    sum_insured: "",
+    end_date: "",
   };
 
   const {
@@ -87,13 +112,47 @@ const Create = () => {
     control,
     handleSubmit,
     formState: { errors },
-    setError,
     setValue,
+    setError,
   } = useForm({ resolver: zodResolver(formSchema), defaultValues });
 
-  const storeMutation = useMutation({
+  const {
+    data: editLIC,
+    isLoading: isEditLICDataLoading,
+    isError: isEditLICDataError,
+  } = useQuery({
+    queryKey: ["editLIC", id], // This is the query key
+    queryFn: async () => {
+      try {
+        const response = await axios.get(`/api/lics/${id}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data?.data; // Return the fetched data
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    },
+    keepPreviousData: true, // Keep previous data until the new data is available
+  });
+
+  useEffect(() => {
+    if (editLIC) {
+      setValue("client_id", editLIC.LIC?.client_id || "");
+      setValue("company_name", editLIC.LIC?.company_name || "");
+      setValue("broker_name", editLIC.LIC?.broker_name || "");
+      setValue("proposal_date", editLIC.LIC?.proposal_date || "");
+      setValue("premium_payment_mode", editLIC.LIC?.premium_payment_mode || "");
+      setValue("sum_insured", editLIC.LIC?.sum_insured || "");
+      setValue("end_date", editLIC.LIC?.end_date || "");
+    }
+  }, [editLIC, setValue]);
+
+  const updateMutation = useMutation({
     mutationFn: async (data) => {
-      const response = await axios.post("/api/loans", data, {
+      const response = await axios.put(`/api/lics/${id}`, data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, // Include the Bearer token
@@ -102,10 +161,11 @@ const Create = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries("loans");
-      toast.success("Loan details Added Successfully");
+      queryClient.invalidateQueries("lics");
+
+      toast.success("LIC details Updated Successfully");
       setIsLoading(false);
-      navigate("/loans");
+      navigate("/lics");
     },
     onError: (error) => {
       setIsLoading(false);
@@ -113,24 +173,24 @@ const Create = () => {
         const serverStatus = error.response.data.status;
         const serverErrors = error.response.data.errors;
         if (serverStatus === false) {
-          if (serverErrors.home) {
-            setError("home", {
+          if (serverErrors.company_name) {
+            setError("company_name", {
               type: "manual",
-              message: serverErrors.home[0], // The error message from the server
+              message: serverErrors.company_name[0], // The error message from the server
             });
             // toast.error("The poo has already been taken.");
           }
         } else {
-          toast.error("Failed to add Loan details.");
+          toast.error("Failed to update LIC details.");
         }
       } else {
-        toast.error("Failed to add Loan details.");
+        toast.error("Failed to update LIC details.");
       }
     },
   });
   const onSubmit = (data) => {
     setIsLoading(true);
-    storeMutation.mutate(data);
+    updateMutation.mutate(data);
   };
 
   return (
@@ -141,15 +201,15 @@ const Create = () => {
           <div className="flex items-center space-x-2 text-gray-700">
             <span className="">
               <Button
-                onClick={() => navigate("/loans")}
+                onClick={() => navigate("/lics")}
                 className="p-0 text-blue-700 text-sm font-light"
                 variant="link"
               >
-                Loans
+                LIC
               </Button>
             </span>
             <span className="text-gray-400">/</span>
-            <span className="dark:text-gray-300">Add</span>
+            <span className="dark:text-gray-300">Edit</span>
           </div>
         </div>
         {/* breadcrumb ends */}
@@ -157,11 +217,11 @@ const Create = () => {
         {/* form style strat */}
         <div className="px-5 pb-7 dark:bg-background pt-1 w-full bg-white shadow-lg border  rounded-md">
           <div className="w-full py-3 flex justify-start items-center">
-            <h2 className="text-lg  font-normal">Add Loan</h2>
+            <h2 className="text-lg  font-normal">Edit LIC</h2>
           </div>
           {/* row starts */}
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
               {/* <div className="relative">
                 <Label className="font-normal" htmlFor="client_id">
                   Client: <span className="text-red-500">*</span>
@@ -270,94 +330,180 @@ const Create = () => {
                   </p>
                 )}
               </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="company_name">
+                  Company Name: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="company_name"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="company_name"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter company name"
+                    />
+                  )}
+                />
+                {errors.company_name && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.company_name.message}
+                  </p>
+                )}
+              </div>
             </div>
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="broker_name">
+                  Broker Name: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="broker_name"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="broker_name"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter broker name"
+                    />
+                  )}
+                />
+                {errors.broker_name && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.broker_name.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="proposal_date">
+                  Proposal Date: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="proposal_date"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      id="proposal_date"
+                      className="dark:bg-[var(--foreground)] mt-1 text-sm w-full p-2 pr-3 rounded-md border border-1"
+                      type="date"
+                      placeholder="Enter to date"
+                    />
+                  )}
+                />
+                {errors.proposal_date && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.proposal_date.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="premium_payment_mode">
+                  Premium Payment Mode:: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="premium_payment_mode"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue className="" placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel className="">Select</SelectLabel>
+                          <SelectItem value="Monthly">Monthly</SelectItem>
+                          <SelectItem value="Quarterly">Quarterly</SelectItem>
+                          <SelectItem value="Semi-Annual">
+                            Semi-Annual
+                          </SelectItem>
+                          <SelectItem value="Annual">Annual</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.premium_payment_mode && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.premium_payment_mode.message}
+                  </p>
+                )}
+              </div>
+              {/* <div className="relative">
+                <Label className="font-normal" htmlFor="premium_payment_mode">
+                  Premium Payment Mode: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="premium_payment_mode"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="premium_payment_mode"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter mode"
+                    />
+                  )}
+                />
+                {errors.premium_payment_mode && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.premium_payment_mode.message}
+                  </p>
+                )}
+              </div> */}
 
-            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-6 gap-7 md:gap-4">
-              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="sum_insured">
+                  Sum Insured: <span className="text-red-500">*</span>
+                </Label>
                 <Controller
-                  name="home"
+                  name="sum_insured"
                   control={control}
                   render={({ field }) => (
-                    <input
-                      id="home"
+                    <Input
                       {...field}
-                      type="checkbox"
-                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                      id="sum_insured"
+                      className="mt-1"
+                      type="number"
+                      placeholder="Enter amount"
                     />
                   )}
                 />
-                <Label className="font-normal" htmlFor="home">
-                  Home Loan
-                </Label>
-                {errors.home && (
+                {errors.sum_insured && (
                   <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.home.message}
+                    {errors.sum_insured.message}
                   </p>
                 )}
               </div>
-              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+            </div>
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="end_date">
+                  End Date:
+                </Label>
                 <Controller
-                  name="car"
+                  name="end_date"
                   control={control}
                   render={({ field }) => (
                     <input
-                      id="car"
                       {...field}
-                      type="checkbox"
-                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                      id="end_date"
+                      className="dark:bg-[var(--foreground)] mt-1 text-sm w-full p-2 pr-3 rounded-md border border-1"
+                      type="date"
+                      placeholder="Enter to date"
                     />
                   )}
                 />
-                <Label className="font-normal" htmlFor="car">
-                  Car Loan
-                </Label>
-                {errors.car && (
+                {errors.end_date && (
                   <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.car.message}
-                  </p>
-                )}
-              </div>
-              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
-                <Controller
-                  name="personal"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      id="personal"
-                      {...field}
-                      type="checkbox"
-                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                    />
-                  )}
-                />
-                <Label className="font-normal" htmlFor="personal">
-                  Personal Loan
-                </Label>
-                {errors.personal && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.personal.message}
-                  </p>
-                )}
-              </div>
-              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
-                <Controller
-                  name="business"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      id="business"
-                      {...field}
-                      type="checkbox"
-                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                    />
-                  )}
-                />
-                <Label className="font-normal" htmlFor="business">
-                  Business Loan
-                </Label>
-                {errors.business && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.business.message}
+                    {errors.end_date.message}
                   </p>
                 )}
               </div>
@@ -368,7 +514,7 @@ const Create = () => {
               <Button
                 type="button"
                 className="dark:text-white shadow-xl bg-red-600 hover:bg-red-700"
-                onClick={() => navigate("/loans")}
+                onClick={() => navigate("/lics")}
               >
                 Cancel
               </Button>
@@ -381,10 +527,10 @@ const Create = () => {
                 {isLoading ? (
                   <>
                     <Loader2 className="animate-spin mr-2" /> {/* Spinner */}
-                    Submitting...
+                    Updating...
                   </>
                 ) : (
-                  "Submit"
+                  "Update"
                 )}
               </Button>
             </div>
@@ -395,4 +541,4 @@ const Create = () => {
   );
 };
 
-export default Create;
+export default Update;

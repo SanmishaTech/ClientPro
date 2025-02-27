@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -37,58 +37,32 @@ import {
 } from "@/components/ui/command";
 
 const formSchema = z.object({
-  client_id: z.coerce.number().min(1, "client field is required."),
-  demat_account_data: z
-    .array(
-      z.object({
-        client_id: z.coerce.number().min(1, "Client ID field is required."),
-        family_member_id: z.union([z.string(), z.number()]).optional(),
-        account_number: z.string().optional(), // Make it optional
-        have_demat_account: z.string().optional(),
-        service_provider: z.string().optional(), // Make it optional
-      })
-    )
-    .min(1, "At least one mediclaim entry is required.") // Ensure at least one entry
-    .optional(),
-  //   account_number: z
-  //     .string()
-  //     .min(16, "Account Number must be at max 16 characters.")
-  //     .max(16, "Account Number must be at max 16 characters")
-  //     .regex(
-  //       /^[A-Za-z0-9\s]+$/,
-  //       "Account Number can only contain letters and numbers."
-  //     ),
-  //   have_demat_account: z
-  //     .string()
-  //     .min(1, "Account Number must be at max 16 characters."),
-
-  //   service_provider: z
-  //     .string()
-  //     .min(1, "Service Provider field is required.")
-  //     .max(100, "Service Provider must be at max 100 characters")
-  //     .regex(/^[A-Za-z\s]+$/, "Service Provider can only contain letters."),
-  // account_number: z.string().optional(), // Make it optional
-  // have_demat_account: z.string().optional(),
-
-  // service_provider: z.string().optional(), // Make it optional
+  // devta_name: z.string().min(2, "Name must be at least 2 characters"),
+  client_id: z.coerce.number().min(1, "Client field is required."),
+  vehicle: z.coerce.number().min(0, "vehicle insurance field is required."),
+  fire: z.coerce.number().min(0, "fire insurance field is required."),
+  society: z.coerce.number().min(0, "society insurance field is required."),
+  workman: z.coerce.number().min(0, "workman insurance field is required."),
+  personal_accident: z.coerce
+    .number()
+    .min(0, "personal account insurance field is required."),
+  others: z.coerce.number().min(0, "others insurance field is required."),
 });
-
 const Create = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [openClient, setOpenClient] = useState(false);
-  const [clientData, setClientData] = useState(null);
-  const [familyMembers, setFamilyMembers] = useState([]);
-
   const queryClient = useQueryClient();
   const user = JSON.parse(localStorage.getItem("user"));
   const token = user.token;
   const navigate = useNavigate();
   const defaultValues = {
     client_id: "",
-    account_number: "",
-    service_provider: "",
-    have_demat_account: "0",
-    demat_account_data: [],
+    vehicle: "",
+    fire: "",
+    society: "",
+    workman: "",
+    personal_accident: "",
+    others: "",
   };
 
   const {
@@ -116,78 +90,14 @@ const Create = () => {
   const {
     control,
     handleSubmit,
-    watch,
     formState: { errors },
     setError,
     setValue,
   } = useForm({ resolver: zodResolver(formSchema), defaultValues });
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "demat_account_data", // This will store all mediclaim data including client and family members
-  });
-
-  const clientId = watch("client_id");
-
-  const haveDemat = watch("have_demat_account");
-
-  
-
-  const {
-    data: showClientData,
-    isLoading: isShowClientDataLoading,
-    isError: isShowClientDataError,
-  } = useQuery({
-    queryKey: ["showClient", clientId], // This is the query key
-    queryFn: async () => {
-      try {
-        if (!clientId) {
-          return [];
-        }
-        const response = await axios.get(`/api/clients/${clientId}`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        return response.data?.data; // Return the fetched data
-      } catch (error) {
-        throw new Error(error.message);
-      }
-    },
-    enabled: !!clientId, // Enable the query only if clientId is truthy
-  });
-
-  useEffect(() => {
-    if (showClientData) {
-      remove();
-      setClientData(showClientData?.Client);
-      setFamilyMembers(showClientData?.Client?.Family_members);
-      // Add an initial form for the client
-      append({
-        client_id: showClientData?.Client?.id,
-        family_member_id: "", // client doesn't have a family_member_id
-        have_demat_account: "0",
-        account_number: "",
-        service_provider: "",
-      });
-
-      // Append forms for each family member
-      showClientData?.Client?.Family_members?.forEach((familyMember) => {
-        append({
-          client_id: showClientData?.Client?.id,
-          family_member_id: familyMember.id || "",
-          have_demat_account: "0",
-          account_number: "",
-          service_provider: "",
-        });
-      });
-    }
-  }, [showClientData, append]);
-
   const storeMutation = useMutation({
     mutationFn: async (data) => {
-      const response = await axios.post("/api/demat_accounts", data, {
+      const response = await axios.post("/api/general_insurances", data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, // Include the Bearer token
@@ -196,10 +106,10 @@ const Create = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries("demat_accounts");
-      toast.success("Demat Account details Added Successfully");
+      queryClient.invalidateQueries("general_insurances");
+      toast.success("General insurance details Added Successfully");
       setIsLoading(false);
-      navigate("/demat_accounts");
+      navigate("/general_insurances");
     },
     onError: (error) => {
       setIsLoading(false);
@@ -207,55 +117,25 @@ const Create = () => {
         const serverStatus = error.response.data.status;
         const serverErrors = error.response.data.errors;
         if (serverStatus === false) {
-          if (serverErrors.account_number) {
-            setError("account_number", {
+          if (serverErrors.fire) {
+            setError("fire", {
               type: "manual",
-              message: serverErrors.account_number[0], // The error message from the server
-            });
-            // toast.error("The poo has already been taken.");
-          }
-          if (serverErrors.service_provider) {
-            setError("service_provider", {
-              type: "manual",
-              message: serverErrors.service_provider[0], // The error message from the server
-            });
-            // toast.error("The poo has already been taken.");
-          }
-          if (serverErrors.client_id) {
-            setError("client_id", {
-              type: "manual",
-              message: serverErrors.client_id[0], // The error message from the server
+              message: serverErrors.fire[0], // The error message from the server
             });
             // toast.error("The poo has already been taken.");
           }
         } else {
-          toast.error("Failed to add Demat Account details.");
+          toast.error("Failed to add General Insurance details.");
         }
       } else {
-        toast.error("Failed to add Demat Account details.");
+        toast.error("Failed to add General Insurance details.");
       }
     },
   });
   const onSubmit = (data) => {
     setIsLoading(true);
-
-    // if (data.have_demat_account === "0") {
-    //   data.service_provider = "";
-    //   data.account_number = "";
-    // }
     storeMutation.mutate(data);
   };
-
-  useEffect(() => {
-    console.log(errors); // Log errors
-  }, [errors]);
-
-  useEffect(() => {
-    // Ensure that the form is initialized with "0" for 'have_demat_account'
-    if (!watch("have_demat_account")) {
-      setValue("have_demat_account", "0");
-    }
-  }, [setValue, watch]);
 
   return (
     <>
@@ -265,11 +145,11 @@ const Create = () => {
           <div className="flex items-center space-x-2 text-gray-700">
             <span className="">
               <Button
-                onClick={() => navigate("/demat_accounts")}
+                onClick={() => navigate("/general_insurances")}
                 className="p-0 text-blue-700 text-sm font-light"
                 variant="link"
               >
-                Demat Accounts
+                General Insurances
               </Button>
             </span>
             <span className="text-gray-400">/</span>
@@ -279,10 +159,9 @@ const Create = () => {
         {/* breadcrumb ends */}
 
         {/* form style strat */}
-
         <div className="px-5 pb-7 dark:bg-background pt-1 w-full bg-white shadow-lg border  rounded-md">
           <div className="w-full py-3 flex justify-start items-center">
-            <h2 className="text-lg  font-normal">Add Demat Account Details</h2>
+            <h2 className="text-lg  font-normal">Add General Insurance</h2>
           </div>
           {/* row starts */}
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -396,82 +275,148 @@ const Create = () => {
                 )}
               </div>
             </div>
-            {fields.map((item, index) => {
-              const isClient = !item.family_member_id;
-              const memberData = !isClient
-                ? familyMembers.find(
-                    (member) => member.id === item.family_member_id
-                  )
-                : null;
-              const heading = isClient
-                ? "Client"
-                : memberData?.family_member_name || "Family Member";
 
-              return (
-                <div key={item.id}>
-                  <h3 className="font-bold tracking-wide">{heading}</h3>
-
-                  <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
-                    {/* Company Name */}
-                    <div className="relative">
-                      <Label
-                        className="font-normal"
-                        htmlFor={`mediclaim_data[${index}].company_name`}
-                      >
-                        Company Name: <span className="text-red-500">*</span>
-                      </Label>
-                      <Controller
-                        name={`mediclaim_data[${index}].company_name`}
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            {...field}
-                            id={`mediclaim_data[${index}].company_name`}
-                            className="mt-1"
-                            type="text"
-                            placeholder="Enter company name"
-                          />
-                        )}
-                      />
-                      {errors.mediclaim_data?.[index]?.company_name && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
-                          {errors.mediclaim_data[index].company_name?.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-9 gap-7 md:gap-4">
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        remove(index); // Remove the selected form field
-
-                        if (index !== 0) {
-                          // Only update familyMembers when a family member form is removed
-                          setFamilyMembers((prevMembers) => {
-                            const updatedMembers = [...prevMembers];
-                            updatedMembers.splice(index - 1, 1); // Remove the corresponding family member
-                            return updatedMembers;
-                          });
-                        }
-                        // If the client (index 0) is removed, do not update familyMembers.
-                      }}
-                      className="mt-1 bg-red-600 hover:bg-red-700 text-white"
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-6 gap-7 md:gap-4">
+              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+                <Controller
+                  name="vehicle"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      id="vehicle"
+                      {...field}
+                      type="checkbox"
+                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                    />
+                  )}
+                />
+                <Label className="font-normal" htmlFor="vehicle">
+                  Vehicle Insurance
+                </Label>
+                {errors.vehicle && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.vehicle.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+                <Controller
+                  name="fire"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      id="fire"
+                      {...field}
+                      type="checkbox"
+                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                    />
+                  )}
+                />
+                <Label className="font-normal" htmlFor="fire">
+                  Fire Insurance
+                </Label>
+                {errors.fire && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.fire.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+                <Controller
+                  name="society"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      id="society"
+                      {...field}
+                      type="checkbox"
+                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                    />
+                  )}
+                />
+                <Label className="font-normal" htmlFor="society">
+                  society
+                </Label>
+                {errors.personal && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.personal.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+                <Controller
+                  name="workman"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      id="workman"
+                      {...field}
+                      type="checkbox"
+                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                    />
+                  )}
+                />
+                <Label className="font-normal" htmlFor="workman">
+                  Workman
+                </Label>
+                {errors.workman && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.workman.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+                <Controller
+                  name="personal_accident"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      id="personal_accident"
+                      {...field}
+                      type="checkbox"
+                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                    />
+                  )}
+                />
+                <Label className="font-normal" htmlFor="personal_accident">
+                  Personal accident
+                </Label>
+                {errors.personal_accident && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.personal_accident.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+                <Controller
+                  name="others"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      id="others"
+                      {...field}
+                      type="checkbox"
+                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                    />
+                  )}
+                />
+                <Label className="font-normal" htmlFor="others">
+                  other Insurance
+                </Label>
+                {errors.others && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.others.message}
+                  </p>
+                )}
+              </div>
+            </div>
 
             {/* row ends */}
             <div className="w-full gap-4 mt-4 flex justify-end items-center">
               <Button
                 type="button"
                 className="dark:text-white shadow-xl bg-red-600 hover:bg-red-700"
-                onClick={() => navigate("/demat_accounts")}
+                onClick={() => navigate("/general_insurances")}
               >
                 Cancel
               </Button>

@@ -44,6 +44,7 @@ class LoansController extends BaseController
     {
         $loan = new Loan();
         $loan->client_id = $request->input("client_id");
+        $loan->family_member_id = $request->input("family_member_id");
         $loan->home = $request->input("home");
         $loan->personal = $request->input("personal");
         $loan->business = $request->input("business");
@@ -79,6 +80,7 @@ class LoansController extends BaseController
         }
         
         $loan->client_id = $request->input("client_id");
+        $loan->family_member_id = $request->input("family_member_id");
         $loan->home = $request->input("home");
         $loan->personal = $request->input("personal");
         $loan->business = $request->input("business");

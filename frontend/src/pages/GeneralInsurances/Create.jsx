@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Loader2, Check, ChevronsUpDown, CircleX } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 import DatePicker from "react-multi-date-picker";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import {
@@ -20,8 +23,6 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Loader2, Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
@@ -35,22 +36,45 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-
 const formSchema = z.object({
-  // devta_name: z.string().min(2, "Name must be at least 2 characters"),
   client_id: z.coerce.number().min(1, "Client field is required."),
-  vehicle: z.coerce.number().min(0, "vehicle insurance field is required."),
-  fire: z.coerce.number().min(0, "fire insurance field is required."),
-  society: z.coerce.number().min(0, "society insurance field is required."),
-  workman: z.coerce.number().min(0, "workman insurance field is required."),
-  personal_accident: z.coerce
-    .number()
-    .min(0, "personal account insurance field is required."),
-  others: z.coerce.number().min(0, "others insurance field is required."),
+
+  general_insurance_data: z
+    .array(
+      z.object({
+        // Client validation (this can be at index 0)
+        client_id: z.coerce.number().min(1, "Client ID field is required."),
+
+        // Family member validation (for family members, the `family_member_id` is required)
+        // family_member_id: z.unionstring().number().optional(),
+        family_member_id: z.union([z.string(), z.number()]).optional(),
+        // Fields common for both client and family members
+        vehicle: z.coerce
+          .number()
+          .min(0, "vehicle insurance field is required."),
+        fire: z.coerce.number().min(0, "fire insurance field is required."),
+        society: z.coerce
+          .number()
+          .min(0, "society insurance field is required."),
+        workman: z.coerce
+          .number()
+          .min(0, "workman insurance field is required."),
+        personal_accident: z.coerce
+          .number()
+          .min(0, "personal account insurance field is required."),
+        others: z.coerce.number().min(0, "others insurance field is required."),
+      })
+    )
+    .min(1, "At least one General Insurance entry is required.") // Ensure at least one entry
+    .optional(), // Optional so it can be dynamically added or removed
 });
+
 const Create = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [openClient, setOpenClient] = useState(false);
+  const [clientData, setClientData] = useState(null);
+  const [familyMembers, setFamilyMembers] = useState([]);
+
   const queryClient = useQueryClient();
   const user = JSON.parse(localStorage.getItem("user"));
   const token = user.token;
@@ -63,8 +87,8 @@ const Create = () => {
     workman: "",
     personal_accident: "",
     others: "",
+    general_insurance_data: [],
   };
-
   const {
     data: allClientsData,
     isLoading: isAllClientsDataLoading,
@@ -93,7 +117,73 @@ const Create = () => {
     formState: { errors },
     setError,
     setValue,
+    watch,
   } = useForm({ resolver: zodResolver(formSchema), defaultValues });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "general_insurance_data", // This will store all mediclaim data including client and family members
+  });
+
+  const clientId = watch("client_id");
+
+  const {
+    data: showClientData,
+    isLoading: isShowClientDataLoading,
+    isError: isShowClientDataError,
+  } = useQuery({
+    queryKey: ["showClient", clientId], // This is the query key
+    queryFn: async () => {
+      try {
+        if (!clientId) {
+          return [];
+        }
+        const response = await axios.get(`/api/clients/${clientId}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data?.data; // Return the fetched data
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    },
+    enabled: !!clientId, // Enable the query only if clientId is truthy
+  });
+
+  useEffect(() => {
+    if (showClientData) {
+      remove();
+      setClientData(showClientData?.Client);
+      setFamilyMembers(showClientData?.Client?.Family_members);
+      // Add an initial form for the client
+      append({
+        client_id: showClientData?.Client?.id,
+        family_member_id: "", // client doesn't have a family_member_id
+        vehicle: "",
+        fire: "",
+        society: "",
+        workman: "",
+        personal_accident: "",
+        others: "",
+      });
+
+      // Append forms for each family member
+      showClientData?.Client?.Family_members?.forEach((familyMember) => {
+        append({
+          client_id: showClientData?.Client?.id,
+          family_member_id: familyMember.id || "",
+          vehicle: "",
+          fire: "",
+          society: "",
+          workman: "",
+          personal_accident: "",
+          others: "",
+        });
+      });
+    }
+  }, [showClientData, append]);
 
   const storeMutation = useMutation({
     mutationFn: async (data) => {
@@ -107,7 +197,7 @@ const Create = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries("general_insurances");
-      toast.success("General insurance details Added Successfully");
+      toast.success("General Insurance Added Successfully");
       setIsLoading(false);
       navigate("/general_insurances");
     },
@@ -117,10 +207,10 @@ const Create = () => {
         const serverStatus = error.response.data.status;
         const serverErrors = error.response.data.errors;
         if (serverStatus === false) {
-          if (serverErrors.fire) {
-            setError("fire", {
+          if (serverErrors.vehicle) {
+            setError("vehicle", {
               type: "manual",
-              message: serverErrors.fire[0], // The error message from the server
+              message: serverErrors.vehicle[0], // The error message from the server
             });
             // toast.error("The poo has already been taken.");
           }
@@ -136,6 +226,10 @@ const Create = () => {
     setIsLoading(true);
     storeMutation.mutate(data);
   };
+
+  useEffect(() => {
+    console.log(errors); // Log errors
+  }, [errors]);
 
   return (
     <>
@@ -165,7 +259,7 @@ const Create = () => {
           </div>
           {/* row starts */}
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
               {/* <div className="relative">
                 <Label className="font-normal" htmlFor="client_id">
                   Client: <span className="text-red-500">*</span>
@@ -275,141 +369,258 @@ const Create = () => {
                 )}
               </div>
             </div>
+            {fields.map((item, index) => {
+              // const isClient = index === 0;
+              // const familyMember = !isClient ? familyMembers[index - 1] : null;
+              // const isClient = index === 0;
+              // const familyMember = !isClient ? familyMembers[index - 1] : null;
+              const isClient = !item.family_member_id;
+              // For family members, find the matching member from the familyMembers state
+              const memberData = !isClient
+                ? familyMembers.find(
+                    (member) => member.id === item.family_member_id
+                  )
+                : null;
+              const heading = isClient
+                ? "Client"
+                : memberData?.family_member_name || "Family Member";
 
-            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-6 gap-7 md:gap-4">
-              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
-                <Controller
-                  name="vehicle"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      id="vehicle"
-                      {...field}
-                      type="checkbox"
-                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                    />
-                  )}
-                />
-                <Label className="font-normal" htmlFor="vehicle">
-                  Vehicle Insurance
-                </Label>
-                {errors.vehicle && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.vehicle.message}
-                  </p>
-                )}
-              </div>
-              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
-                <Controller
-                  name="fire"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      id="fire"
-                      {...field}
-                      type="checkbox"
-                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                    />
-                  )}
-                />
-                <Label className="font-normal" htmlFor="fire">
-                  Fire Insurance
-                </Label>
-                {errors.fire && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.fire.message}
-                  </p>
-                )}
-              </div>
-              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
-                <Controller
-                  name="society"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      id="society"
-                      {...field}
-                      type="checkbox"
-                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                    />
-                  )}
-                />
-                <Label className="font-normal" htmlFor="society">
-                  society
-                </Label>
-                {errors.personal && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.personal.message}
-                  </p>
-                )}
-              </div>
-              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
-                <Controller
-                  name="workman"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      id="workman"
-                      {...field}
-                      type="checkbox"
-                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                    />
-                  )}
-                />
-                <Label className="font-normal" htmlFor="workman">
-                  Workman
-                </Label>
-                {errors.workman && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.workman.message}
-                  </p>
-                )}
-              </div>
-              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
-                <Controller
-                  name="personal_accident"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      id="personal_accident"
-                      {...field}
-                      type="checkbox"
-                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                    />
-                  )}
-                />
-                <Label className="font-normal" htmlFor="personal_accident">
-                  Personal accident
-                </Label>
-                {errors.personal_accident && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.personal_accident.message}
-                  </p>
-                )}
-              </div>
-              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
-                <Controller
-                  name="others"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      id="others"
-                      {...field}
-                      type="checkbox"
-                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                    />
-                  )}
-                />
-                <Label className="font-normal" htmlFor="others">
-                  other Insurance
-                </Label>
-                {errors.others && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.others.message}
-                  </p>
-                )}
-              </div>
-            </div>
+              return (
+                <div key={item.id}>
+                  {/* <h3>
+                    {isClient ? "Client" : familyMember?.family_member_name}
+                  </h3> */}
+                  {/* <h3 className="font-bold tracking-wide">
+                    {isClient
+                      ? // For the first form, show "Client"
+                        "Client"
+                      : // After removing the client, family members should be properly indexed
+                        familyMember?.family_member_name || "Family Member"}
+                  </h3> */}
+                  <h3 className="font-bold tracking-wide">{heading}</h3>
+
+                  <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-6 gap-7 md:gap-4">
+                    <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+                      <Controller
+                        name={`general_insurance_data[${index}].vehicle`}
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            id={`general_insurance_data[${index}].vehicle`}
+                            {...field}
+                            type="checkbox"
+                            className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                          />
+                        )}
+                      />
+                      <Label
+                        className="font-normal"
+                        htmlFor={`general_insurance_data[${index}].vehicle`}
+                      >
+                        Vehicle Insurance
+                      </Label>
+                      {errors.general_insurance_data?.[index]?.vehicle && (
+                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                          {
+                            errors.general_insurance_data[index]?.vehicle
+                              .message
+                          }
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+                      <Controller
+                        name={`general_insurance_data[${index}].fire`}
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            id={`general_insurance_data[${index}].fire`}
+                            {...field}
+                            type="checkbox"
+                            className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                          />
+                        )}
+                      />
+                      <Label
+                        className="font-normal"
+                        htmlFor={`general_insurance_data[${index}].fire`}
+                      >
+                        Fire Insurance
+                      </Label>
+                      {errors.general_insurance_data?.[index]?.fire && (
+                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                          {errors.general_insurance_data[index]?.fire.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+                      <Controller
+                        name={`general_insurance_data[${index}].society`}
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            id={`general_insurance_data[${index}].society`}
+                            {...field}
+                            type="checkbox"
+                            className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                          />
+                        )}
+                      />
+                      <Label
+                        className="font-normal"
+                        htmlFor={`general_insurance_data[${index}].society`}
+                      >
+                        Society
+                      </Label>
+                      {errors.general_insurance_data?.[index]?.society && (
+                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                          {
+                            errors.general_insurance_data[index]?.society
+                              .message
+                          }
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+                      <Controller
+                        name={`general_insurance_data[${index}].workman`}
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            id={`general_insurance_data[${index}].workman`}
+                            {...field}
+                            type="checkbox"
+                            className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                          />
+                        )}
+                      />
+                      <Label
+                        className="font-normal"
+                        htmlFor={`general_insurance_data[${index}].workman`}
+                      >
+                        Workman
+                      </Label>
+                      {errors.general_insurance_data?.[index]?.workman && (
+                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                          {
+                            errors.general_insurance_data[index]?.workman
+                              .message
+                          }
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+                      <Controller
+                        name={`general_insurance_data[${index}].personal_accident`}
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            id={`general_insurance_data[${index}].personal_accident`}
+                            {...field}
+                            type="checkbox"
+                            className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                          />
+                        )}
+                      />
+                      <Label
+                        className="font-normal"
+                        htmlFor={`general_insurance_data[${index}].personal_accident`}
+                      >
+                        Personal Accident
+                      </Label>
+                      {errors.general_insurance_data?.[index]
+                        ?.personal_accident && (
+                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                          {
+                            errors.general_insurance_data[index]
+                              ?.personal_accident.message
+                          }
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+                      <Controller
+                        name={`general_insurance_data[${index}].others`}
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            id={`general_insurance_data[${index}].others`}
+                            {...field}
+                            type="checkbox"
+                            className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                          />
+                        )}
+                      />
+                      <Label
+                        className="font-normal"
+                        htmlFor={`general_insurance_data[${index}].others`}
+                      >
+                        Others
+                      </Label>
+                      {errors.general_insurance_data?.[index]?.others && (
+                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                          {errors.general_insurance_data[index]?.others.message}
+                        </p>
+                      )}
+                    </div>
+                    {/* <Button
+                      type="button"
+                      onClick={() => remove(index)} // Remove family member
+                      className="mt-  bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      Remove
+                    </Button> */}
+                  </div>
+                  <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-9 gap-7 md:gap-4">
+                    {/* <Button
+                      type="button"
+                      onClick={() => {
+                        remove(index); // Remove the family member or client form
+
+                        if (index === 0) {
+                          // If the client is removed, remove the client from the familyMembers array
+                          setFamilyMembers(familyMembers.slice(1)); // Remove the client (first element)
+                        } else {
+                          // If a family member is removed, just remove that member
+                          setFamilyMembers((prevMembers) => {
+                            const updatedMembers = [...prevMembers];
+                            updatedMembers.splice(index - 1, 1); // Remove the family member corresponding to the index
+                            return updatedMembers;
+                          });
+                        }
+                      }}
+                      className="mt-1 bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      Remove
+                    </Button> */}
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        remove(index); // Remove the selected form field
+
+                        if (index !== 0) {
+                          // Only update familyMembers when a family member form is removed
+                          setFamilyMembers((prevMembers) => {
+                            const updatedMembers = [...prevMembers];
+                            updatedMembers.splice(index - 1, 1); // Remove the corresponding family member
+                            return updatedMembers;
+                          });
+                        }
+                        // If the client (index 0) is removed, do not update familyMembers.
+                      }}
+                      className="mt-1 bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
 
             {/* row ends */}
             <div className="w-full gap-4 mt-4 flex justify-end items-center">

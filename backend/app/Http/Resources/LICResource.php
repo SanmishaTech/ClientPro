@@ -19,6 +19,8 @@ class LICResource extends JsonResource
             'client_id'         => $this->client_id,
             'client_name'         => $this->client ? $this->client->client_name : "",
             'company_name'      => $this->company_name,
+            'family_member_id'         => $this->family_member_id,
+            'family_members'         =>  $this->familyMember ? $this->familyMember->family_member_name : "",
             'broker_name'       => $this->broker_name,
             'proposal_date'     => $this->proposal_date,
             'end_date'     => $this->end_date,

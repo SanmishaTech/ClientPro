@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import DatePicker from "react-multi-date-picker";
-import TimePicker from "react-multi-date-picker/plugins/time_picker";
+
 import {
   Select,
   SelectContent,
@@ -17,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2, Check, ChevronsUpDown } from "lucide-react";
@@ -38,27 +37,34 @@ import {
 
 const formSchema = z.object({
   // devta_name: z.string().min(2, "Name must be at least 2 characters"),
-  client_id: z.coerce.number().min(1, "client field is required."),
-  family_member_id: z.coerce.number().optional(),
-  home: z.coerce.number().min(0, "home loan field is required."),
-  car: z.coerce.number().min(0, "home loan field is required."),
-  personal: z.coerce.number().min(0, "home loan field is required."),
-  business: z.coerce.number().min(0, "home loan field is required."),
+  client_id: z.coerce.number().min(1, "Client field is required."),
+  vehicle: z.coerce.number().min(0, "vehicle insurance field is required."),
+  fire: z.coerce.number().min(0, "fire insurance field is required."),
+  society: z.coerce.number().min(0, "society insurance field is required."),
+  workman: z.coerce.number().min(0, "workman insurance field is required."),
+  personal_accident: z.coerce
+    .number()
+    .min(0, "personal account insurance field is required."),
+  others: z.coerce.number().min(0, "others insurance field is required."),
 });
-const Create = () => {
+
+const Update = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [openClient, setOpenClient] = useState(false);
   const queryClient = useQueryClient();
+  const { id } = useParams();
   const user = JSON.parse(localStorage.getItem("user"));
   const token = user.token;
   const navigate = useNavigate();
+
   const defaultValues = {
     client_id: "",
-    home: "",
-    car: "",
-    personal: "",
-    business: "",
-    family_member_id: "",
+    vehicle: "",
+    fire: "",
+    society: "",
+    workman: "",
+    personal_accident: "",
+    others: "",
   };
 
   const {
@@ -87,13 +93,53 @@ const Create = () => {
     control,
     handleSubmit,
     formState: { errors },
-    setError,
     setValue,
+    setError,
   } = useForm({ resolver: zodResolver(formSchema), defaultValues });
 
-  const storeMutation = useMutation({
+  const {
+    data: editGeneralInsurance,
+    isLoading: isEditGeneralInsuranceDataLoading,
+    isError: isEditGeneralInsuranceDataError,
+  } = useQuery({
+    queryKey: ["editGeneralInsurance", id], // This is the query key
+    queryFn: async () => {
+      try {
+        const response = await axios.get(`/api/general_insurances/${id}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data?.data; // Return the fetched data
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    },
+    keepPreviousData: true, // Keep previous data until the new data is available
+  });
+
+  useEffect(() => {
+    if (editGeneralInsurance) {
+      setValue(
+        "client_id",
+        editGeneralInsurance.GeneralInsurance?.client_id || ""
+      );
+      setValue("vehicle", editGeneralInsurance.GeneralInsurance?.vehicle || "");
+      setValue("fire", editGeneralInsurance.GeneralInsurance?.fire || "");
+      setValue("society", editGeneralInsurance.GeneralInsurance?.society || "");
+      setValue("workman", editGeneralInsurance.GeneralInsurance?.workman || "");
+      setValue(
+        "personal_accident",
+        editGeneralInsurance.GeneralInsurance?.personal_accident || ""
+      );
+      setValue("others", editGeneralInsurance.GeneralInsurance?.others || "");
+    }
+  }, [editGeneralInsurance, setValue]);
+
+  const updateMutation = useMutation({
     mutationFn: async (data) => {
-      const response = await axios.post("/api/loans", data, {
+      const response = await axios.put(`/api/general_insurances/${id}`, data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, // Include the Bearer token
@@ -102,10 +148,11 @@ const Create = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries("loans");
-      toast.success("Loan details Added Successfully");
+      queryClient.invalidateQueries("general_insurances");
+
+      toast.success("Insurance details Updated Successfully");
       setIsLoading(false);
-      navigate("/loans");
+      navigate("/general_insurances");
     },
     onError: (error) => {
       setIsLoading(false);
@@ -121,16 +168,16 @@ const Create = () => {
             // toast.error("The poo has already been taken.");
           }
         } else {
-          toast.error("Failed to add Loan details.");
+          toast.error("Failed to Update General Insurance details.");
         }
       } else {
-        toast.error("Failed to add Loan details.");
+        toast.error("Failed to Update General Insurance details.");
       }
     },
   });
   const onSubmit = (data) => {
     setIsLoading(true);
-    storeMutation.mutate(data);
+    updateMutation.mutate(data);
   };
 
   return (
@@ -141,15 +188,15 @@ const Create = () => {
           <div className="flex items-center space-x-2 text-gray-700">
             <span className="">
               <Button
-                onClick={() => navigate("/loans")}
+                onClick={() => navigate("/general_insurances")}
                 className="p-0 text-blue-700 text-sm font-light"
                 variant="link"
               >
-                Loans
+                General Insurances
               </Button>
             </span>
             <span className="text-gray-400">/</span>
-            <span className="dark:text-gray-300">Add</span>
+            <span className="dark:text-gray-300">Edit</span>
           </div>
         </div>
         {/* breadcrumb ends */}
@@ -157,7 +204,7 @@ const Create = () => {
         {/* form style strat */}
         <div className="px-5 pb-7 dark:bg-background pt-1 w-full bg-white shadow-lg border  rounded-md">
           <div className="w-full py-3 flex justify-start items-center">
-            <h2 className="text-lg  font-normal">Add Loan</h2>
+            <h2 className="text-lg  font-normal">Add General Insurance</h2>
           </div>
           {/* row starts */}
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -194,7 +241,7 @@ const Create = () => {
                   </p>
                 )}
               </div> */}
-              <div className="relative mt-2 flex flex-col gap-1">
+                       <div className="relative mt-2 flex flex-col gap-1">
                 <Label className="font-normal" htmlFor="client_id">
                   Client: <span className="text-red-500">*</span>
                 </Label>
@@ -275,63 +322,75 @@ const Create = () => {
             <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-6 gap-7 md:gap-4">
               <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
                 <Controller
-                  name="home"
+                  name="vehicle"
                   control={control}
                   render={({ field }) => (
                     <input
-                      id="home"
+                      id="vehicle"
                       {...field}
+                      checked={field.value === 1}
+                      onChange={(e) => {
+                        field.onChange(e.target.checked ? 1 : 0);
+                      }}
                       type="checkbox"
                       className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                     />
                   )}
                 />
-                <Label className="font-normal" htmlFor="home">
-                  Home Loan
+                <Label className="font-normal" htmlFor="vehicle">
+                  Vehicle Insurance
                 </Label>
-                {errors.home && (
+                {errors.vehicle && (
                   <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.home.message}
+                    {errors.vehicle.message}
                   </p>
                 )}
               </div>
               <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
                 <Controller
-                  name="car"
+                  name="fire"
                   control={control}
                   render={({ field }) => (
                     <input
-                      id="car"
+                      id="fire"
                       {...field}
+                      checked={field.value === 1}
+                      onChange={(e) => {
+                        field.onChange(e.target.checked ? 1 : 0);
+                      }}
                       type="checkbox"
                       className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                     />
                   )}
                 />
-                <Label className="font-normal" htmlFor="car">
-                  Car Loan
+                <Label className="font-normal" htmlFor="fire">
+                  Fire Insurance
                 </Label>
-                {errors.car && (
+                {errors.fire && (
                   <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.car.message}
+                    {errors.fire.message}
                   </p>
                 )}
               </div>
               <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
                 <Controller
-                  name="personal"
+                  name="society"
                   control={control}
                   render={({ field }) => (
                     <input
-                      id="personal"
+                      id="society"
                       {...field}
+                      checked={field.value === 1}
+                      onChange={(e) => {
+                        field.onChange(e.target.checked ? 1 : 0);
+                      }}
                       type="checkbox"
                       className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                     />
                   )}
                 />
-                <Label className="font-normal" htmlFor="personal">
-                  Personal Loan
+                <Label className="font-normal" htmlFor="society">
+                  society
                 </Label>
                 {errors.personal && (
                   <p className="absolute text-red-500 text-sm mt-1 left-0">
@@ -341,23 +400,79 @@ const Create = () => {
               </div>
               <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
                 <Controller
-                  name="business"
+                  name="workman"
                   control={control}
                   render={({ field }) => (
                     <input
-                      id="business"
+                      id="workman"
                       {...field}
+                      checked={field.value === 1}
+                      onChange={(e) => {
+                        field.onChange(e.target.checked ? 1 : 0);
+                      }}
                       type="checkbox"
                       className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                     />
                   )}
                 />
-                <Label className="font-normal" htmlFor="business">
-                  Business Loan
+                <Label className="font-normal" htmlFor="workman">
+                  Workman
                 </Label>
-                {errors.business && (
+                {errors.workman && (
                   <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.business.message}
+                    {errors.workman.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+                <Controller
+                  name="personal_accident"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      id="personal_accident"
+                      {...field}
+                      checked={field.value === 1}
+                      onChange={(e) => {
+                        field.onChange(e.target.checked ? 1 : 0);
+                      }}
+                      type="checkbox"
+                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                    />
+                  )}
+                />
+                <Label className="font-normal" htmlFor="personal_accident">
+                  Personal accident
+                </Label>
+                {errors.personal_accident && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.personal_accident.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+                <Controller
+                  name="others"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      id="others"
+                      {...field}
+                      checked={field.value === 1}
+                      onChange={(e) => {
+                        field.onChange(e.target.checked ? 1 : 0);
+                      }}
+                      type="checkbox"
+                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                    />
+                  )}
+                />
+                <Label className="font-normal" htmlFor="others">
+                  other Insurance
+                </Label>
+                {errors.others && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.others.message}
                   </p>
                 )}
               </div>
@@ -368,7 +483,7 @@ const Create = () => {
               <Button
                 type="button"
                 className="dark:text-white shadow-xl bg-red-600 hover:bg-red-700"
-                onClick={() => navigate("/loans")}
+                onClick={() => navigate("/general_insurances")}
               >
                 Cancel
               </Button>
@@ -381,10 +496,10 @@ const Create = () => {
                 {isLoading ? (
                   <>
                     <Loader2 className="animate-spin mr-2" /> {/* Spinner */}
-                    Submitting...
+                    Updating...
                   </>
                 ) : (
-                  "Submit"
+                  "Update"
                 )}
               </Button>
             </div>
@@ -395,4 +510,4 @@ const Create = () => {
   );
 };
 
-export default Create;
+export default Update;

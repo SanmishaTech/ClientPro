@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -37,58 +37,51 @@ import {
 } from "@/components/ui/command";
 
 const formSchema = z.object({
-  client_id: z.coerce.number().min(1, "client field is required."),
-  demat_account_data: z
-    .array(
-      z.object({
-        client_id: z.coerce.number().min(1, "Client ID field is required."),
-        family_member_id: z.union([z.string(), z.number()]).optional(),
-        account_number: z.string().optional(), // Make it optional
-        have_demat_account: z.string().optional(),
-        service_provider: z.string().optional(), // Make it optional
-      })
-    )
-    .min(1, "At least one mediclaim entry is required.") // Ensure at least one entry
-    .optional(),
-  //   account_number: z
-  //     .string()
-  //     .min(16, "Account Number must be at max 16 characters.")
-  //     .max(16, "Account Number must be at max 16 characters")
-  //     .regex(
-  //       /^[A-Za-z0-9\s]+$/,
-  //       "Account Number can only contain letters and numbers."
-  //     ),
-  //   have_demat_account: z
-  //     .string()
-  //     .min(1, "Account Number must be at max 16 characters."),
-
-  //   service_provider: z
-  //     .string()
-  //     .min(1, "Service Provider field is required.")
-  //     .max(100, "Service Provider must be at max 100 characters")
-  //     .regex(/^[A-Za-z\s]+$/, "Service Provider can only contain letters."),
-  // account_number: z.string().optional(), // Make it optional
-  // have_demat_account: z.string().optional(),
-
-  // service_provider: z.string().optional(), // Make it optional
+  // devta_name: z.string().min(2, "Name must be at least 2 characters"),
+  client_id: z.coerce.number().min(1, "Client field is required."),
+  company_name: z
+    .string()
+    .min(2, "Company name must be at least 2 characters")
+    .max(100, "Company name must be at max 100 characters")
+    .regex(
+      /^[A-Za-z\s\u0900-\u097F]+$/,
+      "Company name can only contain letters."
+    ),
+  sum_insured: z.coerce
+    .number()
+    .min(1, "Sum Insured field is required")
+    .max(99999999, "Sum Insured must not exceed 9,99,99,999"),
+  broker_name: z
+    .string()
+    .min(2, "Broker name must be at least 2 characters")
+    .max(100, "Broker name must be at max 100 characters")
+    .regex(
+      /^[A-Za-z\s\u0900-\u097F]+$/,
+      "Broker name can only contain letters."
+    ),
+  proposal_date: z.string().min(1, "Proposal date field is required."),
+  premium_payment_mode: z
+    .string()
+    .min(1, "Premium payment mode field is required.")
+    .max(100, "Premium payment mode field must be at max 100 characters"),
+  end_date: z.string().optional(),
 });
-
 const Create = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [openClient, setOpenClient] = useState(false);
-  const [clientData, setClientData] = useState(null);
-  const [familyMembers, setFamilyMembers] = useState([]);
-
   const queryClient = useQueryClient();
   const user = JSON.parse(localStorage.getItem("user"));
   const token = user.token;
   const navigate = useNavigate();
   const defaultValues = {
     client_id: "",
-    account_number: "",
-    service_provider: "",
-    have_demat_account: "0",
-    demat_account_data: [],
+    company_name: "",
+    broker_name: "",
+    proposal_date: "",
+    company_name: "",
+    premium_payment_mode: "",
+    sum_insured: "",
+    end_date: "",
   };
 
   const {
@@ -116,78 +109,14 @@ const Create = () => {
   const {
     control,
     handleSubmit,
-    watch,
     formState: { errors },
     setError,
     setValue,
   } = useForm({ resolver: zodResolver(formSchema), defaultValues });
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "demat_account_data", // This will store all mediclaim data including client and family members
-  });
-
-  const clientId = watch("client_id");
-
-  const haveDemat = watch("have_demat_account");
-
-  
-
-  const {
-    data: showClientData,
-    isLoading: isShowClientDataLoading,
-    isError: isShowClientDataError,
-  } = useQuery({
-    queryKey: ["showClient", clientId], // This is the query key
-    queryFn: async () => {
-      try {
-        if (!clientId) {
-          return [];
-        }
-        const response = await axios.get(`/api/clients/${clientId}`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        return response.data?.data; // Return the fetched data
-      } catch (error) {
-        throw new Error(error.message);
-      }
-    },
-    enabled: !!clientId, // Enable the query only if clientId is truthy
-  });
-
-  useEffect(() => {
-    if (showClientData) {
-      remove();
-      setClientData(showClientData?.Client);
-      setFamilyMembers(showClientData?.Client?.Family_members);
-      // Add an initial form for the client
-      append({
-        client_id: showClientData?.Client?.id,
-        family_member_id: "", // client doesn't have a family_member_id
-        have_demat_account: "0",
-        account_number: "",
-        service_provider: "",
-      });
-
-      // Append forms for each family member
-      showClientData?.Client?.Family_members?.forEach((familyMember) => {
-        append({
-          client_id: showClientData?.Client?.id,
-          family_member_id: familyMember.id || "",
-          have_demat_account: "0",
-          account_number: "",
-          service_provider: "",
-        });
-      });
-    }
-  }, [showClientData, append]);
-
   const storeMutation = useMutation({
     mutationFn: async (data) => {
-      const response = await axios.post("/api/demat_accounts", data, {
+      const response = await axios.post("/api/lics", data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, // Include the Bearer token
@@ -196,10 +125,10 @@ const Create = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries("demat_accounts");
-      toast.success("Demat Account details Added Successfully");
+      queryClient.invalidateQueries("lics");
+      toast.success("LIC details Added Successfully");
       setIsLoading(false);
-      navigate("/demat_accounts");
+      navigate("/lics");
     },
     onError: (error) => {
       setIsLoading(false);
@@ -207,55 +136,25 @@ const Create = () => {
         const serverStatus = error.response.data.status;
         const serverErrors = error.response.data.errors;
         if (serverStatus === false) {
-          if (serverErrors.account_number) {
-            setError("account_number", {
+          if (serverErrors.company_name) {
+            setError("company_name", {
               type: "manual",
-              message: serverErrors.account_number[0], // The error message from the server
-            });
-            // toast.error("The poo has already been taken.");
-          }
-          if (serverErrors.service_provider) {
-            setError("service_provider", {
-              type: "manual",
-              message: serverErrors.service_provider[0], // The error message from the server
-            });
-            // toast.error("The poo has already been taken.");
-          }
-          if (serverErrors.client_id) {
-            setError("client_id", {
-              type: "manual",
-              message: serverErrors.client_id[0], // The error message from the server
+              message: serverErrors.company_name[0], // The error message from the server
             });
             // toast.error("The poo has already been taken.");
           }
         } else {
-          toast.error("Failed to add Demat Account details.");
+          toast.error("Failed to add LIC details.");
         }
       } else {
-        toast.error("Failed to add Demat Account details.");
+        toast.error("Failed to add LIC details.");
       }
     },
   });
   const onSubmit = (data) => {
     setIsLoading(true);
-
-    // if (data.have_demat_account === "0") {
-    //   data.service_provider = "";
-    //   data.account_number = "";
-    // }
     storeMutation.mutate(data);
   };
-
-  useEffect(() => {
-    console.log(errors); // Log errors
-  }, [errors]);
-
-  useEffect(() => {
-    // Ensure that the form is initialized with "0" for 'have_demat_account'
-    if (!watch("have_demat_account")) {
-      setValue("have_demat_account", "0");
-    }
-  }, [setValue, watch]);
 
   return (
     <>
@@ -265,11 +164,11 @@ const Create = () => {
           <div className="flex items-center space-x-2 text-gray-700">
             <span className="">
               <Button
-                onClick={() => navigate("/demat_accounts")}
+                onClick={() => navigate("/lics")}
                 className="p-0 text-blue-700 text-sm font-light"
                 variant="link"
               >
-                Demat Accounts
+                LIC
               </Button>
             </span>
             <span className="text-gray-400">/</span>
@@ -279,14 +178,13 @@ const Create = () => {
         {/* breadcrumb ends */}
 
         {/* form style strat */}
-
         <div className="px-5 pb-7 dark:bg-background pt-1 w-full bg-white shadow-lg border  rounded-md">
           <div className="w-full py-3 flex justify-start items-center">
-            <h2 className="text-lg  font-normal">Add Demat Account Details</h2>
+            <h2 className="text-lg  font-normal">Add LIC</h2>
           </div>
           {/* row starts */}
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
               {/* <div className="relative">
                 <Label className="font-normal" htmlFor="client_id">
                   Client: <span className="text-red-500">*</span>
@@ -395,83 +293,191 @@ const Create = () => {
                   </p>
                 )}
               </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="company_name">
+                  Company Name: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="company_name"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="company_name"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter company name"
+                    />
+                  )}
+                />
+                {errors.company_name && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.company_name.message}
+                  </p>
+                )}
+              </div>
             </div>
-            {fields.map((item, index) => {
-              const isClient = !item.family_member_id;
-              const memberData = !isClient
-                ? familyMembers.find(
-                    (member) => member.id === item.family_member_id
-                  )
-                : null;
-              const heading = isClient
-                ? "Client"
-                : memberData?.family_member_name || "Family Member";
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="broker_name">
+                  Broker Name: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="broker_name"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="broker_name"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter broker name"
+                    />
+                  )}
+                />
+                {errors.broker_name && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.broker_name.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="proposal_date">
+                  Proposal Date: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="proposal_date"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      id="proposal_date"
+                      className="dark:bg-[var(--foreground)] mt-1 text-sm w-full p-2 pr-3 rounded-md border border-1"
+                      type="date"
+                      placeholder="Enter to date"
+                    />
+                  )}
+                />
+                {errors.proposal_date && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.proposal_date.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="premium_payment_mode">
+                  Premium Payment Mode:: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="premium_payment_mode"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue className="" placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel className="">Select</SelectLabel>
+                          <SelectItem value="Monthly">Monthly</SelectItem>
+                          <SelectItem value="Quarterly">Quarterly</SelectItem>
+                          <SelectItem value="Semi-Annual">
+                            Semi-Annual
+                          </SelectItem>
+                          <SelectItem value="Annual">Annual</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.premium_payment_mode && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.premium_payment_mode.message}
+                  </p>
+                )}
+              </div>
+              {/* <div className="relative">
+                <Label className="font-normal" htmlFor="premium_payment_mode">
+                  Premium Payment Mode: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="premium_payment_mode"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="premium_payment_mode"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter mode"
+                    />
+                  )}
+                />
+                {errors.premium_payment_mode && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.premium_payment_mode.message}
+                  </p>
+                )}
+              </div> */}
 
-              return (
-                <div key={item.id}>
-                  <h3 className="font-bold tracking-wide">{heading}</h3>
-
-                  <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
-                    {/* Company Name */}
-                    <div className="relative">
-                      <Label
-                        className="font-normal"
-                        htmlFor={`mediclaim_data[${index}].company_name`}
-                      >
-                        Company Name: <span className="text-red-500">*</span>
-                      </Label>
-                      <Controller
-                        name={`mediclaim_data[${index}].company_name`}
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            {...field}
-                            id={`mediclaim_data[${index}].company_name`}
-                            className="mt-1"
-                            type="text"
-                            placeholder="Enter company name"
-                          />
-                        )}
-                      />
-                      {errors.mediclaim_data?.[index]?.company_name && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
-                          {errors.mediclaim_data[index].company_name?.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-9 gap-7 md:gap-4">
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        remove(index); // Remove the selected form field
-
-                        if (index !== 0) {
-                          // Only update familyMembers when a family member form is removed
-                          setFamilyMembers((prevMembers) => {
-                            const updatedMembers = [...prevMembers];
-                            updatedMembers.splice(index - 1, 1); // Remove the corresponding family member
-                            return updatedMembers;
-                          });
-                        }
-                        // If the client (index 0) is removed, do not update familyMembers.
-                      }}
-                      className="mt-1 bg-red-600 hover:bg-red-700 text-white"
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
+              <div className="relative">
+                <Label className="font-normal" htmlFor="sum_insured">
+                  Sum Insured: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="sum_insured"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="sum_insured"
+                      className="mt-1"
+                      type="number"
+                      placeholder="Enter amount"
+                    />
+                  )}
+                />
+                {errors.sum_insured && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.sum_insured.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="end_date">
+                  End Date:
+                </Label>
+                <Controller
+                  name="end_date"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      id="end_date"
+                      className="dark:bg-[var(--foreground)] mt-1 text-sm w-full p-2 pr-3 rounded-md border border-1"
+                      type="date"
+                      placeholder="Enter to date"
+                    />
+                  )}
+                />
+                {errors.end_date && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.end_date.message}
+                  </p>
+                )}
+              </div>
+            </div>
 
             {/* row ends */}
             <div className="w-full gap-4 mt-4 flex justify-end items-center">
               <Button
                 type="button"
                 className="dark:text-white shadow-xl bg-red-600 hover:bg-red-700"
-                onClick={() => navigate("/demat_accounts")}
+                onClick={() => navigate("/lics")}
               >
                 Cancel
               </Button>
