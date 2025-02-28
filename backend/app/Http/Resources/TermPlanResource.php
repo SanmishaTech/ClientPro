@@ -23,7 +23,7 @@ class TermPlanResource extends JsonResource
             'term_company_name'      => $this->term_company_name,
             'broker_name'       => $this->broker_name,
             'policy_number'      => $this->policy_number,
-            'plan_number'      => $this->plan_number,
+            'plan_name'      => $this->plan_name,
             'premium_without_gst'      => $this->premium_without_gst,
             'proposal_date'     => $this->proposal_date,
             'end_date'     => $this->end_date,
