@@ -505,7 +505,7 @@ const Update = () => {
                   </h3> */}
                   <h3 className="font-bold tracking-wide">{heading}</h3>
 
-                  <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+                  <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
                     {/* Company Name */}
                     <div className="relative">
                       <Label
@@ -528,7 +528,7 @@ const Update = () => {
                         )}
                       />
                       {errors.term_plan_data?.[index]?.term_company_name && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                        <p className=" text-red-500 text-sm mt-1 left-0">
                           {
                             errors.term_plan_data[index].term_company_name
                               ?.message
@@ -559,7 +559,7 @@ const Update = () => {
                         )}
                       />
                       {errors.term_plan_data?.[index]?.broker_name && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                        <p className=" text-red-500 text-sm mt-1 left-0">
                           {errors.term_plan_data[index].broker_name?.message}
                         </p>
                       )}
@@ -587,14 +587,14 @@ const Update = () => {
                         )}
                       />
                       {errors.term_plan_data?.[index]?.proposal_date && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                        <p className=" text-red-500 text-sm mt-1 left-0">
                           {errors.term_plan_data[index].proposal_date?.message}
                         </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+                  <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
                     {/* Sum Insured */}
                     <div className="relative">
                       <Label
@@ -617,7 +617,7 @@ const Update = () => {
                         )}
                       />
                       {errors.term_plan_data?.[index]?.sum_insured && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                        <p className=" text-red-500 text-sm mt-1 left-0">
                           {errors.term_plan_data[index].sum_insured?.message}
                         </p>
                       )}
@@ -660,7 +660,7 @@ const Update = () => {
                         )}
                       />
                       {errors.term_plan_data?.[index]?.premium_payment_mode && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                        <p className=" text-red-500 text-sm mt-1 left-0">
                           {
                             errors.term_plan_data[index].premium_payment_mode
                               ?.message
@@ -691,13 +691,13 @@ const Update = () => {
                         )}
                       />
                       {errors.term_plan_data?.[index]?.end_date && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                        <p className=" text-red-500 text-sm mt-1 left-0">
                           {errors.term_plan_data[index].end_date?.message}
                         </p>
                       )}
                     </div>
                   </div>
-                  <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+                  <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
                     <div className="relative">
                       <Label
                         className="font-normal"
@@ -719,7 +719,7 @@ const Update = () => {
                         )}
                       />
                       {errors.term_plan_data?.[index]?.policy_number && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                        <p className=" text-red-500 text-sm mt-1 left-0">
                           {errors.term_plan_data[index].policy_number?.message}
                         </p>
                       )}
@@ -745,7 +745,7 @@ const Update = () => {
                         )}
                       />
                       {errors.term_plan_data?.[index]?.plan_name && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                        <p className=" text-red-500 text-sm mt-1 left-0">
                           {errors.term_plan_data[index].plan_name?.message}
                         </p>
                       )}
@@ -772,7 +772,7 @@ const Update = () => {
                         )}
                       />
                       {errors.term_plan_data?.[index]?.premium_without_gst && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                        <p className=" text-red-500 text-sm mt-1 left-0">
                           {
                             errors.term_plan_data[index].premium_without_gst
                               ?.message

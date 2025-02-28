@@ -750,6 +750,13 @@ const Create = () => {
                           )}
                         </div>
                         <div className="relative mt-3">
+                          <Label
+                            className="font-normal"
+                            htmlFor={`family_members[${index}].relation`}
+                          >
+                            Relation:
+                            <span className="text-red-500">*</span>
+                          </Label>
                           <Controller
                             name={`family_members[${index}].relation`}
                             control={control}
@@ -806,6 +813,13 @@ const Create = () => {
                           )}
                         </div>
                         <div className="relative mt-3">
+                          <Label
+                            className="font-normal"
+                            htmlFor={`family_members[${index}].member_height`}
+                          >
+                            Height:
+                            <span className="text-red-500">*</span>
+                          </Label>
                           <Controller
                             name={`family_members[${index}].member_height`}
                             control={control}
@@ -860,6 +874,13 @@ const Create = () => {
                           )}
                         </div>
                         <div className="relative mt-3">
+                          <Label
+                            className="font-normal"
+                            htmlFor={`family_members[${index}].member_weight`}
+                          >
+                            Weight:
+                            <span className="text-red-500">*</span>
+                          </Label>
                           <Controller
                             name={`family_members[${index}].member_weight`}
                             control={control}
@@ -915,6 +936,13 @@ const Create = () => {
                           )}
                         </div>
                         <div className="relative mt-3">
+                          <Label
+                            className="font-normal"
+                            htmlFor={`family_members[${index}].member_existing_ped`}
+                          >
+                            PED (Pre-existing Disease):
+                            <span className="text-red-500">*</span>
+                          </Label>
                           <Controller
                             name={`family_members[${index}].member_existing_ped`}
                             control={control}
