@@ -43,6 +43,22 @@ const formSchema = z.object({
     .min(1, "Name field is required.")
     .max(100, "Name must be at max 100 characters")
     .regex(/^[A-Za-z\s\u0900-\u097F]+$/, "Name can only contain letters."), // Allow letters and spaces, including Marathi
+  height: z
+    .string()
+    .min(1, "Height field is required.")
+    .max(4, "Height must be at max 4 characters")
+    .regex(
+      /^[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/,
+      "Height can only contain numbers and special characters."
+    ),
+  weight: z.coerce
+    .number()
+    .min(1, "Weight field is required.")
+    .max(200, "Weight must be less than or equal to 200."),
+  existing_ped: z
+    .string()
+    .max(100, "PED must be at max 255 characters")
+    .optional(),
   office_address: z
     .string()
     .max(200, "Office address must be at max 200 characters")
@@ -95,6 +111,22 @@ const formSchema = z.object({
         member_mobile: z.string().refine((val) => /^[0-9]{10}$/.test(val), {
           message: "Mobile number must contain exact 10 digits.",
         }),
+        member_height: z
+          .string()
+          .min(1, "Height field is required.")
+          .max(4, "Height must be at max 4 characters")
+          .regex(
+            /^[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/,
+            "Height can only contain numbers and special characters."
+          ),
+        member_weight: z.coerce
+          .number()
+          .min(1, "Weight field is required.")
+          .max(200, "Weight must be less than or equal to 200."),
+        member_existing_ped: z
+          .string()
+          .max(100, "PED must be at max 255 characters")
+          .optional(),
       })
     )
     .optional(),
@@ -109,12 +141,23 @@ const Create = () => {
     email: "",
     client_name: "",
     mobile: "",
+    height: "",
+    weight: "",
+    existing_ped: "",
     date_of_birth: "",
     office_address: "",
     office_address_pincode: "",
     residential_address: "",
     residential_address_pincode: "",
     family_members: [],
+  };
+
+  const toTitleCase = (str) => {
+    return str
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   const {
@@ -230,6 +273,10 @@ const Create = () => {
                       className="mt-1"
                       type="text"
                       placeholder="Enter name"
+                      onChange={(e) => {
+                        const formatedValue = toTitleCase(e.target.value);
+                        field.onChange(formatedValue);
+                      }}
                     />
                   )}
                 />
@@ -289,7 +336,7 @@ const Create = () => {
             </div>
             {/* row ends */}
             {/* row starts */}
-            <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+            <div className="w-full mb-4 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
               <div className="relative">
                 <Label className="font-normal" htmlFor="mobile">
                   Mobile:<span className="text-red-500">*</span>
@@ -321,7 +368,79 @@ const Create = () => {
                   </p>
                 )}
               </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="height">
+                  Height (in Foot): <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="height"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="height"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter height"
+                    />
+                  )}
+                />
+                {errors.height && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.height.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="weight">
+                  Weight (in Kg):<span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="weight"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="weight"
+                      className="mt-1"
+                      type="number"
+                      placeholder="Enter weight"
+                    />
+                  )}
+                />
+                {errors.weight && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.weight.message}
+                  </p>
+                )}
+              </div>
             </div>
+            <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="existing_ped">
+                  PED (Pre-existing Disease):{" "}
+                </Label>
+                <Controller
+                  name="existing_ped"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="existing_ped"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter ped"
+                    />
+                  )}
+                />
+                {errors.existing_ped && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.existing_ped.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
             <div className="w-full pt-3 pb-1 flex justify-start items-center">
               <h2 className="text-lg  font-normal">Address Information</h2>
             </div>
@@ -537,7 +656,6 @@ const Create = () => {
                   <TableHead className="">Name</TableHead>{" "}
                   <TableHead className="">Email</TableHead>{" "}
                   <TableHead className="">Mobile</TableHead>{" "}
-                  <TableHead className="">Relation</TableHead>{" "}
                   <TableHead className="">Date of Birth</TableHead>{" "}
                   {/*removed w-[100px] from here */}
                   <TableHead className="text-right">Action</TableHead>
@@ -577,6 +695,25 @@ const Create = () => {
                             </p>
                           )}
                         </div>
+                        <div className="relative mt-3">
+                          <Controller
+                            name={`family_members[${index}].relation`}
+                            control={control}
+                            render={({ field }) => (
+                              <Input
+                                {...field}
+                                id={`family_members[${index}].relation`}
+                                className="mt-1"
+                                placeholder="Enter relation"
+                              />
+                            )}
+                          />
+                          {errors.family_members?.[index]?.relation && (
+                            <p className=" text-red-500 text-sm mt-1 left-0">
+                              {errors.family_members[index].relation.message}
+                            </p>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="font-medium p-2">
                         <div className="relative">
@@ -603,6 +740,29 @@ const Create = () => {
                             <p className=" text-red-500 text-sm mt-1 left-0">
                               {
                                 errors.family_members[index].member_email
+                                  .message
+                              }
+                            </p>
+                          )}
+                        </div>
+                        <div className="relative mt-3">
+                          <Controller
+                            name={`family_members[${index}].member_height`}
+                            control={control}
+                            render={({ field }) => (
+                              <Input
+                                {...field}
+                                id={`family_members[${index}].member_height`}
+                                className="mt-1"
+                                type="text"
+                                placeholder="Enter height"
+                              />
+                            )}
+                          />
+                          {errors.family_members?.[index]?.member_height && (
+                            <p className=" text-red-500 text-sm mt-1 left-0">
+                              {
+                                errors.family_members[index].member_height
                                   .message
                               }
                             </p>
@@ -639,34 +799,31 @@ const Create = () => {
                             </p>
                           )}
                         </div>
-                      </TableCell>
-                      <TableCell className="font-medium p-2">
-                        <div className="relative">
-                          {/* <Label
-                          className="font-normal"
-                          htmlFor={`family_members[${index}].relation`}
-                        >
-                          Relation:<span className="text-red-500">*</span>
-                        </Label> */}
+                        <div className="relative mt-3">
                           <Controller
-                            name={`family_members[${index}].relation`}
+                            name={`family_members[${index}].member_weight`}
                             control={control}
                             render={({ field }) => (
                               <Input
                                 {...field}
-                                id={`family_members[${index}].relation`}
+                                id={`family_members[${index}].member_weight`}
                                 className="mt-1"
-                                placeholder="Enter relation"
+                                type="number"
+                                placeholder="Enter weight"
                               />
                             )}
                           />
-                          {errors.family_members?.[index]?.relation && (
+                          {errors.family_members?.[index]?.member_weight && (
                             <p className=" text-red-500 text-sm mt-1 left-0">
-                              {errors.family_members[index].relation.message}
+                              {
+                                errors.family_members[index].member_weight
+                                  .message
+                              }
                             </p>
                           )}
                         </div>
-                      </TableCell>{" "}
+                      </TableCell>
+
                       <TableCell className="font-medium p-2">
                         <div className="relative">
                           {/* <Label
@@ -697,6 +854,30 @@ const Create = () => {
                             </p>
                           )}
                         </div>
+                        <div className="relative mt-3">
+                          <Controller
+                            name={`family_members[${index}].member_existing_ped`}
+                            control={control}
+                            render={({ field }) => (
+                              <Input
+                                {...field}
+                                id={`family_members[${index}].member_existing_ped`}
+                                className="mt-1"
+                                type="text"
+                                placeholder="Enter ped"
+                              />
+                            )}
+                          />
+                          {errors.family_members?.[index]
+                            ?.member_existing_ped && (
+                            <p className="absolute text-red-500 text-sm mt-1 left-0">
+                              {
+                                errors.family_members[index].member_existing_ped
+                                  .message
+                              }
+                            </p>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right p-2 pr-5">
                         <Button
@@ -722,6 +903,9 @@ const Create = () => {
                     name: "",
                     member_email: "",
                     member_mobile: "",
+                    member_height: "",
+                    member_weight: "",
+                    member_existing_ped: "",
                     relation: "",
                     date_of_birth: "",
                   })

@@ -90,6 +90,9 @@ class ClientsController extends BaseController
         $client->date_of_birth = $request->input("date_of_birth");
         $client->email = $request->input("email");
         $client->mobile = $request->input("mobile");
+        $client->height = $request->input("height");
+        $client->weight = $request->input("weight");
+        $client->existing_ped = $request->input("existing_ped");
         $client->office_address = $request->input("office_address");
         $client->office_address_pincode = $request->input("office_address_pincode");
         $client->residential_address = $request->input("residential_address");
@@ -109,6 +112,9 @@ class ClientsController extends BaseController
             $member->family_member_name = $familyMember['name'];
             $member->member_email = $familyMember['member_email'];
             $member->member_mobile = $familyMember['member_mobile'];
+            $member->member_height = $familyMember['member_height'];
+            $member->member_weight = $familyMember['member_weight'];
+            $member->member_existing_ped = $familyMember['member_existing_ped'];
             $member->relation = $familyMember['relation'];
             $member->family_member_dob = $familyMember['date_of_birth'];
             $member->save();
@@ -169,6 +175,9 @@ class ClientsController extends BaseController
         $client->date_of_birth = $request->input("date_of_birth");
         $client->email = $request->input("email");
         $client->mobile = $request->input("mobile");
+        $client->height = $request->input("height");
+        $client->weight = $request->input("weight");
+        $client->existing_ped = $request->input("existing_ped");
         $client->office_address = $request->input("office_address");
         $client->office_address_pincode = $request->input("office_address_pincode");
         $client->residential_address = $request->input("residential_address");
@@ -190,6 +199,9 @@ class ClientsController extends BaseController
                $member->family_member_name = $familyMember['name'];
                $member->member_email = $familyMember['member_email'];
                $member->member_mobile = $familyMember['member_mobile'];
+               $member->member_height = $familyMember['member_height'];
+               $member->member_weight = $familyMember['member_weight'];
+               $member->member_existing_ped = $familyMember['member_existing_ped'];
                $member->relation = $familyMember['relation'];
                $member->family_member_dob = $familyMember['date_of_birth'];
                $member->save();

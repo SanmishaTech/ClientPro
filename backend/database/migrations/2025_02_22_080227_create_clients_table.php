@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('email', 50)->nullable();
             $table->string('mobile', 15)->nullable();
             $table->date('date_of_birth')->nullable();
+            $table->string('height')->nullable();
+            $table->decimal('weight',10,2)->nullable();
+            $table->string('existing_ped')->nullable();
             $table->string('residential_address')->nullable();
             $table->integer('residential_address_pincode')->nullable();
             $table->string('office_address')->nullable();
