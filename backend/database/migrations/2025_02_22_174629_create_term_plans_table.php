@@ -17,6 +17,9 @@ return new class extends Migration
             $table->unsignedBigInteger('family_member_id')->nullable(); 
             $table->string('term_company_name', 100)->nullable();
             $table->string('broker_name', 100)->nullable();
+            $table->string('policy_number', 100)->nullable();
+            $table->string('plan_name')->nullable();
+            $table->decimal('premium_without_gst',10,2)->nullable();
             $table->date('proposal_date')->nullable();
             $table->date('end_date')->nullable();
             $table->string('premium_payment_mode')->nullable();

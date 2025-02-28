@@ -58,13 +58,28 @@ const formSchema = z.object({
           ),
 
         broker_name: z
+          .string() // ensures broker_name is a string
+          .max(100, "Broker name must not exceed 100 characters.") // enforces a max length of 100 characters
+          .refine(
+            (val) => val === "" || /^[A-Za-z\s\u0900-\u097F]+$/.test(val),
+            {
+              message: "Broker name can only contain letters.", // ensures only letters and spaces or Hindi characters are allowed
+            }
+          )
+          .optional(), // makes the broker_name field optional
+
+        policy_number: z
           .string()
-          .min(2, "Broker name must be at least 2 characters.")
-          .max(100, "Broker name must not exceed 100 characters.")
-          .regex(
-            /^[A-Za-z\s\u0900-\u097F]+$/,
-            "Broker name can only contain letters."
-          ),
+          .min(1, "Policy number field is required.")
+          .max(100, "Policy number must not exceed 100 characters."),
+        plan_name: z
+          .string()
+          .min(1, "Plan name field is required.")
+          .max(100, "Plan name must not exceed 100 characters."),
+        premium: z.coerce
+          .number()
+          .min(1, "Premium field is required.")
+          .max(99999999, "Premium field must not exceed 9,99,99,999."),
 
         proposal_date: z.string().min(1, "Proposal date field is required."),
 
@@ -109,6 +124,9 @@ const Update = () => {
     client_id: "",
     company_name: "",
     broker_name: "",
+    policy_number: "",
+    plan_name: "",
+    premium: "",
     proposal_date: "",
     company_name: "",
     premium_payment_mode: "",
@@ -234,7 +252,10 @@ const Update = () => {
           client_id: insurance.client_id,
           family_member_id: insurance.family_member_id || "", // if you have a family_member_id, otherwise ""
           company_name: insurance.company_name,
-          broker_name: insurance.broker_name,
+          broker_name: insurance.broker_name || "",
+          policy_number: insurance.policy_number || "",
+          plan_name: insurance.plan_name || "",
+          premium: insurance.premium || "",
           proposal_date: insurance.proposal_date,
           premium_payment_mode: insurance.premium_payment_mode,
           sum_insured: insurance.sum_insured,
@@ -523,7 +544,7 @@ const Update = () => {
                         className="font-normal"
                         htmlFor={`mediclaim_data[${index}].broker_name`}
                       >
-                        Broker Name: <span className="text-red-500">*</span>
+                        Broker Name:
                       </Label>
                       <Controller
                         name={`mediclaim_data[${index}].broker_name`}
@@ -673,6 +694,86 @@ const Update = () => {
                       {errors.mediclaim_data?.[index]?.end_date && (
                         <p className="absolute text-red-500 text-sm mt-1 left-0">
                           {errors.mediclaim_data[index].end_date?.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+                    <div className="relative">
+                      <Label
+                        className="font-normal"
+                        htmlFor={`mediclaim_data[${index}].policy_number`}
+                      >
+                        Policy Number: <span className="text-red-500">*</span>
+                      </Label>
+                      <Controller
+                        name={`mediclaim_data[${index}].policy_number`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id={`mediclaim_data[${index}].policy_number`}
+                            className="mt-1"
+                            type="text"
+                            placeholder="Enter policy number"
+                          />
+                        )}
+                      />
+                      {errors.mediclaim_data?.[index]?.policy_number && (
+                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                          {errors.mediclaim_data[index].policy_number?.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Label
+                        className="font-normal"
+                        htmlFor={`mediclaim_data[${index}].plan_name`}
+                      >
+                        Plan Name: <span className="text-red-500">*</span>
+                      </Label>
+                      <Controller
+                        name={`mediclaim_data[${index}].plan_name`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id={`mediclaim_data[${index}].plan_name`}
+                            className="mt-1"
+                            type="text"
+                            placeholder="Enter plan name"
+                          />
+                        )}
+                      />
+                      {errors.mediclaim_data?.[index]?.plan_name && (
+                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                          {errors.mediclaim_data[index].plan_name?.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Label
+                        className="font-normal"
+                        htmlFor={`mediclaim_data[${index}].premium`}
+                      >
+                        premium: <span className="text-red-500">*</span>
+                      </Label>
+                      <Controller
+                        name={`mediclaim_data[${index}].premium`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id={`mediclaim_data[${index}].premium`}
+                            className="mt-1"
+                            type="text"
+                            placeholder="Enter premium"
+                          />
+                        )}
+                      />
+                      {errors.mediclaim_data?.[index]?.premium && (
+                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                          {errors.mediclaim_data[index].premium?.message}
                         </p>
                       )}
                     </div>

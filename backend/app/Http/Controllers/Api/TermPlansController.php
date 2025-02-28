@@ -57,6 +57,9 @@ class TermPlansController extends BaseController
             $term_plan->family_member_id = $data['family_member_id'] ?? null;
             $term_plan->term_company_name = $data['term_company_name'];
             $term_plan->broker_name = $data['broker_name'];
+            $term_plan->policy_number = $data['policy_number'];
+            $term_plan->plan_name = $data['plan_name'];
+            $term_plan->premium_without_gst = $data['premium_without_gst'];
             $term_plan->proposal_date = $data['proposal_date'];
             $term_plan->end_date = $data['end_date'];
             $term_plan->premium_payment_mode = $data['premium_payment_mode'];
@@ -116,6 +119,9 @@ class TermPlansController extends BaseController
         $term_plan->family_member_id = $data['family_member_id'] ?? null;
         $term_plan->term_company_name = $data['term_company_name'];
         $term_plan->broker_name = $data['broker_name'];
+        $term_plan->policy_number = $data['policy_number'];
+        $term_plan->plan_name = $data['plan_name'];
+        $term_plan->premium_without_gst = $data['premium_without_gst'];
         $term_plan->proposal_date = $data['proposal_date'];
         $term_plan->end_date = $data['end_date'];
         $term_plan->premium_payment_mode = $data['premium_payment_mode'];

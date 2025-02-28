@@ -57,6 +57,9 @@ class MediclaimInsurancesController extends BaseController
         $mediclaimInsurance->family_member_id = $data['family_member_id'] ?? null;
         $mediclaimInsurance->company_name = $data['company_name'];
         $mediclaimInsurance->broker_name = $data['broker_name'];
+        $mediclaimInsurance->policy_number = $data['policy_number'];
+        $mediclaimInsurance->plan_name = $data['plan_name'];
+        $mediclaimInsurance->premium = $data['premium'];
         $mediclaimInsurance->proposal_date = $data['proposal_date'];
         $mediclaimInsurance->end_date = $data['end_date'];
         $mediclaimInsurance->premium_payment_mode = $data['premium_payment_mode'];
@@ -111,6 +114,9 @@ class MediclaimInsurancesController extends BaseController
         $mediclaimInsurance->family_member_id = $data['family_member_id'] ?? null;
         $mediclaimInsurance->company_name = $data['company_name'];
         $mediclaimInsurance->broker_name = $data['broker_name'];
+        $mediclaimInsurance->policy_number = $data['policy_number'];
+        $mediclaimInsurance->plan_name = $data['plan_name'];
+        $mediclaimInsurance->premium = $data['premium'];
         $mediclaimInsurance->proposal_date = $data['proposal_date'];
         $mediclaimInsurance->end_date = $data['end_date'];
         $mediclaimInsurance->premium_payment_mode = $data['premium_payment_mode'];

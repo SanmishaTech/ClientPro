@@ -58,6 +58,12 @@ class LICsController extends BaseController
             $lic->family_member_id = $data['family_member_id'] ?? null;
             $lic->company_name = $data['company_name'];
             $lic->broker_name = $data['broker_name'];
+            $lic->policy_number = $data['policy_number'];
+            $lic->plan_name = $data['plan_name'];
+            $lic->premium_without_gst = $data['premium_without_gst'];
+            $lic->commencement_date = $data['commencement_date'];
+            $lic->term = $data['term'];
+            $lic->ppt = $data['ppt'];
             $lic->proposal_date = $data['proposal_date'];
             $lic->end_date = $data['end_date'];
             $lic->premium_payment_mode = $data['premium_payment_mode'];
@@ -117,6 +123,12 @@ class LICsController extends BaseController
         $lic->family_member_id = $data['family_member_id'] ?? null;
         $lic->company_name = $data['company_name'];
         $lic->broker_name = $data['broker_name'];
+        $lic->policy_number = $data['policy_number'];
+        $lic->plan_name = $data['plan_name'];
+        $lic->premium_without_gst = $data['premium_without_gst'];
+        $lic->commencement_date = $data['commencement_date'];
+        $lic->term = $data['term'];
+        $lic->ppt = $data['ppt'];
         $lic->proposal_date = $data['proposal_date'];
         $lic->end_date = $data['end_date'];
         $lic->premium_payment_mode = $data['premium_payment_mode'];
