@@ -21,8 +21,8 @@ return new class extends Migration
             $table->string('plan_name')->nullable();
             $table->decimal('premium_without_gst',10,2)->nullable();
             $table->date('commencement_date')->nullable();
-            $table->integer('term')->nullable();
-            $table->integer('ppt')->nullable();
+            $table->string('term')->nullable();
+            $table->string('ppt')->nullable();
             $table->date('proposal_date')->nullable();
             $table->date('end_date')->nullable();
             $table->string('premium_payment_mode')->nullable();

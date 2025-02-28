@@ -45,10 +45,14 @@ class LoansController extends BaseController
         $loan = new Loan();
         $loan->client_id = $request->input("client_id");
         $loan->family_member_id = $request->input("family_member_id");
-        $loan->home = $request->input("home");
-        $loan->personal = $request->input("personal");
-        $loan->business = $request->input("business");
-        $loan->car = $request->input("car");
+        $loan->loan_type = $request->input("loan_type");
+        $loan->bank_name = $request->input("bank_name");
+        $loan->start_date = $request->input("start_date");
+        $loan->end_date = $request->input("end_date");
+        $loan->loan_amount = $request->input("loan_amount");
+        $loan->term = $request->input("term");
+        $loan->emi = $request->input("emi");
+        $loan->roi = $request->input("roi");
         $loan->save();
      
         return $this->sendResponse(['Loan'=> new LoanResource($loan)], 'Loan Created Successfully');
@@ -81,10 +85,14 @@ class LoansController extends BaseController
         
         $loan->client_id = $request->input("client_id");
         $loan->family_member_id = $request->input("family_member_id");
-        $loan->home = $request->input("home");
-        $loan->personal = $request->input("personal");
-        $loan->business = $request->input("business");
-        $loan->car = $request->input("car");
+        $loan->loan_type = $request->input("loan_type");
+        $loan->bank_name = $request->input("bank_name");
+        $loan->start_date = $request->input("start_date");
+        $loan->end_date = $request->input("end_date");
+        $loan->loan_amount = $request->input("loan_amount");
+        $loan->term = $request->input("term");
+        $loan->emi = $request->input("emi");
+        $loan->roi = $request->input("roi");
         $loan->save();
        
         return $this->sendResponse(['Loan'=> new LoanResource($loan)], "Loan details updated successfully");

@@ -54,10 +54,14 @@ const Create = () => {
   const navigate = useNavigate();
   const defaultValues = {
     client_id: "",
-    home: "",
-    car: "",
-    personal: "",
-    business: "",
+    loan_type: "",
+    start_date: "",
+    end_date: "",
+    bank_name: "",
+    loan_amount: "",
+    term: "",
+    emi: "",
+    roi: "",
     family_member_id: "",
   };
 

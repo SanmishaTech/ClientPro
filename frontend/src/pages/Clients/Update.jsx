@@ -752,6 +752,13 @@ const Update = () => {
                           )}
                         </div>
                         <div className="relative mt-3">
+                          <Label
+                            className="font-normal"
+                            htmlFor={`family_members[${index}].relation`}
+                          >
+                            Relation:
+                            <span className="text-red-500">*</span>
+                          </Label>
                           <Controller
                             name={`family_members[${index}].relation`}
                             control={control}
@@ -802,6 +809,13 @@ const Update = () => {
                           )}
                         </div>
                         <div className="relative mt-3">
+                          <Label
+                            className="font-normal"
+                            htmlFor={`family_members[${index}].member_height`}
+                          >
+                            Height:
+                            <span className="text-red-500">*</span>
+                          </Label>
                           <Controller
                             name={`family_members[${index}].member_height`}
                             control={control}
@@ -856,6 +870,13 @@ const Update = () => {
                           )}
                         </div>
                         <div className="relative mt-3">
+                          <Label
+                            className="font-normal"
+                            htmlFor={`family_members[${index}].member_weight`}
+                          >
+                            Weight:
+                            <span className="text-red-500">*</span>
+                          </Label>
                           <Controller
                             name={`family_members[${index}].member_weight`}
                             control={control}
@@ -882,12 +903,6 @@ const Update = () => {
 
                       <TableCell className="font-medium p-2">
                         <div className="relative">
-                          {/* <Label
-                          className="font-normal"
-                          htmlFor={`family_members[${index}].date_of_birth`}
-                        >
-                          Date of Birth:<span className="text-red-500">*</span>
-                        </Label> */}
                           <Controller
                             name={`family_members[${index}].date_of_birth`}
                             control={control}
@@ -911,6 +926,13 @@ const Update = () => {
                           )}
                         </div>
                         <div className="relative mt-3">
+                          <Label
+                            className="font-normal"
+                            htmlFor={`family_members[${index}].member_existing_ped`}
+                          >
+                            PED (Pre-existing Disease):
+                            <span className="text-red-500">*</span>
+                          </Label>
                           <Controller
                             name={`family_members[${index}].member_existing_ped`}
                             control={control}

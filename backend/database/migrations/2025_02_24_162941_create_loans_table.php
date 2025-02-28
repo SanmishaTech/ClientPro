@@ -15,10 +15,14 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('client_id'); 
             $table->unsignedBigInteger('family_member_id')->nullable(); 
-            $table->boolean("home")->nullable();
-            $table->boolean("personal")->nullable();
-            $table->boolean("business")->nullable();
-            $table->boolean("car")->nullable();
+            $table->string("bank_name",100)->nullable();
+            $table->string("loan_type",100)->nullable();
+            $table->date("start_date")->nullable();
+            $table->date("end_date")->nullable();
+            $table->decimal("loan_amount",10,2)->nullable();
+            $table->string("term")->nullable();
+            $table->decimal("emi",10,2)->nullable();
+            $table->decimal("roi",10,2)->nullable();
             $table->timestamps();
         });
     }
