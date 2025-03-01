@@ -18,13 +18,22 @@ class LoansController extends BaseController
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Loan::with('client');
+        $query = Loan::with('client','familyMember');
         if ($request->query('search')) {
             $searchTerm = $request->query('search');
     
-            $query->whereHas("client",function ($query) use ($searchTerm) {
+            $query->where(function ($query) use ($searchTerm) {
+                $query->where('bank_name', 'like', '%' . $searchTerm . '%')
+                ->orWhere('loan_type', 'like', '%' . $searchTerm . '%')
+                ->orWhere('loan_amount',$searchTerm )
+                ->orWhere('emi',$searchTerm )
+                ->orWhereHas('client', function($query) use($searchTerm){
                     $query->where('client_name','like', '%' . $searchTerm . '%');
+                })
+                ->orWhereHas('familyMember', function($query) use($searchTerm){
+                    $query->where('family_member_name','like', '%' . $searchTerm . '%');
                 });
+            });
         }
         $loans = $query->Orderby('id', 'desc')->paginate(20);
 

@@ -145,10 +145,11 @@ const Index = () => {
             <TableHeader className="dark:bg-background bg-gray-100  rounded-md">
               <TableRow>
                 <TableHead className="p-2">Client Name</TableHead>
-                <TableHead className="p-2">Home Loan</TableHead>
-                <TableHead className="p-2">Car Loan</TableHead>
-                <TableHead className="p-2">Personal Loan</TableHead>
-                <TableHead className="p-2">Business Loan</TableHead>
+                <TableHead className="p-2">Family Member</TableHead>
+                <TableHead className="p-2">Bank name</TableHead>
+                <TableHead className="p-2">Loan Type</TableHead>
+                <TableHead className="p-2">Loan Amount</TableHead>
+                <TableHead className="p-2">Emi</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -163,16 +164,19 @@ const Index = () => {
                       {Loan.client_name}
                     </TableCell>
                     <TableCell className="font-medium p-2">
-                      {Loan.home ? "Yes" : "No"}
+                      {Loan.family_member_name || "N/A"}
                     </TableCell>
                     <TableCell className="font-medium p-2">
-                      {Loan.car ? "Yes" : "No"}
+                      {Loan.bank_name}
                     </TableCell>
                     <TableCell className="font-medium p-2">
-                      {Loan.personal ? "Yes" : "No"}
+                      {Loan.loan_type}
                     </TableCell>
                     <TableCell className="font-medium p-2">
-                      {Loan.business ? "Yes" : "No"}
+                      ₹{Loan.loan_amount}
+                    </TableCell>
+                    <TableCell className="font-medium p-2">
+                      ₹{Loan.emi}
                     </TableCell>
 
                     <TableCell className="text-right p-2 pr-5">

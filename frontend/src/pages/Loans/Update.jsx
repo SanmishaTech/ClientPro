@@ -38,10 +38,35 @@ import {
 const formSchema = z.object({
   // devta_name: z.string().min(2, "Name must be at least 2 characters"),
   client_id: z.coerce.number().min(1, "client field is required."),
-  home: z.coerce.number().min(0, "home loan field is required."),
-  car: z.coerce.number().min(0, "home loan field is required."),
-  personal: z.coerce.number().min(0, "home loan field is required."),
-  business: z.coerce.number().min(0, "home loan field is required."),
+  family_member_id: z.coerce.number().optional(),
+  bank_name: z
+    .string()
+    .min(1, "Bank name field is required.")
+    .max(100, "Bank name must be at max 100 characters")
+    .regex(/^[A-Za-z\s\u0900-\u097F]+$/, "Bank name can only contain letters."),
+  loan_type: z
+    .string()
+    .min(1, "Loan type field is required.")
+    .max(100, "Loan Type must be at max 100 characters")
+    .regex(/^[A-Za-z\s\u0900-\u097F]+$/, "Loan type can only contain letters."),
+  start_date: z.string().min(1, "Start Date is required"),
+  end_date: z.string().min(1, "End date is required"),
+  loan_amount: z.coerce
+    .number()
+    .min(1, "Loan amount field is required.")
+    .max(99999999, "Loan amount must not exceed 9,99,99,999."),
+  term: z.coerce
+    .number()
+    .min(1, "Term field is required.")
+    .max(60, "Term field must not exceed 60 years."),
+  emi: z.coerce
+    .number()
+    .min(1, "Emi field is required.")
+    .max(99999999, "Emi field must not exceed 9,99,99,999."),
+  roi: z.coerce
+    .number()
+    .min(1, "ROI field is required.")
+    .max(100, "ROI field must not exceed 100."),
 });
 
 const Update = () => {
@@ -55,10 +80,15 @@ const Update = () => {
 
   const defaultValues = {
     client_id: "",
-    home: "",
-    car: "",
-    personal: "",
-    business: "",
+    loan_type: "",
+    start_date: "",
+    end_date: "",
+    bank_name: "",
+    loan_amount: "",
+    term: "",
+    emi: "",
+    roi: "",
+    family_member_id: "",
   };
 
   const {
@@ -89,8 +119,10 @@ const Update = () => {
     formState: { errors },
     setValue,
     setError,
+    watch,
+    reset,
   } = useForm({ resolver: zodResolver(formSchema), defaultValues });
-
+  const selectedClient = watch("client_id") || null;
   const {
     data: editLoan,
     isLoading: isEditLoanDataLoading,
@@ -113,13 +145,56 @@ const Update = () => {
     keepPreviousData: true, // Keep previous data until the new data is available
   });
 
+  const {
+    data: editClient,
+    isLoading: isEditClientDataLoading,
+    isError: isEditClientDataError,
+  } = useQuery({
+    queryKey: ["editClient", selectedClient], // This is the query key
+    queryFn: async () => {
+      try {
+        if (!selectedClient) {
+          return [];
+        }
+        const response = await axios.get(`/api/clients/${selectedClient}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data?.data; // Return the fetched data
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    },
+    enabled: !!selectedClient, // Enable the query only if selectedPoojaTypeId is truthy
+  });
+
   useEffect(() => {
     if (editLoan) {
       setValue("client_id", editLoan.Loan?.client_id || "");
-      setValue("home", editLoan.Loan?.home || "");
-      setValue("car", editLoan.Loan?.car || "");
-      setValue("personal", editLoan.Loan?.personal || "");
-      setValue("business", editLoan.Loan?.business || "");
+      setValue("bank_name", editLoan.Loan?.bank_name || "");
+      setValue("loan_type", editLoan.Loan?.loan_type || "");
+      setValue("loan_amount", editLoan.Loan?.loan_amount || "");
+      setValue("emi", editLoan.Loan?.emi || "");
+      setValue("roi", editLoan.Loan?.roi || "");
+      setValue("term", editLoan.Loan?.term || "");
+      setValue("start_date", editLoan.Loan?.start_date || "");
+      setValue("end_date", editLoan.Loan?.end_date || "");
+      // setValue(
+      //   "family_member_id",
+      //   editLoan?.Loan?.family_member_id
+      //     ? String(editLoan?.Loan?.family_member_id)
+      //     : ""
+      // );
+      setTimeout(() => {
+        setValue(
+          "family_member_id",
+          editLoan?.Loan?.family_member_id
+            ? String(editLoan?.Loan?.family_member_id)
+            : ""
+        );
+      }, 200); // 1000
     }
   }, [editLoan, setValue]);
 
@@ -146,10 +221,10 @@ const Update = () => {
         const serverStatus = error.response.data.status;
         const serverErrors = error.response.data.errors;
         if (serverStatus === false) {
-          if (serverErrors.home) {
-            setError("home", {
+          if (serverErrors.bank_name) {
+            setError("bank_name", {
               type: "manual",
-              message: serverErrors.home[0], // The error message from the server
+              message: serverErrors.bank_name[0], // The error message from the server
             });
             // toast.error("The poo has already been taken.");
           }
@@ -182,7 +257,7 @@ const Update = () => {
               </Button>
             </span>
             <span className="text-gray-400">/</span>
-            <span className="dark:text-gray-300">Add</span>
+            <span className="dark:text-gray-300">Edit</span>
           </div>
         </div>
         {/* breadcrumb ends */}
@@ -190,7 +265,7 @@ const Update = () => {
         {/* form style strat */}
         <div className="px-5 pb-7 dark:bg-background pt-1 w-full bg-white shadow-lg border  rounded-md">
           <div className="w-full py-3 flex justify-start items-center">
-            <h2 className="text-lg  font-normal">Add Loan</h2>
+            <h2 className="text-lg  font-normal">Edit Loan</h2>
           </div>
           {/* row starts */}
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -269,6 +344,7 @@ const Update = () => {
                                     value={client.id}
                                     onSelect={(currentValue) => {
                                       setValue("client_id", client.id);
+                                      setValue("family_member_id", "");
                                       // setSelectedReceiptTypeId(
                                       //   currentValue === selectedReceiptTypeId
                                       //     ? ""
@@ -298,115 +374,248 @@ const Update = () => {
                   )}
                 />
                 {errors.client_id && (
-                  <p className="absolute text-red-500 text-sm mt-16 left-0">
+                  <p className=" text-red-500 text-sm mt-1 left-0">
                     {errors.client_id.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="family_member_id">
+                  Family Member:
+                </Label>
+                <Controller
+                  name="family_member_id"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select Family member" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Select Family member</SelectLabel>
+                          {editClient?.Client?.Family_members &&
+                            editClient?.Client?.Family_members?.map(
+                              (familyMember) => (
+                                <SelectItem value={String(familyMember.id)}>
+                                  {familyMember?.family_member_name}
+                                </SelectItem>
+                              )
+                            )}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.family_member_id && (
+                  <p className=" text-red-500 text-sm mt-1 left-0">
+                    {errors.family_member_id.message}
                   </p>
                 )}
               </div>
             </div>
 
-            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-6 gap-7 md:gap-4">
-              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+            <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="bank_name">
+                  Bank Name: <span className="text-red-500">*</span>
+                </Label>
                 <Controller
-                  name="home"
+                  name="bank_name"
                   control={control}
                   render={({ field }) => (
-                    <input
-                      id="home"
+                    <Input
                       {...field}
-                      type="checkbox"
-                      checked={field.value === 1}
-                      onChange={(e) => {
-                        field.onChange(e.target.checked ? 1 : 0); // Map true/false to 1/0
-                      }}
-                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                      id="bank_name"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter bank name"
                     />
                   )}
                 />
-                <Label className="font-normal" htmlFor="home">
-                  Home Loan
-                </Label>
-                {errors.home && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.home.message}
+                {errors.bank_name && (
+                  <p className=" text-red-500 text-sm mt-1 left-0">
+                    {errors.bank_name.message}
                   </p>
                 )}
               </div>
-              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="loan_type">
+                  Loan type: <span className="text-red-500">*</span>
+                </Label>
                 <Controller
-                  name="car"
+                  name="loan_type"
                   control={control}
                   render={({ field }) => (
-                    <input
-                      id="car"
-                      {...field}
-                      type="checkbox"
-                      checked={field.value === 1}
-                      onChange={(e) => {
-                        field.onChange(e.target.checked ? 1 : 0); // Map true/false to 1/0
-                      }}
-                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                    />
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue className="" placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel className="">
+                            Select loan type
+                          </SelectLabel>
+                          <SelectItem value="Home Loan">Home Loan</SelectItem>
+                          <SelectItem value="Personal Loan">
+                            Personal Loan
+                          </SelectItem>
+                          <SelectItem value="Car Loan">Car Loan</SelectItem>
+                          <SelectItem value="Business Loan">
+                            Business Loan
+                          </SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   )}
                 />
-                <Label className="font-normal" htmlFor="car">
-                  Car Loan
-                </Label>
-                {errors.car && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.car.message}
+                {errors.loan_type && (
+                  <p className=" text-red-500 text-sm mt-1 left-0">
+                    {errors.loan_type.message}
                   </p>
                 )}
               </div>
-              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+            </div>
+            <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="start_date">
+                  Start Date:<span className="text-red-500">*</span>
+                </Label>
                 <Controller
-                  name="personal"
+                  name="start_date"
                   control={control}
                   render={({ field }) => (
                     <input
-                      id="personal"
                       {...field}
-                      type="checkbox"
-                      checked={field.value === 1}
-                      onChange={(e) => {
-                        field.onChange(e.target.checked ? 1 : 0); // Map true/false to 1/0
-                      }}
-                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                      id="start_date"
+                      className="dark:bg-[var(--foreground)] mt-1 text-sm w-full p-2 pr-3 rounded-md border border-1"
+                      type="date"
+                      placeholder="Enter to date"
                     />
                   )}
                 />
-                <Label className="font-normal" htmlFor="personal">
-                  Personal Loan
-                </Label>
-                {errors.personal && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.personal.message}
+                {errors.start_date && (
+                  <p className=" text-red-500 text-sm mt-1 left-0">
+                    {errors.start_date.message}
                   </p>
                 )}
               </div>
-              <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="end_date">
+                  End Date:<span className="text-red-500">*</span>
+                </Label>
                 <Controller
-                  name="business"
+                  name="end_date"
                   control={control}
                   render={({ field }) => (
                     <input
-                      id="business"
                       {...field}
-                      type="checkbox"
-                      checked={field.value === 1}
-                      onChange={(e) => {
-                        field.onChange(e.target.checked ? 1 : 0); // Map true/false to 1/0
-                      }}
-                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                      id="end_date"
+                      className="dark:bg-[var(--foreground)] mt-1 text-sm w-full p-2 pr-3 rounded-md border border-1"
+                      type="date"
+                      placeholder="Enter to date"
                     />
                   )}
                 />
-                <Label className="font-normal" htmlFor="business">
-                  Business Loan
+                {errors.end_date && (
+                  <p className=" text-red-500 text-sm mt-1 left-0">
+                    {errors.end_date.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="loan_amount">
+                  Loan Amount: <span className="text-red-500">*</span>
                 </Label>
-                {errors.business && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.business.message}
+                <Controller
+                  name="loan_amount"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="loan_amount"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter Loan amount"
+                    />
+                  )}
+                />
+                {errors.loan_amount && (
+                  <p className=" text-red-500 text-sm mt-1 left-0">
+                    {errors.loan_amount.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="term">
+                  Term (In Years): <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="term"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="term"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter term"
+                    />
+                  )}
+                />
+                {errors.term && (
+                  <p className=" text-red-500 text-sm mt-1 left-0">
+                    {errors.term.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="emi">
+                  Emi: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="emi"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="emi"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter Emi amount"
+                    />
+                  )}
+                />
+                {errors.emi && (
+                  <p className=" text-red-500 text-sm mt-1 left-0">
+                    {errors.emi.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="roi">
+                  ROI (%): <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="roi"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="roi"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter ROI"
+                    />
+                  )}
+                />
+                {errors.roi && (
+                  <p className=" text-red-500 text-sm mt-1 left-0">
+                    {errors.roi.message}
                   </p>
                 )}
               </div>
@@ -430,10 +639,10 @@ const Update = () => {
                 {isLoading ? (
                   <>
                     <Loader2 className="animate-spin mr-2" /> {/* Spinner */}
-                    Updating...
+                    Submitting...
                   </>
                 ) : (
-                  "Update"
+                  "Submit"
                 )}
               </Button>
             </div>
