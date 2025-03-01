@@ -209,12 +209,9 @@ const Index = () => {
             <TableHeader className="dark:bg-background bg-gray-100  rounded-md">
               <TableRow>
                 <TableHead className="p-2">Client Name</TableHead>
-                <TableHead className="p-2">Vehicle Insurance</TableHead>
-                <TableHead className="p-2">Fire Insurance</TableHead>
-                <TableHead className="p-2">Society Insurance</TableHead>
-                <TableHead className="p-2">Workman Insurance</TableHead>
-                <TableHead className="p-2">Personal Account</TableHead>
-                <TableHead className="p-2">Others</TableHead>
+                <TableHead className="p-2">Insurance Type</TableHead>
+                <TableHead className="p-2">Company Name</TableHead>
+                <TableHead className="p-2">Premium</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -228,25 +225,16 @@ const Index = () => {
                     <TableCell className="font-medium p-2">
                       {GeneralInsurance.client_name}
                     </TableCell>
-                    <TableCell className="font-medium p-2">
-                      {GeneralInsurance.vehicle ? "Yes" : "No"}
-                    </TableCell>
-                    <TableCell className="font-medium p-2">
-                      {GeneralInsurance.fire ? "Yes" : "No"}
-                    </TableCell>
-                    <TableCell className="font-medium p-2">
-                      {GeneralInsurance.society ? "Yes" : "No"}
-                    </TableCell>
-                    <TableCell className="font-medium p-2">
-                      {GeneralInsurance.workman ? "Yes" : "No"}
-                    </TableCell>
-                    <TableCell className="font-medium p-2">
-                      {GeneralInsurance.personal_accident ? "Yes" : "No"}
-                    </TableCell>
-                    <TableCell className="font-medium p-2">
-                      {GeneralInsurance.others ? "Yes" : "No"}
-                    </TableCell>
 
+                    <TableCell className="font-medium p-2">
+                      {GeneralInsurance.insurance_type}
+                    </TableCell>
+                    <TableCell className="font-medium p-2">
+                      {GeneralInsurance.company_name}
+                    </TableCell>
+                    <TableCell className="font-medium p-2">
+                      ₹{GeneralInsurance.premium}
+                    </TableCell>
                     <TableCell className="text-right p-2 pr-5">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

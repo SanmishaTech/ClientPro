@@ -21,9 +21,14 @@ class GeneralInsurancesController extends BaseController
         if ($request->query('search')) {
             $searchTerm = $request->query('search');
     
-            $query->whereHas("client",function ($query) use ($searchTerm) {
+            $query->where(function ($query) use ($searchTerm) {
+                $query->where('company_name', 'like', '%' . $searchTerm . '%')
+                ->orWhere('insurance_type', 'like', '%' . $searchTerm . '%')
+                ->orWhere('premium',$searchTerm )
+                ->orWhereHas('client', function($query) use($searchTerm){
                     $query->where('client_name','like', '%' . $searchTerm . '%');
                 });
+            });
         }
         $generalInsurances = $query->Orderby('id', 'desc')->paginate(20);
 
@@ -47,12 +52,11 @@ class GeneralInsurancesController extends BaseController
             $generalInsurance = new GeneralInsurance();
             $generalInsurance->client_id = $data['client_id'];
             $generalInsurance->family_member_id = $data['family_member_id'] ?? null;
-            $generalInsurance->vehicle = $data['vehicle'];
-            $generalInsurance->fire = $data['fire'];
-            $generalInsurance->society = $data['society'];
-            $generalInsurance->personal_accident = $data['personal_accident'];
-            $generalInsurance->workman = $data['workman'];
-            $generalInsurance->others = $data['others'];
+            $generalInsurance->company_name = $data['company_name'];
+            $generalInsurance->premium = $data['premium'];
+            $generalInsurance->start_date = $data['start_date'];
+            $generalInsurance->end_date = $data['end_date'];
+            $generalInsurance->insurance_type = $data['insurance_type'];
             $generalInsurance->save();
         }
         
@@ -103,12 +107,11 @@ class GeneralInsurancesController extends BaseController
         $general_insurance = new GeneralInsurance();
         $general_insurance->client_id = $data['client_id'];
         $general_insurance->family_member_id = $data['family_member_id'] ?? null;
-        $general_insurance->vehicle = $data['vehicle'];
-        $general_insurance->fire = $data['fire'];
-        $general_insurance->society = $data['society'];
-        $general_insurance->workman = $data['workman'];
-        $general_insurance->personal_accident = $data['personal_accident'];
-        $general_insurance->others = $data['others'];
+        $general_insurance->company_name = $data['company_name'];
+        $general_insurance->premium = $data['premium'];
+        $general_insurance->start_date = $data['start_date'];
+        $general_insurance->end_date = $data['end_date'];
+        $general_insurance->insurance_type = $data['insurance_type'];
         $general_insurance->save();
        }
         

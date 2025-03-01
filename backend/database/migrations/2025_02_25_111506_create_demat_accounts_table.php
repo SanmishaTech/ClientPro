@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('client_id'); 
             $table->unsignedBigInteger('family_member_id')->nullable(); 
-            $table->boolean("have_demat_account");
+            $table->string("company_name")->nullable();
             $table->string('account_number')->nullable();
             $table->string('service_provider')->nullable();
+            $table->string('plan_name')->nullable();
+            $table->date('start_date')->nullable();
             $table->timestamps();
         });
     }

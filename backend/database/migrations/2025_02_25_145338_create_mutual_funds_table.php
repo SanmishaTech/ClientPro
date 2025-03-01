@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('client_id'); 
             $table->unsignedBigInteger('family_member_id')->nullable(); 
-            $table->boolean("have_mutual_fund_account");
+            $table->string("mutual_fund_name")->nullable();
             $table->string('account_number')->nullable();
             $table->string('service_provider')->nullable();
+            $table->date('start_date')->nullable();
+            $table->string('reference_number')->nullable();
             $table->timestamps();
         });
     }

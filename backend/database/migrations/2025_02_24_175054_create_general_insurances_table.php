@@ -15,12 +15,11 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('client_id'); 
             $table->unsignedBigInteger('family_member_id')->nullable(); 
-            $table->boolean("vehicle")->nullable();
-            $table->boolean("fire")->nullable();
-            $table->boolean("society")->nullable();
-            $table->boolean("workman")->nullable();
-            $table->boolean("personal_accident")->nullable();
-            $table->boolean("others")->nullable();
+            $table->string("insurance_type")->nullable();
+            $table->string("company_name")->nullable();
+            $table->decimal("premium",10,2)->nullable();
+            $table->date("start_date")->nullable();
+            $table->date("end_date")->nullable();
             $table->timestamps();
         });
     }

@@ -48,23 +48,31 @@ const formSchema = z.object({
         // family_member_id: z.unionstring().number().optional(),
         family_member_id: z.union([z.string(), z.number()]).optional(),
         // Fields common for both client and family members
-        vehicle: z.coerce
+        company_name: z
+          .string()
+          .min(1, "Company name field is required.")
+          .max(100, "Company name must be at max 100 characters")
+          .regex(
+            /^[A-Za-z\s\u0900-\u097F]+$/,
+            "Company name can only contain letters."
+          ),
+        insurance_type: z
+          .string()
+          .min(1, "Insurance type field is required.")
+          .max(100, "Insurance type must be at max 100 characters")
+          .regex(
+            /^[A-Za-z\s\u0900-\u097F]+$/,
+            "Insurance type can only contain letters."
+          ),
+        premium: z.coerce
           .number()
-          .min(0, "vehicle insurance field is required."),
-        fire: z.coerce.number().min(0, "fire insurance field is required."),
-        society: z.coerce
-          .number()
-          .min(0, "society insurance field is required."),
-        workman: z.coerce
-          .number()
-          .min(0, "workman insurance field is required."),
-        personal_accident: z.coerce
-          .number()
-          .min(0, "personal account insurance field is required."),
-        others: z.coerce.number().min(0, "others insurance field is required."),
+          .min(1, "Premium amount field is required.")
+          .max(99999999, "Premium amount must not exceed 9,99,99,999."),
+        start_date: z.string().min(1, "Start Date is required"),
+        end_date: z.string().min(1, "End date is required"),
       })
     )
-    .min(1, "At least one mediclaim entry is required.") // Ensure at least one entry
+    .min(1, "At least one General Insurance is required.") // Ensure at least one entry
     .optional(), // Optional so it can be dynamically added or removed
 });
 
@@ -81,12 +89,11 @@ const Update = () => {
 
   const defaultValues = {
     client_id: "",
-    vehicle: "",
-    fire: "",
-    society: "",
-    workman: "",
-    personal_accident: "",
-    others: "",
+    insurance_type: "",
+    company_name: "",
+    start_date: "",
+    end_date: "",
+    premium: "",
     general_insurance_data: [],
   };
 
@@ -212,12 +219,11 @@ const Update = () => {
         append({
           client_id: insurance.client_id,
           family_member_id: insurance.family_member_id || "", // if you have a family_member_id, otherwise ""
-          vehicle: insurance.vehicle || "",
-          fire: insurance.fire || "",
-          society: insurance.society || "",
-          workman: insurance.workman || "",
-          personal_accident: insurance.personal_accident || "",
-          others: insurance.others || "",
+          insurance_type: insurance.insurance_type || "",
+          company_name: insurance.company_name || "",
+          premium: insurance.premium || "",
+          start_date: insurance.start_date || "",
+          end_date: insurance.end_date || "",
         });
       });
     }
@@ -282,10 +288,10 @@ const Update = () => {
         const serverStatus = error.response.data.status;
         const serverErrors = error.response.data.errors;
         if (serverStatus === false) {
-          if (serverErrors.vehicle) {
-            setError("vehicle", {
+          if (serverErrors.company_name) {
+            setError("company_name", {
               type: "manual",
-              message: serverErrors.vehicle[0], // The error message from the server
+              message: serverErrors.company_name[0], // The error message from the server
             });
             // toast.error("The poo has already been taken.");
           }
@@ -463,206 +469,174 @@ const Update = () => {
                   </h3> */}
                   <h3 className="font-bold tracking-wide">{heading}</h3>
 
-                  <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-6 gap-7 md:gap-4">
-                    <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
-                      <Controller
-                        name={`general_insurance_data[${index}].vehicle`}
-                        control={control}
-                        render={({ field }) => (
-                          <input
-                            id={`general_insurance_data[${index}].vehicle`}
-                            {...field}
-                            checked={field.value === 1}
-                            onChange={(e) => {
-                              field.onChange(e.target.checked ? 1 : 0);
-                            }}
-                            type="checkbox"
-                            className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                          />
-                        )}
-                      />
+                  <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+                    <div className="relative">
                       <Label
                         className="font-normal"
-                        htmlFor={`general_insurance_data[${index}].vehicle`}
+                        htmlFor={`general_insurance_data[${index}].insurance_type`}
                       >
-                        Vehicle Insurance
+                        Insurance Type: <span className="text-red-500">*</span>
                       </Label>
-                      {errors.general_insurance_data?.[index]?.vehicle && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
-                          {
-                            errors.general_insurance_data[index]?.vehicle
-                              .message
-                          }
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
                       <Controller
-                        name={`general_insurance_data[${index}].fire`}
+                        name={`general_insurance_data[${index}].insurance_type`}
                         control={control}
                         render={({ field }) => (
-                          <input
-                            id={`general_insurance_data[${index}].fire`}
-                            {...field}
-                            checked={field.value === 1}
-                            onChange={(e) => {
-                              field.onChange(e.target.checked ? 1 : 0);
-                            }}
-                            type="checkbox"
-                            className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                          />
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger className="mt-1">
+                              <SelectValue
+                                className=""
+                                placeholder="Select type"
+                              />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel className="">
+                                  Select insurance type
+                                </SelectLabel>
+                                <SelectItem value="Vehicle">Vehicle</SelectItem>
+                                <SelectItem value="Fire">Fire</SelectItem>
+                                <SelectItem value="Society">Society</SelectItem>
+                                <SelectItem value="Workman">Workman</SelectItem>
+                                <SelectItem value="Personal Accident">
+                                  Personal Accident
+                                </SelectItem>
+                                <SelectItem value="Others">Others</SelectItem>
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
                         )}
                       />
-                      <Label
-                        className="font-normal"
-                        htmlFor={`general_insurance_data[${index}].fire`}
-                      >
-                        Fire Insurance
-                      </Label>
-                      {errors.general_insurance_data?.[index]?.fire && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
-                          {errors.general_insurance_data[index]?.fire.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
-                      <Controller
-                        name={`general_insurance_data[${index}].society`}
-                        control={control}
-                        render={({ field }) => (
-                          <input
-                            id={`general_insurance_data[${index}].society`}
-                            {...field}
-                            checked={field.value === 1}
-                            onChange={(e) => {
-                              field.onChange(e.target.checked ? 1 : 0);
-                            }}
-                            type="checkbox"
-                            className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                          />
-                        )}
-                      />
-                      <Label
-                        className="font-normal"
-                        htmlFor={`general_insurance_data[${index}].society`}
-                      >
-                        Society
-                      </Label>
-                      {errors.general_insurance_data?.[index]?.society && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
-                          {
-                            errors.general_insurance_data[index]?.society
-                              .message
-                          }
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
-                      <Controller
-                        name={`general_insurance_data[${index}].workman`}
-                        control={control}
-                        render={({ field }) => (
-                          <input
-                            id={`general_insurance_data[${index}].workman`}
-                            {...field}
-                            checked={field.value === 1}
-                            onChange={(e) => {
-                              field.onChange(e.target.checked ? 1 : 0);
-                            }}
-                            type="checkbox"
-                            className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                          />
-                        )}
-                      />
-                      <Label
-                        className="font-normal"
-                        htmlFor={`general_insurance_data[${index}].workman`}
-                      >
-                        Workman
-                      </Label>
-                      {errors.general_insurance_data?.[index]?.workman && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
-                          {
-                            errors.general_insurance_data[index]?.workman
-                              .message
-                          }
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
-                      <Controller
-                        name={`general_insurance_data[${index}].personal_accident`}
-                        control={control}
-                        render={({ field }) => (
-                          <input
-                            id={`general_insurance_data[${index}].personal_accident`}
-                            {...field}
-                            checked={field.value === 1}
-                            onChange={(e) => {
-                              field.onChange(e.target.checked ? 1 : 0);
-                            }}
-                            type="checkbox"
-                            className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                          />
-                        )}
-                      />
-                      <Label
-                        className="font-normal"
-                        htmlFor={`general_insurance_data[${index}].personal_accident`}
-                      >
-                        Personal Accident
-                      </Label>
                       {errors.general_insurance_data?.[index]
-                        ?.personal_accident && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
+                        ?.insurance_type && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
                           {
-                            errors.general_insurance_data[index]
-                              ?.personal_accident.message
+                            errors.general_insurance_data[index]?.insurance_type
+                              .message
                           }
                         </p>
                       )}
                     </div>
-
-                    <div className="relative flex gap-2 md:pt-6 md:pl-2 ">
+                    <div className="relative">
+                      <Label
+                        className="font-normal"
+                        htmlFor={`general_insurance_data[${index}].company_name`}
+                      >
+                        Company Name: <span className="text-red-500">*</span>
+                      </Label>
                       <Controller
-                        name={`general_insurance_data[${index}].others`}
+                        name={`general_insurance_data[${index}].company_name`}
                         control={control}
                         render={({ field }) => (
-                          <input
-                            id={`general_insurance_data[${index}].others`}
+                          <Input
                             {...field}
-                            checked={field.value === 1}
-                            onChange={(e) => {
-                              field.onChange(e.target.checked ? 1 : 0);
-                            }}
-                            type="checkbox"
-                            className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                            id="company_name"
+                            className="mt-1"
+                            type="text"
+                            placeholder="Enter company name"
                           />
                         )}
                       />
-                      <Label
-                        className="font-normal"
-                        htmlFor={`general_insurance_data[${index}].others`}
-                      >
-                        Others
-                      </Label>
-                      {errors.general_insurance_data?.[index]?.others && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
-                          {errors.general_insurance_data[index]?.others.message}
+                      {errors.general_insurance_data?.[index]?.company_name && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {
+                            errors.general_insurance_data?.[index]?.company_name
+                              .message
+                          }
                         </p>
                       )}
                     </div>
-                    {/* <Button
-                      type="button"
-                      onClick={() => remove(index)} // Remove family member
-                      className="mt-  bg-red-600 hover:bg-red-700 text-white"
-                    >
-                      Remove
-                    </Button> */}
+                    <div className="relative">
+                      <Label
+                        className="font-normal"
+                        htmlFor={`general_insurance_data[${index}].premium`}
+                      >
+                        Sum Insured: <span className="text-red-500">*</span>
+                      </Label>
+                      <Controller
+                        name={`general_insurance_data[${index}].premium`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id={`general_insurance_data[${index}].premium`}
+                            className="mt-1"
+                            type="number"
+                            placeholder="Enter premium amount"
+                          />
+                        )}
+                      />
+                      {errors.general_insurance_data?.[index]?.premium && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {
+                            errors.general_insurance_data[index].premium
+                              ?.message
+                          }
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+                    <div className="relative">
+                      <Label
+                        className="font-normal"
+                        htmlFor={`general_insurance_data[${index}].start_date`}
+                      >
+                        Start Date: <span className="text-red-500">*</span>
+                      </Label>
+                      <Controller
+                        name={`general_insurance_data[${index}].start_date`}
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            id={`general_insurance_data[${index}].start_date`}
+                            className="dark:bg-[var(--foreground)] mt-1 text-sm w-full p-2 pr-3 rounded-md border border-1"
+                            type="date"
+                            placeholder="Enter start date"
+                          />
+                        )}
+                      />
+                      {errors.general_insurance_data?.[index]?.start_date && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {
+                            errors.general_insurance_data[index].start_date
+                              ?.message
+                          }
+                        </p>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Label
+                        className="font-normal"
+                        htmlFor={`general_insurance_data[${index}].end_date`}
+                      >
+                        End Date: <span className="text-red-500">*</span>
+                      </Label>
+                      <Controller
+                        name={`general_insurance_data[${index}].end_date`}
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            id={`general_insurance_data[${index}].end_date`}
+                            className="dark:bg-[var(--foreground)] mt-1 text-sm w-full p-2 pr-3 rounded-md border border-1"
+                            type="date"
+                            placeholder="Enter end date"
+                          />
+                        )}
+                      />
+                      {errors.general_insurance_data?.[index]?.end_date && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {
+                            errors.general_insurance_data[index].end_date
+                              ?.message
+                          }
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
