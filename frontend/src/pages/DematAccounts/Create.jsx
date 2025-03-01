@@ -43,12 +43,38 @@ const formSchema = z.object({
       z.object({
         client_id: z.coerce.number().min(1, "Client ID field is required."),
         family_member_id: z.union([z.string(), z.number()]).optional(),
-        account_number: z.string().optional(), // Make it optional
-        have_demat_account: z.string().optional(),
-        service_provider: z.string().optional(), // Make it optional
+        account_number: z
+          .string()
+          .min(1, "Account Number field is required")
+          .max(100, "Account Number field can not exceed 100 characters"),
+        plan_name: z
+          .string()
+          .min(1, "Plan name field is required.")
+          .max(100, "Plan name field must not exceed 100 characters.")
+          .regex(
+            /^[A-Za-z\s\u0900-\u097F]+$/,
+            "Plan name can only contain letters."
+          ),
+        company_name: z
+          .string()
+          .min(1, "Company name field is required.")
+          .max(100, "Company name field must not exceed 100 characters.")
+          .regex(
+            /^[A-Za-z\s\u0900-\u097F]+$/,
+            "Company name can only contain letters."
+          ),
+        start_date: z.string().min(1, "Start Date field is required"),
+        service_provider: z
+          .string()
+          .min(1, "Service Provider field is required.")
+          .max(100, "Service Provider field must not exceed 100 characters.")
+          .regex(
+            /^[A-Za-z\s\u0900-\u097F]+$/,
+            "Service Provider can only contain letters."
+          ), // Make it optional
       })
     )
-    .min(1, "At least one mediclaim entry is required.") // Ensure at least one entry
+    .min(1, "At least one Demat Account is required.") // Ensure at least one entry
     .optional(),
   //   account_number: z
   //     .string()
@@ -87,7 +113,9 @@ const Create = () => {
     client_id: "",
     account_number: "",
     service_provider: "",
-    have_demat_account: "0",
+    company_name: "",
+    plan_name: "",
+    start_date: "",
     demat_account_data: [],
   };
 
@@ -129,10 +157,6 @@ const Create = () => {
 
   const clientId = watch("client_id");
 
-  const haveDemat = watch("have_demat_account");
-
-  
-
   const {
     data: showClientData,
     isLoading: isShowClientDataLoading,
@@ -167,7 +191,9 @@ const Create = () => {
       append({
         client_id: showClientData?.Client?.id,
         family_member_id: "", // client doesn't have a family_member_id
-        have_demat_account: "0",
+        company_name: "",
+        plan_name: "",
+        start_date: "",
         account_number: "",
         service_provider: "",
       });
@@ -177,9 +203,11 @@ const Create = () => {
         append({
           client_id: showClientData?.Client?.id,
           family_member_id: familyMember.id || "",
-          have_demat_account: "0",
-          account_number: "",
-          service_provider: "",
+          company_name: familyMember.company_name || "",
+          plan_name: familyMember.plan_name || "",
+          start_date: familyMember.start_date || "",
+          account_number: familyMember.account_number || "",
+          service_provider: familyMember.service_provider || "",
         });
       });
     }
@@ -245,17 +273,6 @@ const Create = () => {
     // }
     storeMutation.mutate(data);
   };
-
-  useEffect(() => {
-    console.log(errors); // Log errors
-  }, [errors]);
-
-  useEffect(() => {
-    // Ensure that the form is initialized with "0" for 'have_demat_account'
-    if (!watch("have_demat_account")) {
-      setValue("have_demat_account", "0");
-    }
-  }, [setValue, watch]);
 
   return (
     <>
@@ -411,31 +428,148 @@ const Create = () => {
                 <div key={item.id}>
                   <h3 className="font-bold tracking-wide">{heading}</h3>
 
-                  <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+                  <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
                     {/* Company Name */}
                     <div className="relative">
                       <Label
                         className="font-normal"
-                        htmlFor={`mediclaim_data[${index}].company_name`}
+                        htmlFor={`demat_account_data[${index}].company_name`}
                       >
                         Company Name: <span className="text-red-500">*</span>
                       </Label>
                       <Controller
-                        name={`mediclaim_data[${index}].company_name`}
+                        name={`demat_account_data[${index}].company_name`}
                         control={control}
                         render={({ field }) => (
                           <Input
                             {...field}
-                            id={`mediclaim_data[${index}].company_name`}
+                            id={`demat_account_data[${index}].company_name`}
                             className="mt-1"
                             type="text"
                             placeholder="Enter company name"
                           />
                         )}
                       />
-                      {errors.mediclaim_data?.[index]?.company_name && (
-                        <p className="absolute text-red-500 text-sm mt-1 left-0">
-                          {errors.mediclaim_data[index].company_name?.message}
+                      {errors.demat_account_data?.[index]?.company_name && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {
+                            errors.demat_account_data[index].company_name
+                              ?.message
+                          }
+                        </p>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Label
+                        className="font-normal"
+                        htmlFor={`demat_account_data[${index}].account_number`}
+                      >
+                        Demat Account Number:{" "}
+                        <span className="text-red-500">*</span>
+                      </Label>
+                      <Controller
+                        name={`demat_account_data[${index}].account_number`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id={`demat_account_data[${index}].account_number`}
+                            className="mt-1"
+                            type="text"
+                            placeholder="Enter account number"
+                          />
+                        )}
+                      />
+                      {errors.demat_account_data?.[index]?.account_number && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {
+                            errors.demat_account_data[index].account_number
+                              ?.message
+                          }
+                        </p>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Label
+                        className="font-normal"
+                        htmlFor={`demat_account_data[${index}].plan_name`}
+                      >
+                        Plan Name: <span className="text-red-500">*</span>
+                      </Label>
+                      <Controller
+                        name={`demat_account_data[${index}].plan_name`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id={`demat_account_data[${index}].plan_name`}
+                            className="mt-1"
+                            type="text"
+                            placeholder="Enter plan name"
+                          />
+                        )}
+                      />
+                      {errors.demat_account_data?.[index]?.plan_name && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {errors.demat_account_data[index].plan_name?.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+                    <div className="relative">
+                      <Label
+                        className="font-normal"
+                        htmlFor={`demat_account_data[${index}].start_date`}
+                      >
+                        Start Date: <span className="text-red-500">*</span>
+                      </Label>
+                      <Controller
+                        name={`demat_account_data[${index}].start_date`}
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            id={`demat_account_data[${index}].start_date`}
+                            className="dark:bg-[var(--foreground)] mt-1 text-sm w-full p-2 pr-3 rounded-md border border-1"
+                            type="date"
+                            placeholder="Enter proposal date"
+                          />
+                        )}
+                      />
+                      {errors.demat_account_data?.[index]?.start_date && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {errors.demat_account_data[index].start_date?.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Label
+                        className="font-normal"
+                        htmlFor={`demat_account_data[${index}].service_provider`}
+                      >
+                        Service Provider:{" "}
+                        <span className="text-red-500">*</span>
+                      </Label>
+                      <Controller
+                        name={`demat_account_data[${index}].service_provider`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id={`demat_account_data[${index}].service_provider`}
+                            className="mt-1"
+                            type="text"
+                            placeholder="Enter service provider"
+                          />
+                        )}
+                      />
+                      {errors.demat_account_data?.[index]?.service_provider && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {
+                            errors.demat_account_data[index].service_provider
+                              ?.message
+                          }
                         </p>
                       )}
                     </div>

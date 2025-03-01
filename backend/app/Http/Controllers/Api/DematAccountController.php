@@ -47,20 +47,15 @@ class DematAccountController extends BaseController
      */
     public function store(StoreDematAccountRequest $request): JsonResponse
     {
-        $dematAccounts = new DematAccount();
-        $dematAccounts->client_id = $request->input("client_id");
-        $dematAccounts->have_demat_account = $request->input("have_demat_account");
-        $dematAccounts->account_number = $request->input("account_number");
-        $dematAccounts->service_provider = $request->input("service_provider");
-        $dematAccounts->save();
-
         $dematAccountData = $request->input('demat_account_data'); // Array containing client and family member data
 
         foreach ($dematAccountData as $data) {
             $dematAccounts = new DematAccount();
             $dematAccounts->client_id = $data['client_id'];
             $dematAccounts->family_member_id = $data['family_member_id'] ?? null;
-            $dematAccounts->have_demat_account = $data['have_demat_account'];
+            $dematAccounts->company_name = $data['company_name'];
+            $dematAccounts->plan_name = $data['plan_name'];
+            $dematAccounts->start_date = $data['start_date'];
             $dematAccounts->account_number = $data['account_number'];
             $dematAccounts->service_provider = $data['service_provider'];
             $dematAccounts->save();
@@ -114,7 +109,9 @@ class DematAccountController extends BaseController
         $demat_account = new DematAccount();
         $demat_account->client_id = $data['client_id'];
         $demat_account->family_member_id = $data['family_member_id'] ?? null;
-        $demat_account->have_demat_account = $data['have_demat_account'];
+        $demat_account->company_name = $data['company_name'];
+        $demat_account->plan_name = $data['plan_name'];
+        $demat_account->start_date = $data['start_date'];
         $demat_account->account_number = $data['account_number'];
         $demat_account->service_provider = $data['service_provider'];
         $demat_account->save();
