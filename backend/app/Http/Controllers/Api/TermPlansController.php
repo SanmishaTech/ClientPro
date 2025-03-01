@@ -71,8 +71,6 @@ class TermPlansController extends BaseController
    
     }
 
-   
-
     /**
      * Show Term Plan.
      */

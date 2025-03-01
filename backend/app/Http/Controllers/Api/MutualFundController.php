@@ -50,12 +50,20 @@ class MutualFundController extends BaseController
      */
     public function store(StoreMutualFundRequest $request): JsonResponse
     {
-        $mutualFunds = new MutualFund();
-        $mutualFunds->client_id = $request->input("client_id");
-        $mutualFunds->have_mutual_fund_account = $request->input("have_mutual_fund_account");
-        $mutualFunds->account_number = $request->input("account_number");
-        $mutualFunds->service_provider = $request->input("service_provider");
-        $mutualFunds->save();
+      
+        $mutualFundData = $request->input('mutual_fund_data'); // Array containing client and family member data
+
+        foreach ($mutualFundData as $data) {
+            $mutualFunds = new MutualFund();
+            $mutualFunds->client_id = $data['client_id'];
+            $mutualFunds->family_member_id = $data['family_member_id'] ?? null;
+            $mutualFunds->mutual_fund_name = $data['mutual_fund_name'];
+            $mutualFunds->reference_name = $data['reference_name'];
+            $mutualFunds->start_date = $data['start_date'];
+            $mutualFunds->account_number = $data['account_number'];
+            $mutualFunds->service_provider = $data['service_provider'];
+            $mutualFunds->save();
+        }
      
         return $this->sendResponse(['MutualFund'=> new MutualFundResource($mutualFunds)], 'Mutual Fund Created Successfully');
     }
@@ -72,7 +80,13 @@ class MutualFundController extends BaseController
         if(!$mutualFunds){
             return $this->sendError("Mutual Fund Details not found", ['error'=>'Mutual Fund Details not found']);
         }
-        return $this->sendResponse(['MutualFund'=> new MutualFundResource($mutualFunds)], "Mutual Fund details retrieved successfully");
+
+        $mutualFundData = MutualFund::where('client_id',$mutualFunds->client_id)->get();
+
+        if(!$mutualFundData){
+            return $this->sendError("Mutual Fund not found", ['error'=>'Mutual Fund not found']);
+        }
+        return $this->sendResponse(['MutualFund'=> MutualFundResource::collection($mutualFundData)], "Mutual Fund details retrieved successfully");
     }
 
     /**
@@ -84,12 +98,29 @@ class MutualFundController extends BaseController
         if(!$mutualFunds){
             return $this->sendError("Mutual Fund details not found", ['error'=>'Mutual Fund details not found']);
         }
-        
-        $mutualFunds->client_id = $request->input("client_id");
-        $mutualFunds->account_number = $request->input("account_number");
-        $mutualFunds->have_mutual_fund_account = $request->input("have_mutual_fund_account");
-        $mutualFunds->service_provider = $request->input("service_provider");
-        $mutualFunds->save();
+
+        $mutualFundData = $request->input('mutual_fund_data'); // Array containing client and family member data
+
+        $removeMutualFund = MutualFund::where('client_id',$mutualFunds->client_id)->get();
+        if(!$removeMutualFund){
+            return $this->sendError("Mutual Fund not found", ['error'=>'Mutual Fund not found']);
+        }
+        $removeMutualFund->each(function($familyMember) {
+            $familyMember->delete();
+        });
+    
+        foreach ($mutualFundData as $data) {
+        $mutual_fund = new MutualFund();
+        $mutual_fund->client_id = $data['client_id'];
+        $mutual_fund->family_member_id = $data['family_member_id'] ?? null;
+        $mutual_fund->company_name = $data['company_name'];
+        $mutual_fund->mutual_fund_name = $data['plan_namemutual_fund_name'];
+        $mutual_fund->start_date = $data['start_date'];
+        $mutual_fund->reference_name = $data['reference_name'];
+        $mutual_fund->account_number = $data['account_number'];
+        $mutual_fund->service_provider = $data['service_provider'];
+        $mutual_fund->save();
+       }
        
         return $this->sendResponse(['MutualFund'=> new MutualFundResource($mutualFunds)], "Mutual Fund details updated successfully");
     }
