@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -37,32 +37,51 @@ import {
 
 const formSchema = z.object({
   client_id: z.coerce.number().min(1, "client field is required."),
-  //   account_number: z
-  //     .string()
-  //     .min(16, "Account Number must be at max 16 characters.")
-  //     .max(16, "Account Number must be at max 16 characters")
-  //     .regex(
-  //       /^[A-Za-z0-9\s]+$/,
-  //       "Account Number can only contain letters and numbers."
-  //     ),
-  //   have_demat_account: z
-  //     .string()
-  //     .min(1, "Account Number must be at max 16 characters."),
-
-  //   service_provider: z
-  //     .string()
-  //     .min(1, "Service Provider field is required.")
-  //     .max(100, "Service Provider must be at max 100 characters")
-  //     .regex(/^[A-Za-z\s]+$/, "Service Provider can only contain letters."),
-  account_number: z.string().optional(), // Make it optional
-  have_mutual_fund_account: z.string().optional(),
-
-  service_provider: z.string().optional(), // Make it optional
+  mutual_fund_data: z
+    .array(
+      z.object({
+        client_id: z.coerce.number().min(1, "Client ID field is required."),
+        family_member_id: z.union([z.string(), z.number()]).optional(),
+        account_number: z
+          .string()
+          .min(1, "Account Number field is required")
+          .max(100, "Account Number field can not exceed 100 characters"),
+        mutual_fund_name: z
+          .string()
+          .min(1, "Name field is required.")
+          .max(100, "Name field must not exceed 100 characters.")
+          .regex(
+            /^[A-Za-z\s\u0900-\u097F]+$/,
+            "Name can only contain letters."
+          ),
+        reference_name: z
+          .string()
+          .min(1, "Reference name field is required.")
+          .max(100, "Reference name field must not exceed 100 characters.")
+          .regex(
+            /^[A-Za-z\s\u0900-\u097F]+$/,
+            "Reference name can only contain letters."
+          ),
+        start_date: z.string().min(1, "Start Date field is required"),
+        service_provider: z
+          .string()
+          .min(1, "Service Provider field is required.")
+          .max(100, "Service Provider field must not exceed 100 characters.")
+          .regex(
+            /^[A-Za-z\s\u0900-\u097F]+$/,
+            "Service Provider can only contain letters."
+          ), // Make it optional
+      })
+    )
+    .min(1, "At least one Demat Account is required.") // Ensure at least one entry
+    .optional(),
 });
 
 const Update = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [openClient, setOpenClient] = useState(false);
+  const [clientData, setClientData] = useState(null);
+  const [familyMembers, setFamilyMembers] = useState([]);
   const queryClient = useQueryClient();
   const { id } = useParams();
   const user = JSON.parse(localStorage.getItem("user"));
@@ -73,7 +92,10 @@ const Update = () => {
     client_id: "",
     account_number: "",
     service_provider: "",
-    have_mutual_fund_account: "0",
+    mutual_fund_name: "",
+    reference_name: "",
+    start_date: "",
+    mutual_fund_data: [],
   };
 
   const {
@@ -107,7 +129,36 @@ const Update = () => {
     setError,
   } = useForm({ resolver: zodResolver(formSchema), defaultValues });
 
-  const haveMutual = watch("have_mutual_fund_account");
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "mutual_fund_data", // This will store all mediclaim data including client and family members
+  });
+  const clientId = watch("client_id");
+
+  const {
+    data: showClientData,
+    isLoading: isShowClientDataLoading,
+    isError: isShowClientDataError,
+  } = useQuery({
+    queryKey: ["showClient", clientId], // This is the query key
+    queryFn: async () => {
+      try {
+        if (!clientId) {
+          return [];
+        }
+        const response = await axios.get(`/api/clients/${clientId}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data?.data; // Return the fetched data
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    },
+    enabled: !!clientId, // Enable the query only if clientId is truthy
+  });
 
   const {
     data: editMutual,
@@ -133,18 +184,29 @@ const Update = () => {
 
   useEffect(() => {
     if (editMutual) {
-      setValue("client_id", editMutual.MutualFund?.client_id || "");
-      setValue(
-        "service_provider",
-        editMutual.MutualFund?.service_provider || ""
-      );
-      setValue("account_number", editMutual.MutualFund?.account_number || "");
-      setValue(
-        "have_mutual_fund_account",
-        editMutual.MutualFund?.have_mutual_fund_account ? "1" : "0"
-      );
+      setValue("client_id", editMutual?.MutualFund[0]?.client_id);
     }
-  }, [editMutual, setValue]);
+    if (editMutual && editMutual.MutualFund.length > 0) {
+      remove();
+      // Append data from editMutual to the form dynamically
+      editMutual.MutualFund.forEach((mutualFund, index) => {
+        // Append empty mediclaim data first
+        append({
+          client_id: mutualFund.client_id,
+          family_member_id: mutualFund.family_member_id || "", // if you have a family_member_id, otherwise ""
+          mutual_fund_name: mutualFund.mutual_fund_name,
+          reference_name: mutualFund.reference_name || "",
+          start_date: mutualFund.start_date,
+          account_number: mutualFund.account_number,
+          service_provider: mutualFund.service_provider,
+        });
+      });
+    }
+
+    if (showClientData) {
+      setFamilyMembers(showClientData?.Client?.Family_members);
+    }
+  }, [editMutual, append, showClientData]);
 
   const updateMutation = useMutation({
     mutationFn: async (data) => {
@@ -200,10 +262,7 @@ const Update = () => {
   });
   const onSubmit = (data) => {
     setIsLoading(true);
-    if (data.have_mutual_fund_account === "0") {
-      data.service_provider = "";
-      data.account_number = "";
-    }
+
     updateMutation.mutate(data);
   };
 
@@ -232,7 +291,7 @@ const Update = () => {
 
         <div className="px-5 pb-7 dark:bg-background pt-1 w-full bg-white shadow-lg border  rounded-md">
           <div className="w-full py-3 flex justify-start items-center">
-            <h2 className="text-lg  font-normal">Edit Mutual Funds Details</h2>
+            <h2 className="text-lg  font-normal">Edit Mutual Fund Details</h2>
           </div>
           {/* row starts */}
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -269,7 +328,7 @@ const Update = () => {
                   </p>
                 )}
               </div> */}
-               <div className="relative mt-2 flex flex-col gap-1">
+              <div className="relative mt-2 flex flex-col gap-1">
                 <Label className="font-normal" htmlFor="client_id">
                   Client: <span className="text-red-500">*</span>
                 </Label>
@@ -345,126 +404,195 @@ const Update = () => {
                   </p>
                 )}
               </div>
-              <div className="a">
-                <Label className="font-normal" htmlFor="mutual-yes">
-                  Have Mutual Fund Account{" "}
-                  <span className="text-red-500">*</span>
-                </Label>
-                <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-10 gap-7 md:gap-4">
-                  <div className="relative flex gap-2 md:pt-3 md:pl-2 ">
-                    <Controller
-                      name="have_mutual_fund_account"
-                      control={control}
-                      defaultValue={0}
-                      render={({ field }) => (
-                        <input
-                          id="mutual-no"
-                          {...field}
-                          type="radio"
-                          value="0"
-                          checked={field.value === "0"}
-                          className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                        />
-                      )}
-                    />
-                    <Label className="font-normal" htmlFor="mutual-no">
-                      No
-                    </Label>
-                    {errors.have_mutual_fund_account && (
-                      <p className="absolute text-red-500 text-sm mt-1 left-0">
-                        {errors.have_mutual_fund_account.message}
-                      </p>
-                    )}
-                  </div>
-                  <div className="relative flex gap-2 md:pt-3 md:pl-2 ">
-                    <Controller
-                      name="have_mutual_fund_account"
-                      control={control}
-                      render={({ field }) => (
-                        <input
-                          id="mutual-yes"
-                          {...field}
-                          type="radio"
-                          value="1"
-                          checked={field.value === "1"}
-                          className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                        />
-                      )}
-                    />
-                    <Label className="font-normal" htmlFor="mutual-yes">
-                      Yes
-                    </Label>
-                    {errors.have_mutual_fund_account && (
-                      <p className="absolute text-red-500 text-sm mt-1 left-0">
-                        {errors.have_mutual_fund_account.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
             </div>
-            {haveMutual === "1" ? (
-              <>
-                <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
-                  <div className="relative">
-                    <Label className="font-normal" htmlFor="account_number">
-                      Account Number:<span className="text-red-500">*</span>
-                    </Label>
-                    <Controller
-                      name="account_number"
-                      control={control}
-                      rules={{
-                        required: "Account number field is required",
-                        pattern: {
-                          value: /^[0-9]{10}$/,
-                          message: "Account number must be exact 16 digits",
-                        },
-                      }}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          id="account_number"
-                          className="mt-1"
-                          type="text"
-                          placeholder="Enter account number"
-                          maxLength={16} // Enforce max length of 10 digits
-                        />
+            {fields.map((item, index) => {
+              const isClient = !item.family_member_id;
+              const memberData = !isClient
+                ? familyMembers.find(
+                    (member) => member.id === item.family_member_id
+                  )
+                : null;
+              const heading = isClient
+                ? "Client"
+                : memberData?.family_member_name || "Family Member";
+
+              return (
+                <div key={item.id}>
+                  <h3 className="font-bold tracking-wide">{heading}</h3>
+
+                  <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+                    {/* Company Name */}
+                    <div className="relative">
+                      <Label
+                        className="font-normal"
+                        htmlFor={`mutual_fund_data[${index}].mutual_fund_name`}
+                      >
+                        Name: <span className="text-red-500">*</span>
+                      </Label>
+                      <Controller
+                        name={`mutual_fund_data[${index}].mutual_fund_name`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id={`mutual_fund_data[${index}].mutual_fund_name`}
+                            className="mt-1"
+                            type="text"
+                            placeholder="Enter name"
+                          />
+                        )}
+                      />
+                      {errors.mutual_fund_data?.[index]?.mutual_fund_name && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {
+                            errors.mutual_fund_data[index].mutual_fund_name
+                              ?.message
+                          }
+                        </p>
                       )}
-                    />
-                    {errors.account_number && (
-                      <p className="absolute text-red-500 text-sm mt-1 left-0">
-                        {errors.account_number.message}
-                      </p>
-                    )}
+                    </div>
+                    <div className="relative">
+                      <Label
+                        className="font-normal"
+                        htmlFor={`mutual_fund_data[${index}].reference_name`}
+                      >
+                        Reference name: <span className="text-red-500">*</span>
+                      </Label>
+                      <Controller
+                        name={`mutual_fund_data[${index}].reference_name`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id={`mutual_fund_data[${index}].reference_name`}
+                            className="mt-1"
+                            type="text"
+                            placeholder="Enter reference name"
+                          />
+                        )}
+                      />
+                      {errors.mutual_fund_data?.[index]?.reference_name && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {
+                            errors.mutual_fund_data[index].reference_name
+                              ?.message
+                          }
+                        </p>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Label
+                        className="font-normal"
+                        htmlFor={`mutual_fund_data[${index}].start_date`}
+                      >
+                        Start Date: <span className="text-red-500">*</span>
+                      </Label>
+                      <Controller
+                        name={`mutual_fund_data[${index}].start_date`}
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            id={`mutual_fund_data[${index}].start_date`}
+                            className="dark:bg-[var(--foreground)] mt-1 text-sm w-full p-2 pr-3 rounded-md border border-1"
+                            type="date"
+                            placeholder="Enter proposal date"
+                          />
+                        )}
+                      />
+                      {errors.mutual_fund_data?.[index]?.start_date && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {errors.mutual_fund_data[index].start_date?.message}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div className="relative">
-                    <Label className="font-normal" htmlFor="service_provider">
-                      Service Provider:<span className="text-red-500">*</span>
-                    </Label>
-                    <Controller
-                      name="service_provider"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          id="service_provider"
-                          className="mt-1"
-                          type="text"
-                          placeholder="Enter service provider"
-                        />
+                  <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+                    <div className="relative">
+                      <Label
+                        className="font-normal"
+                        htmlFor={`mutual_fund_data[${index}].service_provider`}
+                      >
+                        Service Provider:{" "}
+                        <span className="text-red-500">*</span>
+                      </Label>
+                      <Controller
+                        name={`mutual_fund_data[${index}].service_provider`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id={`mutual_fund_data[${index}].service_provider`}
+                            className="mt-1"
+                            type="text"
+                            placeholder="Enter service provider"
+                          />
+                        )}
+                      />
+                      {errors.mutual_fund_data?.[index]?.service_provider && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {
+                            errors.mutual_fund_data[index].service_provider
+                              ?.message
+                          }
+                        </p>
                       )}
-                    />
-                    {errors.service_provider && (
-                      <p className="absolute text-red-500 text-sm mt-1 left-0">
-                        {errors.service_provider.message}
-                      </p>
-                    )}
+                    </div>
+                    <div className="relative">
+                      <Label
+                        className="font-normal"
+                        htmlFor={`mutual_fund_data[${index}].account_number`}
+                      >
+                        Account Number: <span className="text-red-500">*</span>
+                      </Label>
+                      <Controller
+                        name={`mutual_fund_data[${index}].account_number`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id={`mutual_fund_data[${index}].account_number`}
+                            className="mt-1"
+                            type="text"
+                            placeholder="Enter service provider"
+                          />
+                        )}
+                      />
+                      {errors.mutual_fund_data?.[index]?.account_number && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {
+                            errors.mutual_fund_data[index].account_number
+                              ?.message
+                          }
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-9 gap-7 md:gap-4">
+                    {/* <Button
+                      type="button"
+                      onClick={() => {
+                        remove(index); // Remove the selected form field
+
+                        if (index !== 0) {
+                          // Only update familyMembers when a family member form is removed
+                          setFamilyMembers((prevMembers) => {
+                            const updatedMembers = [...prevMembers];
+                            updatedMembers.splice(index - 1, 1); // Remove the corresponding family member
+                            return updatedMembers;
+                          });
+                        }
+                        // If the client (index 0) is removed, do not update familyMembers.
+                      }}
+                      className="mt-1 bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      Remove
+                    </Button> */}
                   </div>
                 </div>
-              </>
-            ) : (
-              ""
-            )}
+              );
+            })}
 
             {/* row ends */}
             <div className="w-full gap-4 mt-4 flex justify-end items-center">
@@ -484,10 +612,10 @@ const Update = () => {
                 {isLoading ? (
                   <>
                     <Loader2 className="animate-spin mr-2" /> {/* Spinner */}
-                    Updating...
+                    Submitting...
                   </>
                 ) : (
-                  "Update"
+                  "Submit"
                 )}
               </Button>
             </div>

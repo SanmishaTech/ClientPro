@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('account_number')->nullable();
             $table->string('service_provider')->nullable();
             $table->date('start_date')->nullable();
-            $table->string('reference_number')->nullable();
+            $table->string('reference_name')->nullable();
             $table->timestamps();
         });
     }

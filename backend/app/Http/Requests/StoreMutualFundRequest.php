@@ -23,17 +23,7 @@ class StoreMutualFundRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules = [
-            'have_mutual_fund_account' => 'required|in:0,1', // 'No' or 'Yes'
-        ];
-
-        // If 'have_demat_account' is 'Yes' (1), these fields become required
-        if ($this->input('have_mutual_fund_account') == '1') {
-            $rules['account_number'] = 'required|regex:/^[A-Za-z0-9\s]+$/|min:16|max:16|unique:mutual_funds,account_number';
-            $rules['service_provider'] = 'required|string|max:100|regex:/^[A-Za-z\s]+$/';
-        }
-
-        return $rules;
+        return [];
     }
 
     protected function failedValidation(Validator $validator)

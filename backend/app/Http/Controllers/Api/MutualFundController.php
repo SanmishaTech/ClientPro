@@ -113,8 +113,7 @@ class MutualFundController extends BaseController
         $mutual_fund = new MutualFund();
         $mutual_fund->client_id = $data['client_id'];
         $mutual_fund->family_member_id = $data['family_member_id'] ?? null;
-        $mutual_fund->company_name = $data['company_name'];
-        $mutual_fund->mutual_fund_name = $data['plan_namemutual_fund_name'];
+        $mutual_fund->mutual_fund_name = $data['mutual_fund_name'];
         $mutual_fund->start_date = $data['start_date'];
         $mutual_fund->reference_name = $data['reference_name'];
         $mutual_fund->account_number = $data['account_number'];
