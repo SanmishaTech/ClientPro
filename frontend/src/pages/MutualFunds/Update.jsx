@@ -73,7 +73,7 @@ const formSchema = z.object({
           ), // Make it optional
       })
     )
-    .min(1, "At least one Demat Account is required.") // Ensure at least one entry
+    .min(1, "At least one Mutual Fund entry is required.") // Ensure at least one entry
     .optional(),
 });
 
@@ -231,26 +231,29 @@ const Update = () => {
         const serverStatus = error.response.data.status;
         const serverErrors = error.response.data.errors;
         if (serverStatus === false) {
-          if (serverErrors.account_number) {
-            setError("account_number", {
-              type: "manual",
-              message: serverErrors.account_number[0], // The error message from the server
-            });
-            // toast.error("The poo has already been taken.");
-          }
-          if (serverErrors.service_provider) {
-            setError("service_provider", {
-              type: "manual",
-              message: serverErrors.service_provider[0], // The error message from the server
-            });
-            // toast.error("The poo has already been taken.");
-          }
-          if (serverErrors.client_id) {
-            setError("client_id", {
-              type: "manual",
-              message: serverErrors.client_id[0], // The error message from the server
-            });
-            // toast.error("The poo has already been taken.");
+          for (const [field, messages] of Object.entries(serverErrors)) {
+            // Extract the index for array errors like demat_account_data.0.account_number
+            const fieldNameParts = field.split(".");
+            const fieldName = fieldNameParts[fieldNameParts.length - 1]; // e.g., "account_number"
+
+            // Handle nested array errors dynamically
+            if (field.includes("mutual_fund_data")) {
+              const index = fieldNameParts[1]; // e.g., "0" for the first item in the array
+
+              setError(
+                `mutual_fund_data[${index}].${fieldName}`, // Path to the nested field
+                {
+                  type: "manual",
+                  message: messages[0], // The error message from the server
+                }
+              );
+            } else {
+              // Handle non-nested fields normally
+              setError(fieldName, {
+                type: "manual",
+                message: messages[0],
+              });
+            }
           }
         } else {
           toast.error("Failed to Update Mutual Funds details.");
@@ -427,7 +430,8 @@ const Update = () => {
                         className="font-normal"
                         htmlFor={`mutual_fund_data[${index}].mutual_fund_name`}
                       >
-                        Name: <span className="text-red-500">*</span>
+                        Mutual Fund Name:{" "}
+                        <span className="text-red-500">*</span>
                       </Label>
                       <Controller
                         name={`mutual_fund_data[${index}].mutual_fund_name`}

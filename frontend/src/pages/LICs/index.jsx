@@ -165,7 +165,7 @@ const Index = () => {
                       {lic.company_name}
                     </TableCell>
                     <TableCell className="font-medium p-2">
-                      {lic.broker_name}
+                      {lic.broker_name || "N/A"}
                     </TableCell>
                     <TableCell className="font-medium p-2">
                       ₹{lic.sum_insured}

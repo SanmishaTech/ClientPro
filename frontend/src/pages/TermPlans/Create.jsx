@@ -50,20 +50,11 @@ const formSchema = z.object({
         // Fields common for both client and family members
         term_company_name: z
           .string()
-          .min(2, "Company name must be at least 2 characters.")
+          .min(1, "Company name field is required.")
           .max(100, "Company name must not exceed 100 characters.")
           .regex(
             /^[A-Za-z\s\u0900-\u097F]+$/,
             "Company name can only contain letters."
-          ),
-
-        broker_name: z
-          .string()
-          .min(2, "Broker name must be at least 2 characters.")
-          .max(100, "Broker name must not exceed 100 characters.")
-          .regex(
-            /^[A-Za-z\s\u0900-\u097F]+$/,
-            "Broker name can only contain letters."
           ),
 
         broker_name: z
@@ -81,10 +72,18 @@ const formSchema = z.object({
           .string()
           .min(1, "Policy number field is required.")
           .max(100, "Policy number must not exceed 100 characters."),
+        // plan_name: z
+        //   .string()
+        //   .min(1, "Plan name field is required.")
+        //   .max(100, "Plan name must not exceed 100 characters."),
         plan_name: z
           .string()
           .min(1, "Plan name field is required.")
-          .max(100, "Plan name must not exceed 100 characters."),
+          .max(100, "Plan name must not exceed 100 characters.")
+          .regex(
+            /^[A-Za-z\s\u0900-\u097F]+$/,
+            "Plan name can only contain letters."
+          ),
         premium_without_gst: z.coerce
           .number()
           .min(1, "Premium field is required.")
@@ -114,7 +113,7 @@ const formSchema = z.object({
           ),
       })
     )
-    .min(1, "At least one mediclaim entry is required.") // Ensure at least one entry
+    .min(1, "At least one Term Plan entry is required.") // Ensure at least one entry
     .optional(), // Optional so it can be dynamically added or removed
 });
 

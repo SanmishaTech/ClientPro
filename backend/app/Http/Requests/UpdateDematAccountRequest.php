@@ -23,9 +23,13 @@ class UpdateDematAccountRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [];
+        return [
+          
+            // You can add other validation rules for other fields inside the array (e.g., client_id, etc.)
+        ];
     }
 
+    
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(

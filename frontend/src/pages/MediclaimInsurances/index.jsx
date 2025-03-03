@@ -165,10 +165,10 @@ const Index = () => {
                       {insurance.company_name}
                     </TableCell>
                     <TableCell className="font-medium p-2">
-                      {insurance.broker_name}
+                      {insurance.broker_name || "N/A"}
                     </TableCell>
                     <TableCell className="font-medium p-2">
-                    ₹{insurance.sum_insured}
+                      ₹{insurance.sum_insured}
                     </TableCell>
 
                     <TableCell className="text-right p-2 pr-5">

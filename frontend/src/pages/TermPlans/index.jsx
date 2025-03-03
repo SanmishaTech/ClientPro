@@ -165,7 +165,7 @@ const Index = () => {
                       {TermPlan.term_company_name}
                     </TableCell>
                     <TableCell className="font-medium p-2">
-                      {TermPlan.broker_name}
+                      {TermPlan.broker_name || "N/A"}
                     </TableCell>
                     <TableCell className="font-medium p-2">
                       ₹{TermPlan.sum_insured}

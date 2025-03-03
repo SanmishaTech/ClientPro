@@ -58,7 +58,7 @@ const formSchema = z.object({
   term: z.coerce
     .number()
     .min(1, "Term field is required.")
-    .max(60, "Term field must not exceed 60 years."),
+    .max(50, "Term field must not exceed 50 years."),
   emi: z.coerce
     .number()
     .min(1, "Emi field is required.")
@@ -537,7 +537,7 @@ const Update = () => {
                       {...field}
                       id="loan_amount"
                       className="mt-1"
-                      type="text"
+                      type="number"
                       placeholder="Enter Loan amount"
                     />
                   )}
@@ -560,7 +560,7 @@ const Update = () => {
                       {...field}
                       id="term"
                       className="mt-1"
-                      type="text"
+                      type="number"
                       placeholder="Enter term"
                     />
                   )}
@@ -585,7 +585,7 @@ const Update = () => {
                       {...field}
                       id="emi"
                       className="mt-1"
-                      type="text"
+                      type="number"
                       placeholder="Enter Emi amount"
                     />
                   )}
@@ -608,7 +608,7 @@ const Update = () => {
                       {...field}
                       id="roi"
                       className="mt-1"
-                      type="text"
+                      type="number"
                       placeholder="Enter ROI"
                     />
                   )}

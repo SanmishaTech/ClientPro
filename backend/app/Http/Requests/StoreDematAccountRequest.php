@@ -23,7 +23,19 @@ class StoreDematAccountRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [];
+        return [
+            'demat_account_data' => 'required|array',
+            "demat_account_data.*.account_number" => 'required|string|unique:demat_accounts,account_number',
+            // "account_number" => ['required', 'unique:demat_accounts,account_number'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'demat_account_data.*.account_number.unique' => 'The account number has already been taken.',
+            // You can add other custom messages for different rules if necessary
+        ];
     }
 
     protected function failedValidation(Validator $validator)

@@ -35,7 +35,7 @@ class ClientsController extends BaseController
     }
     
     /**
-     * All Devtas.
+     * All Clients.
      */
     public function index(Request $request): JsonResponse
     {
@@ -47,7 +47,10 @@ class ClientsController extends BaseController
             $query->where(function ($query) use ($searchTerm) {
                 $query->where('client_name', 'like', '%' . $searchTerm . '%')
                 ->orWhere('email', 'like', '%' . $searchTerm . '%')
-                ->orWhere('mobile', 'like', '%' . $searchTerm . '%');
+                ->orWhere('mobile', 'like', '%' . $searchTerm . '%')
+                ->orWhereHas('familyMembers', function($query) use($searchTerm){
+                    $query->where('family_member_name','like', '%' . $searchTerm . '%');
+                });
             });
         }
         $clients = $query->Orderby('id', 'desc')->paginate(20);

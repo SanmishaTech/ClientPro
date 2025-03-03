@@ -44,8 +44,12 @@ const formSchema = z.object({
         family_member_id: z.union([z.string(), z.number()]).optional(),
         account_number: z
           .string()
-          .min(1, "Account Number field is required")
-          .max(100, "Account Number field can not exceed 100 characters"),
+          .min(16, "Account Number must be exact 16 characters long.")
+          .max(16, "Account Number must be exact 16 characters long.")
+          .regex(
+            /^[A-Za-z0-9]+$/,
+            "Account Number can only contain letters and numbers."
+          ),
         plan_name: z
           .string()
           .min(1, "Plan name field is required.")
@@ -231,26 +235,29 @@ const Update = () => {
         const serverStatus = error.response.data.status;
         const serverErrors = error.response.data.errors;
         if (serverStatus === false) {
-          if (serverErrors.account_number) {
-            setError("account_number", {
-              type: "manual",
-              message: serverErrors.account_number[0], // The error message from the server
-            });
-            // toast.error("The poo has already been taken.");
-          }
-          if (serverErrors.service_provider) {
-            setError("service_provider", {
-              type: "manual",
-              message: serverErrors.service_provider[0], // The error message from the server
-            });
-            // toast.error("The poo has already been taken.");
-          }
-          if (serverErrors.client_id) {
-            setError("client_id", {
-              type: "manual",
-              message: serverErrors.client_id[0], // The error message from the server
-            });
-            // toast.error("The poo has already been taken.");
+          for (const [field, messages] of Object.entries(serverErrors)) {
+            // Extract the index for array errors like demat_account_data.0.account_number
+            const fieldNameParts = field.split(".");
+            const fieldName = fieldNameParts[fieldNameParts.length - 1]; // e.g., "account_number"
+
+            // Handle nested array errors dynamically
+            if (field.includes("demat_account_data")) {
+              const index = fieldNameParts[1]; // e.g., "0" for the first item in the array
+
+              setError(
+                `demat_account_data[${index}].${fieldName}`, // Path to the nested field
+                {
+                  type: "manual",
+                  message: messages[0], // The error message from the server
+                }
+              );
+            } else {
+              // Handle non-nested fields normally
+              setError(fieldName, {
+                type: "manual",
+                message: messages[0],
+              });
+            }
           }
         } else {
           toast.error("Failed to Update Demat Account details.");
@@ -472,6 +479,7 @@ const Update = () => {
                             className="mt-1"
                             type="text"
                             placeholder="Enter account number"
+                            maxLength={16}
                           />
                         )}
                       />

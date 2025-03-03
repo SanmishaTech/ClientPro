@@ -55,10 +55,28 @@ const formSchema = z.object({
     .number()
     .min(1, "Weight field is required.")
     .max(200, "Weight must be less than or equal to 200."),
+  // existing_ped: z
+  //   .string()
+  //   .max(100, "PED must be at max 255 characters")
+  //   .optional(),
   existing_ped: z
     .string()
-    .max(100, "PED must be at max 255 characters")
-    .optional(),
+    .max(100, "PED must be at max 100 characters")
+    .regex(
+      /^[A-Za-z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/? ]*$/,
+      "PED can only contain letters and special characters.."
+    )
+    .refine(
+      (val) =>
+        val === "" ||
+        val === null ||
+        val === undefined ||
+        /^[A-Za-z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/? ]*$/.test(val),
+      {
+        message: "PED can only contain letters and special characters..",
+      }
+    )
+    .optional(), // Allows nul
   office_address: z
     .string()
     .max(200, "Office address must be at max 200 characters")
@@ -123,10 +141,28 @@ const formSchema = z.object({
           .number()
           .min(1, "Weight field is required.")
           .max(200, "Weight must be less than or equal to 200."),
+        // member_existing_ped: z
+        //   .string()
+        //   .max(100, "PED must be at max 255 characters")
+        //   .optional(),
         member_existing_ped: z
           .string()
-          .max(100, "PED must be at max 255 characters")
-          .optional(),
+          .max(100, "PED must be at max 100 characters")
+          .regex(
+            /^[A-Za-z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/? ]*$/,
+            "PED can only contain letters and special characters.."
+          )
+          .refine(
+            (val) =>
+              val === "" ||
+              val === null ||
+              val === undefined ||
+              /^[A-Za-z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/? ]*$/.test(val),
+            {
+              message: "PED can only contain letters and special characters..",
+            }
+          )
+          .optional(), // Allows nul
       })
     )
     .optional(),
@@ -319,7 +355,7 @@ const Update = () => {
               <h2 className="text-lg  font-normal">Personal Information</h2>
             </div>
             {/* row starts */}
-            <div className="w-full mb-4 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+            <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
               <div className="relative">
                 <Label className="font-normal" htmlFor="client_name">
                   Client Name: <span className="text-red-500">*</span>
@@ -338,7 +374,7 @@ const Update = () => {
                   )}
                 />
                 {errors.client_name && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                  <p className=" text-red-500 text-sm mt-1 left-0">
                     {errors.client_name.message}
                   </p>
                 )}
@@ -362,7 +398,7 @@ const Update = () => {
                   )}
                 />
                 {errors.email && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                  <p className=" text-red-500 text-sm mt-1 left-0">
                     {errors.email.message}
                   </p>
                 )}
@@ -385,7 +421,7 @@ const Update = () => {
                   )}
                 />
                 {errors.date_of_birth && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                  <p className=" text-red-500 text-sm mt-1 left-0">
                     {errors.date_of_birth.message}
                   </p>
                 )}
@@ -393,7 +429,7 @@ const Update = () => {
             </div>
             {/* row ends */}
             {/* row starts */}
-            <div className="w-full mb-4 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+            <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
               <div className="relative">
                 <Label className="font-normal" htmlFor="mobile">
                   Mobile:<span className="text-red-500">*</span>
@@ -420,7 +456,7 @@ const Update = () => {
                   )}
                 />
                 {errors.mobile && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                  <p className=" text-red-500 text-sm mt-1 left-0">
                     {errors.mobile.message}
                   </p>
                 )}
@@ -443,7 +479,7 @@ const Update = () => {
                   )}
                 />
                 {errors.height && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                  <p className=" text-red-500 text-sm mt-1 left-0">
                     {errors.height.message}
                   </p>
                 )}
@@ -466,7 +502,7 @@ const Update = () => {
                   )}
                 />
                 {errors.weight && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                  <p className=" text-red-500 text-sm mt-1 left-0">
                     {errors.weight.message}
                   </p>
                 )}
@@ -491,7 +527,7 @@ const Update = () => {
                   )}
                 />
                 {errors.existing_ped && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                  <p className=" text-red-500 text-sm mt-1 left-0">
                     {errors.existing_ped.message}
                   </p>
                 )}
@@ -519,7 +555,7 @@ const Update = () => {
                   )}
                 />
                 {errors.residential_address && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                  <p className=" text-red-500 text-sm mt-1 left-0">
                     {errors.residential_address.message}
                   </p>
                 )}
@@ -545,13 +581,13 @@ const Update = () => {
                   )}
                 />
                 {errors.residential_address_pincode && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                  <p className=" text-red-500 text-sm mt-1 left-0">
                     {errors.residential_address_pincode.message}
                   </p>
                 )}
               </div>
             </div>
-            <div className="w-full mb-4 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+            <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
               <div className="relative col-span-2">
                 <Label className="font-normal" htmlFor="office_address">
                   Office Address:
@@ -570,7 +606,7 @@ const Update = () => {
                   )}
                 />
                 {errors.office_address && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                  <p className=" text-red-500 text-sm mt-1 left-0">
                     {errors.office_address.message}
                   </p>
                 )}
@@ -593,7 +629,7 @@ const Update = () => {
                   )}
                 />
                 {errors.office_address_pincode && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                  <p className=" text-red-500 text-sm mt-1 left-0">
                     {errors.office_address_pincode.message}
                   </p>
                 )}

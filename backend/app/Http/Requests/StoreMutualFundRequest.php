@@ -23,7 +23,19 @@ class StoreMutualFundRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [];
+        return [
+            'mutual_fund_data' => 'required|array',
+            "mutual_fund_data.*.account_number" => 'required|string|unique:mutual_funds,account_number',
+            // "account_number" => ['required', 'unique:demat_accounts,account_number'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'mutual_fund_data.*.account_number.unique' => 'The account number has already been taken.',
+            // You can add other custom messages for different rules if necessary
+        ];
     }
 
     protected function failedValidation(Validator $validator)

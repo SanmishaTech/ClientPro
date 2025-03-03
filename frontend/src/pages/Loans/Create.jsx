@@ -56,10 +56,20 @@ const formSchema = z.object({
     .number()
     .min(1, "Loan amount field is required.")
     .max(99999999, "Loan amount must not exceed 9,99,99,999."),
+  // term: z.coerce
+  //   .number()
+  //   .min(1, "Term field is required.")
+  //   .max(60, "Term field must not exceed 60 years."),
+  // term: z
+  //   .string()
+  //   .min(1, "Term field is required.")
+  //   .max(100, "Term must be at max 100 characters")
+  //   .regex(/^[0-9]+$/, "Term can only contain numbers."),
   term: z.coerce
     .number()
     .min(1, "Term field is required.")
-    .max(60, "Term field must not exceed 60 years."),
+    .max(50, "Term field must not exceed 50 years"),
+
   emi: z.coerce
     .number()
     .min(1, "Emi field is required.")
@@ -456,7 +466,7 @@ const Create = () => {
                       {...field}
                       id="loan_amount"
                       className="mt-1"
-                      type="text"
+                      type="number"
                       placeholder="Enter Loan amount"
                     />
                   )}
@@ -479,7 +489,7 @@ const Create = () => {
                       {...field}
                       id="term"
                       className="mt-1"
-                      type="text"
+                      type="number"
                       placeholder="Enter term"
                     />
                   )}
@@ -504,7 +514,7 @@ const Create = () => {
                       {...field}
                       id="emi"
                       className="mt-1"
-                      type="text"
+                      type="number"
                       placeholder="Enter Emi amount"
                     />
                   )}
@@ -527,7 +537,7 @@ const Create = () => {
                       {...field}
                       id="roi"
                       className="mt-1"
-                      type="text"
+                      type="number"
                       placeholder="Enter ROI"
                     />
                   )}
