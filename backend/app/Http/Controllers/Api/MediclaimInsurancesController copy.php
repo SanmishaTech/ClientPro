@@ -62,7 +62,6 @@ class MediclaimInsurancesController extends BaseController
     }
 
    
-
     /**
      * Show Mediclaim Insurance.
      */

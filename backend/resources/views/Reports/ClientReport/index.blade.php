@@ -49,8 +49,19 @@
         <tbody>
             @foreach($clients as $client)
             <!-- Display client details (if their birthday is within the range) -->
-            @if ((\Carbon\Carbon::parse($client->created_at)->between($from_date, $to_date))
+            {{-- @if ((\Carbon\Carbon::parse($client->created_at)->between($from_date, $to_date))
               && $client->whereHas('mediclaimInsurances') && $client->mediclaimInsurances->contains('familly_member_id',null))
+                <tr>
+                    <td>{{ \Carbon\Carbon::parse($client->created_at)->format('d/m/Y') }}</td>
+                    <td>{{ $client->client_name }}</td>
+                    <td>{{ $client->email }}</td>
+                    <td>{{ $client->mobile }}</td>
+                </tr>
+            @endif --}}
+            @if (\Carbon\Carbon::parse($client->created_at)->between($from_date, $to_date) && 
+                $client->mediclaimInsurances->filter(function($insurance) {
+                    return $insurance->family_member_id === null; // Checking if family_member_id is null
+                })->isNotEmpty())  <!-- Check if any insurance has a null family_member_id -->
                 <tr>
                     <td>{{ \Carbon\Carbon::parse($client->created_at)->format('d/m/Y') }}</td>
                     <td>{{ $client->client_name }}</td>
