@@ -13,6 +13,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class FamilyMember extends Model
 {
+    protected $fillable = [
+        'member_id',
+        'client_id',
+        'family_member_name',
+        'member_email',
+        'member_mobile',
+        'member_height',
+        'member_weight',
+        'member_existing_ped',
+        'relation',
+        'family_member_dob',
+    ];
+    
+
     public function mediclaimInsurances(){
         return $this->hasMany(MediclaimInsurance::class, 'family_member_id');
     }

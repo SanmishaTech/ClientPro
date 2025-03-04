@@ -186,26 +186,39 @@ class ClientsController extends BaseController
         $client->residential_address_pincode = $request->input("residential_address_pincode");
         $client->save();
 
-        $removeFamilyMembers = FamilyMember::where('client_id',$client->id)->get();
-        $removeFamilyMembers->each(function($familyMember) {
-            $familyMember->delete();
-        });
+        // $removeFamilyMembers = FamilyMember::where('client_id',$client->id)->get();
+        // $removeFamilyMembers->each(function($familyMember) {
+        //     $familyMember->delete();
+        // });
 
         if($request->input('family_members')){
             $familyMembers = $request->input('family_members');
              foreach($familyMembers as $familyMember){
                $this->validateFamilyMember($familyMember); // Custom validation method
-               $member = new FamilyMember();
-               $member->client_id = $client->id;
-               $member->family_member_name = $familyMember['name'];
-               $member->member_email = $familyMember['member_email'];
-               $member->member_mobile = $familyMember['member_mobile'];
-               $member->member_height = $familyMember['member_height'];
-               $member->member_weight = $familyMember['member_weight'];
-               $member->member_existing_ped = $familyMember['member_existing_ped'];
-               $member->relation = $familyMember['relation'];
-               $member->family_member_dob = $familyMember['date_of_birth'];
-               $member->save();
+            //    $member = new FamilyMember();
+            //    $member->client_id = $client->id;
+            //    $member->family_member_name = $familyMember['name'];
+            //    $member->member_email = $familyMember['member_email'];
+            //    $member->member_mobile = $familyMember['member_mobile'];
+            //    $member->member_height = $familyMember['member_height'];
+            //    $member->member_weight = $familyMember['member_weight'];
+            //    $member->member_existing_ped = $familyMember['member_existing_ped'];
+            //    $member->relation = $familyMember['relation'];
+            //    $member->family_member_dob = $familyMember['date_of_birth'];
+            //    $member->save();
+            $member = FamilyMember::updateOrCreate(
+                ['id' => $familyMember['member_id'], 'client_id' => $client->id], // Condition to check existing member
+                [
+                    'family_member_name' => $familyMember['name'],
+                    'member_email' => $familyMember['member_email'],
+                    'member_mobile' => $familyMember['member_mobile'],
+                    'member_height' => $familyMember['member_height'],
+                    'member_weight' => $familyMember['member_weight'],
+                    'member_existing_ped' => $familyMember['member_existing_ped'],
+                    'relation' => $familyMember['relation'],
+                    'family_member_dob' => $familyMember['date_of_birth'],
+                ]
+            );
              }
         }
         return $this->sendResponse(["Client"=> new ClientResource($client)], "Client Updated successfully");
@@ -296,4 +309,55 @@ class ClientsController extends BaseController
         return $this->sendResponse(["Clients"=>ClientResource::collection($client),
         ], "Clients retrieved successfully");
     }
+
+
+    // public function deleteFamilyMember(string $id): JsonResponse
+    // {
+    //     $fam = FamilyMember::find($id);
+    //     if(!$fam){
+    //         return $this->sendError("Demat Accounts details not found", ['error'=>'Demat Accounts details not found']);
+    //     }
+        
+    //     $fam->delete();
+    //     return $this->sendResponse([], "fam details deleted successfully");
+    // }
+    public function deleteFamilyMember(string $id): JsonResponse
+{
+    // Find the family member by ID
+    $familyMember = FamilyMember::find($id);
+
+    if (!$familyMember) {
+        return $this->sendError("Family Member not found", ['error' => 'Family Member not found']);
+    }
+
+    // Check for any associated records related to the family member
+    $associatedRecords = [
+        'mediclaimInsurances' => $familyMember->mediclaimInsurances()->exists(),
+        'lics' => $familyMember->lics()->exists(),
+        'loans' => $familyMember->loans()->exists(),
+        'generalInsurances' => $familyMember->generalInsurances()->exists(),
+        'dematAccounts' => $familyMember->dematAccounts()->exists(),
+        'mutualFunds' => $familyMember->mutualFunds()->exists(),
+        'termPlans' => $familyMember->termPlans()->exists(),
+    ];
+
+    // Loop through and check if any associated record exists
+    foreach ($associatedRecords as $table => $exists) {
+        if ($exists) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed',
+                'errors' => [
+                    'categories_exists' => ["Family member has associated records in the {$table} table. Deletion is not allowed."]
+                ],
+            ], 422);
+        }
+    }
+
+    // If no associated records, proceed with deletion
+    $familyMember->delete();
+    
+    return $this->sendResponse([], "Family member deleted successfully");
+}
+
 }

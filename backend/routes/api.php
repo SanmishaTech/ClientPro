@@ -52,5 +52,6 @@ Route::group(['middleware'=>['auth:sanctum', 'permission']], function(){
    Route::get('/dashboards', [DashboardController::class, 'index'])->name("dashboards.index");
    Route::post('/birthday_report', [ReportsController::class, 'birthdayReport'])->name("report.birthdayReport");
    Route::post('/client_report', [ReportsController::class, 'clientReport'])->name("report.clientReport");
+   Route::delete('/family_members/{id}', [ClientsController::class, 'deleteFamilyMember'])->name("clients.deleteFamilyMember");
 
 });

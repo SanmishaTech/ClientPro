@@ -6,6 +6,17 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Loader2, CircleX } from "lucide-react";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   Table,
   TableBody,
   TableCaption,
@@ -145,6 +156,8 @@ const formSchema = z.object({
         //   .string()
         //   .max(100, "PED must be at max 255 characters")
         //   .optional(),
+        // id: z.string().optional(),
+        member_id: z.union([z.string(), z.number()]).optional(),
         member_existing_ped: z
           .string()
           .max(100, "PED must be at max 100 characters")
@@ -177,6 +190,7 @@ const Update = () => {
   const navigate = useNavigate();
 
   const defaultValues = {
+    member_id: "",
     email: "",
     client_name: "",
     mobile: "",
@@ -254,6 +268,7 @@ const Update = () => {
       if (editClient.Client?.Family_members) {
         const familyMembers = editClient.Client?.Family_members.map(
           (member) => ({
+            member_id: member.id.toString(),
             name: member.family_member_name,
             member_email: member.member_email,
             member_mobile: member.member_mobile,
@@ -323,7 +338,57 @@ const Update = () => {
   });
   const onSubmit = (data) => {
     setIsLoading(true);
+
     updateMutation.mutate(data);
+  };
+
+  useEffect(() => {
+    console.log("Validation Errors:", errors);
+  }, [errors]);
+
+  const deleteMutation = useMutation({
+    mutationFn: async ({ memberId, index }) => {
+      const response = await axios.delete(`/api/family_members/${memberId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Include the Bearer token
+        },
+      });
+      return response.data;
+    },
+    onSuccess: (data, index) => {
+      queryClient.invalidateQueries("clients");
+      toast.success("family member Deleted Successfully");
+      () => remove(index);
+    },
+    onError: (error) => {
+      setIsLoading(false);
+      if (error.response && error.response.data.errors) {
+        const serverStatus = error.response.data.status;
+        const serverErrors = error.response.data.errors;
+        if (serverStatus === false) {
+          if (serverErrors.categories_exists) {
+            // setError("categories_exists", {
+            //   type: "manual",
+            //   message: serverErrors.categories_exists[0], // The error message from the server
+            // });
+            toast.error(serverErrors.categories_exists[0]);
+          }
+        } else {
+          toast.error("Failed to Delete Client details.");
+        }
+      } else {
+        toast.error("Failed to Delete Client details.");
+      }
+    },
+  });
+
+  const deleteFamilyMember = (index, item) => {
+    console.log(item);
+    if (item.member_id === "") {
+      return remove(index);
+    }
+    deleteMutation.mutate({ memberId: item.member_id, index });
   };
 
   return (
@@ -631,6 +696,26 @@ const Update = () => {
                 {errors.office_address_pincode && (
                   <p className=" text-red-500 text-sm mt-1 left-0">
                     {errors.office_address_pincode.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Controller
+                  name="id"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="id"
+                      className="mt-1"
+                      type="hidden"
+                      placeholder="Enter pincode"
+                    />
+                  )}
+                />
+                {errors.id && (
+                  <p className=" text-red-500 text-sm mt-1 left-0">
+                    {errors.id.message}
                   </p>
                 )}
               </div>
@@ -994,14 +1079,52 @@ const Update = () => {
                         </div>
                       </TableCell>
                       <TableCell className="text-right p-2 pr-5">
-                        <Button
+                        {/* <Button
                           type="button"
                           onClick={() => remove(index)} // Remove family member
                           variant="ghost"
                           className="text-sm  bg-slate-100 hover:bg-slate-200 dark:bg-gray-800 hover:dark:bg-gray-900"
                         >
                           <CircleX size={16} color="#fa0000" />
-                        </Button>
+                        </Button> */}
+                        {/* <Button
+                          type="button"
+                          onClick={() => deleteFamilyMember(index, item)} // Remove family member
+                          variant="ghost"
+                          className="text-sm  bg-slate-100 hover:bg-slate-200 dark:bg-gray-800 hover:dark:bg-gray-900"
+                        >
+                          <CircleX size={16} color="#fa0000" />
+                        </Button> */}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              className="text-sm  bg-slate-100 hover:bg-slate-200 dark:bg-gray-800 hover:dark:bg-gray-900"
+                            >
+                              <CircleX size={16} color="#fa0000" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Are you absolutely sure?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will
+                                permanently delete family members information.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteFamilyMember(index, item)}
+                              >
+                                Continue
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -1014,6 +1137,7 @@ const Update = () => {
                 type="button"
                 onClick={() =>
                   append({
+                    member_id: "",
                     name: "",
                     member_email: "",
                     member_mobile: "",
