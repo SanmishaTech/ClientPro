@@ -48,7 +48,6 @@ class MediclaimInsurancesController extends BaseController
      */
     public function store(StoreMediclaimInsuranceRequest $request): JsonResponse
     {
-        
         $mediclaimInsurance = new MediclaimInsurance();
         $mediclaimInsurance->client_id = $request->input("client_id");
         $mediclaimInsurance->company_name = $request->input("company_name");
@@ -60,7 +59,6 @@ class MediclaimInsurancesController extends BaseController
         $mediclaimInsurance->save();
      
         return $this->sendResponse(['MediclaimInsurance'=> new MediclaimInsuranceResource($mediclaimInsurance)], 'Mediclaim Insurance Created Successfully');
-   
     }
 
    

@@ -75,7 +75,7 @@ import NaralReport from "./pages/Reports/NaralReport/index";
 import CancelledReceiptReport from "./pages/Reports/CancelledReceiptReport/index";
 import ReceiptsReport from "./pages/Reports/ReceiptsReport/index";
 import GotravaliSummaryReport from "./pages/Reports/GotravaliSummaryReport/index";
-import GotravaliReport from "./pages/Reports/GotravaliReport/index";
+import BirthdayReport from "./pages/Reports/BirthdayReport/index";
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
 import Error from "./customComponents/Error/Error";
@@ -114,9 +114,6 @@ const App = () => {
           <Route path="/lics" element={<LICs />} />
           <Route path="/lics/create" element={<CreateLICs />} />
           <Route path="/lics/:id/edit" element={<UpdateLICs />} />
-          <Route path="/devtas" element={<Devtas />} />
-          <Route path="/devtas/create" element={<CreateDevtas />} />
-          <Route path="/devtas/:id/edit" element={<UpdateDevtas />} />
           <Route
             path="/mediclaim_insurances"
             element={<MediclaimInsurances />}
@@ -153,62 +150,8 @@ const App = () => {
           <Route path="/loans" element={<Loans />} />
           <Route path="/loans/create" element={<CreateLoans />} />
           <Route path="/loans/:id/edit" element={<UpdateLoans />} />
-          <Route path="/anteshtees" element={<AnteshteeAmounts />} />
-          <Route path="/anteshtees/create" element={<CreateAnteshtee />} />
-          <Route path="/anteshtees/:id/edit" element={<UpdateAnteshtee />} />
-          <Route path="/gurujis" element={<Gurujis />} />
-          <Route path="/gurujis/create" element={<CreateGurujis />} />
-          <Route path="/gurujis/:id/edit" element={<UpdateGurujis />} />
-          <Route path="/pooja_types" element={<PoojaTypes />} />
-          <Route path="/pooja_types/create" element={<CreatePoojaType />} />
-          <Route path="/pooja_types/:id/edit" element={<UpdatePoojaType />} />
-          <Route path="/receipt_types" element={<ReceiptTypes />} />
-          <Route
-            path="/receipt_types/create"
-            element={<CreateReceiptTypes />}
-          />
-          <Route
-            path="/receipt_types/:id/edit"
-            element={<UpdateReceiptTypes />}
-          />
-          <Route path="/pooja_dates" element={<PoojaDates />} />
-          <Route path="/pooja_dates/create" element={<CreatePoojaDate />} />
-          <Route path="/pooja_dates/:id/edit" element={<UpdatePoojaDate />} />
-          <Route path="/denominations" element={<Denominations />} />
-          <Route
-            path="/denominations/create"
-            element={<CreateDenominations />}
-          />
-          <Route
-            path="/denominations/:id/edit"
-            element={<UpdateDenominations />}
-          />
-          <Route path="/receipts" element={<Receipts />} />
-          <Route path="/receipts/create" element={<CreateReceipts />} />
-          <Route path="/receipts/:id/edit" element={<UpdateReceipts />} />
           <Route path="/permissions" element={<Permissions />} />
-          <Route path="/all_receipts" element={<AllReceipts />} />
-          <Route path="/receipt_summary" element={<ReceiptSummary />} />
-          <Route
-            path="/cheque_collection_report"
-            element={<ChequeCollectionReport />}
-          />
-          <Route
-            path="/upi_collection_report"
-            element={<UPICollectionReport />}
-          />
-          <Route path="/khat_report" element={<KhatReport />} />
-          <Route path="/naral_report" element={<NaralReport />} />
-          <Route
-            path="/cancelled_receipt_report"
-            element={<CancelledReceiptReport />}
-          />
-          <Route path="/receipts_report" element={<ReceiptsReport />} />
-          <Route
-            path="/gotravali_summary_report"
-            element={<GotravaliSummaryReport />}
-          />
-          <Route path="/gotravali_report" element={<GotravaliReport />} />
+          <Route path="/birthday_report" element={<BirthdayReport />} />
         </Route>
         <Route
           errorElement={<Error />}

@@ -155,6 +155,18 @@ const MobileSidebar = ({ open, setOpen }) => {
       ],
     },
     {
+      name: "Reports",
+      path: "#",
+      logo: <SquareUserRound size={16} />,
+      children: [
+        {
+          name: "Birthday Reports",
+          path: "/birthday_report",
+          logo: <AlignStartVertical size={16} />,
+        },
+      ],
+    },
+    {
       name: "User Management",
       path: "#",
       logo: <Users size={16} />,
@@ -227,6 +239,18 @@ const MobileSidebar = ({ open, setOpen }) => {
         {
           name: "Mutual Funds",
           path: "/mutual_funds",
+          logo: <AlignStartVertical size={16} />,
+        },
+      ],
+    },
+    {
+      name: "Reports",
+      path: "#",
+      logo: <SquareUserRound size={16} />,
+      children: [
+        {
+          name: "Birthday Reports",
+          path: "/birthday_report",
           logo: <AlignStartVertical size={16} />,
         },
       ],
