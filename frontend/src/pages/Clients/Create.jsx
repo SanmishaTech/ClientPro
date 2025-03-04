@@ -455,7 +455,7 @@ const Create = () => {
               </div>
               <div className="relative">
                 <Label className="font-normal" htmlFor="height">
-                  Height (in Foot): <span className="text-red-500">*</span>
+                  Height (ft in): <span className="text-red-500">*</span>
                 </Label>
                 <Controller
                   name="height"
@@ -478,7 +478,7 @@ const Create = () => {
               </div>
               <div className="relative">
                 <Label className="font-normal" htmlFor="weight">
-                  Weight (in Kg):<span className="text-red-500">*</span>
+                  Weight (kg):<span className="text-red-500">*</span>
                 </Label>
                 <Controller
                   name="weight"
@@ -866,7 +866,7 @@ const Create = () => {
                             className="font-normal"
                             htmlFor={`family_members[${index}].member_height`}
                           >
-                            Height:
+                            Height (ft in):
                             <span className="text-red-500">*</span>
                           </Label>
                           <Controller
@@ -927,7 +927,7 @@ const Create = () => {
                             className="font-normal"
                             htmlFor={`family_members[${index}].member_weight`}
                           >
-                            Weight:
+                            Weight (kg):
                             <span className="text-red-500">*</span>
                           </Label>
                           <Controller

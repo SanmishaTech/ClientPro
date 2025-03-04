@@ -195,7 +195,6 @@ class ClientsController extends BaseController
             $familyMembers = $request->input('family_members');
              foreach($familyMembers as $familyMember){
                $this->validateFamilyMember($familyMember); // Custom validation method
-   
                $member = new FamilyMember();
                $member->client_id = $client->id;
                $member->family_member_name = $familyMember['name'];
@@ -261,9 +260,16 @@ class ClientsController extends BaseController
 
         foreach ($associatedRecords as $table => $exists) {
             if ($exists) {
-                return $this->sendError("categories_exists", [
-                    'error' => "Client or family member has associated records in the {$table} table. Deletion is not allowed."
-                ]);
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed',
+                    'errors' => [
+                        'categories_exists' => ["Client or family member has associated records in the {$table} table. Deletion is not allowed."]
+                    ],
+                ], 422);
+                // return $this->sendError("categories_exists", [
+                //     'error' => "Client or family member has associated records in the {$table} table. Deletion is not allowed."
+                // ]);
             }
         }
 
@@ -289,6 +295,5 @@ class ClientsController extends BaseController
 
         return $this->sendResponse(["Clients"=>ClientResource::collection($client),
         ], "Clients retrieved successfully");
-
     }
 }

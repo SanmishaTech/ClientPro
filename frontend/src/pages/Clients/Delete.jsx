@@ -51,6 +51,23 @@ const Delete = ({ id }) => {
     },
     onError: (error) => {
       setIsLoading(false);
+      if (error.response && error.response.data.errors) {
+        const serverStatus = error.response.data.status;
+        const serverErrors = error.response.data.errors;
+        if (serverStatus === false) {
+          if (serverErrors.categories_exists) {
+            // setError("categories_exists", {
+            //   type: "manual",
+            //   message: serverErrors.categories_exists[0], // The error message from the server
+            // });
+            toast.error(serverErrors.categories_exists[0]);
+          }
+        } else {
+          toast.error("Failed to Delete Client details.");
+        }
+      } else {
+        toast.error("Failed to Delete Client details.");
+      }
     },
   });
   const onDelete = () => {

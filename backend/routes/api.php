@@ -51,5 +51,6 @@ Route::group(['middleware'=>['auth:sanctum', 'permission']], function(){
    Route::put('/roles/{id}', [RolesController::class, 'update'])->name("roles.update");
    Route::get('/dashboards', [DashboardController::class, 'index'])->name("dashboards.index");
    Route::post('/birthday_report', [ReportsController::class, 'birthdayReport'])->name("report.birthdayReport");
+   Route::post('/client_report', [ReportsController::class, 'clientReport'])->name("report.clientReport");
 
 });
