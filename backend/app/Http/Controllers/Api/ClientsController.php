@@ -173,7 +173,6 @@ class ClientsController extends BaseController
             }
         }
         
-      
         $client->client_name = $request->input('client_name');
         $client->date_of_birth = $request->input("date_of_birth");
         $client->email = $request->input("email");
@@ -212,26 +211,74 @@ class ClientsController extends BaseController
         }
         return $this->sendResponse(["Client"=> new ClientResource($client)], "Client Updated successfully");
     }
-
+    
     /**
      * Remove Devta.
      */
+    // public function destroy(string $id): JsonResponse
+    // {
+    //     $client = Client::find($id);
+        
+    //     if(!$client){
+    //         return $this->sendError("Client not found", ['error'=>'Client not found']);
+    //     }
+        
+    //     $removeFamilyMembers = FamilyMember::where('client_id',$client->id)->get();
+    //     $removeFamilyMembers->each(function($familyMember) {
+    //         $familyMember->delete();
+    //     });
+        
+    //     $client->delete();
+    //     return $this->sendResponse([], "Client deleted successfully");
+    // }
     public function destroy(string $id): JsonResponse
     {
+        // Find the client by ID
         $client = Client::find($id);
         
-        if(!$client){
-            return $this->sendError("Client not found", ['error'=>'Client not found']);
+        if (!$client) {
+            return $this->sendError("Client not found", ['error' => 'Client not found']);
         }
         
-        $removeFamilyMembers = FamilyMember::where('client_id',$client->id)->get();
-        $removeFamilyMembers->each(function($familyMember) {
+        $associatedRecords = [
+            'mediclaimInsurances' => $client->mediclaimInsurances()->exists(),
+            'lics' => $client->lics()->exists(),
+            'loans' => $client->loans()->exists(),
+            'generalInsurances' => $client->generalInsurances()->exists(),
+            'dematAccounts' => $client->dematAccounts()->exists(),
+            'mutualFunds' => $client->mutualFunds()->exists(),
+            'termPlans' => $client->termPlans()->exists(),
+        ];
+
+        foreach ($client->familyMembers as $familyMember) {
+            $associatedRecords['mediclaimInsurances'] |= $familyMember->mediclaimInsurances()->exists();
+            $associatedRecords['lics'] |= $familyMember->lics()->exists();
+            $associatedRecords['generalInsurances'] |= $familyMember->generalInsurances()->exists();
+            $associatedRecords['dematAccounts'] |= $familyMember->dematAccounts()->exists();
+            $associatedRecords['mutualFunds'] |= $familyMember->mutualFunds()->exists();
+            $associatedRecords['termPlans'] |= $familyMember->termPlans()->exists();
+        }
+
+        foreach ($associatedRecords as $table => $exists) {
+            if ($exists) {
+                return $this->sendError("categories_exists", [
+                    'error' => "Client or family member has associated records in the {$table} table. Deletion is not allowed."
+                ]);
+            }
+        }
+
+        // Remove family members first
+        $removeFamilyMembers = FamilyMember::where('client_id', $client->id)->get();
+        $removeFamilyMembers->each(function ($familyMember) {
             $familyMember->delete();
         });
-        
+
+        // Now delete the client
         $client->delete();
+        
         return $this->sendResponse([], "Client deleted successfully");
     }
+
 
     /**
      * Fetch All Clients.
