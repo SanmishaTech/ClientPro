@@ -420,12 +420,34 @@ class ReportsController extends BaseController
         }
         //mutual fund end
 
+
+            // loan start
+        $loanClients = null;
+
+        if ($loan) {
+            $loanClients = Client::with(['familyMembers','loans' => function($query) use ($from_date, $to_date) {
+                // Filter the loans to only include those created within the date range
+                $query->whereBetween('created_at', [$from_date, $to_date]);
+            }])
+            ->where(function ($query) use ($from_date, $to_date) {
+                // For clients with loans created within the date range
+                $query->whereHas('loans', function($query) use ($from_date, $to_date) {
+                    $query->whereBetween('created_at', [$from_date, $to_date]);
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+        }
+        // loan end
+
+
         $data = [
             'mediclaimClients' => $mediclaimClients,
             'termPlanClients' => $termPlanClients,
             'licClients' => $licClients,
             'generalInsuranceClients' => $generalInsuranceClients,
             'dematAccountClients' => $dematAccountClients,
+            'loanClients' => $loanClients,
             'mutualFundClients' => $mutualFundClients,
             'mediclaim_insurance'=> $mediclaim_insurance,
             'term_plan' => $term_plan,
@@ -433,6 +455,7 @@ class ReportsController extends BaseController
             'general_insurance' => $general_insurance,
             'demat_account' => $demat_account,
             'mutual_fund' => $mutual_fund,
+            'loan' => $loan,
             'from_date' => $from_date,
             'to_date' => $to_date,
         ];

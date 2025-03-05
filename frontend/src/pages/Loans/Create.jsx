@@ -39,7 +39,7 @@ import {
 const formSchema = z.object({
   // devta_name: z.string().min(2, "Name must be at least 2 characters"),
   client_id: z.coerce.number().min(1, "client field is required."),
-  family_member_id: z.coerce.number().optional(),
+  family_member_id: z.string().optional(),
   bank_name: z
     .string()
     .min(1, "Bank name field is required.")
