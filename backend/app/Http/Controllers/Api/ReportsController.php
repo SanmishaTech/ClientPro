@@ -139,7 +139,18 @@ class ReportsController extends BaseController
         $general_insurance = $request->input('general_insurance');
         $demat_account = $request->input('demat_account');
         $mutual_fund = $request->input('mutual_fund');
-        
+
+        if (!($mediclaim_insurance || $term_plan || $lic || $loan || $general_insurance || $demat_account || $mutual_fund)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed',
+                'errors' => [
+                    'checkboxError' => ['At least one checkbox should be checked.']
+                ],
+            ], 422);
+        }
+
+    
         $from_date = \Carbon\Carbon::parse($from_date)->startOfDay();
         $to_date = \Carbon\Carbon::parse($to_date)->endOfDay();
 

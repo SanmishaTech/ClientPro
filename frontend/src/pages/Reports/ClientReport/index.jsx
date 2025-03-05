@@ -105,7 +105,6 @@ const index = () => {
   //       }
   //     }
   //   };
-
   const handlePrint = async (data) => {
     try {
       const response = await axios.post(`/api/client_report`, data, {
@@ -142,15 +141,15 @@ const index = () => {
           if (error.response.status === 401 && errorData.status === false) {
             toast.error(errorData.errors.error);
           } else {
-            toast.error("Failed to generate Report");
+            toast.error("At least one checkbox should be checked.");
           }
         } else {
           console.error("Error:", error);
-          toast.error("An error occurred while printing the Report");
+          toast.error("At least one checkbox should be checked.");
         }
       } else {
         console.error("Unexpected error:", error);
-        toast.error("An unexpected error occurred");
+        toast.error("At least one checkbox should be checked.");
       }
     }
   };
@@ -188,6 +187,7 @@ const index = () => {
   const onSubmit = (data) => {
     setIsLoading(true);
     // storeMutation.mutate(data);
+
     handlePrint(data);
     setIsLoading(false);
   };

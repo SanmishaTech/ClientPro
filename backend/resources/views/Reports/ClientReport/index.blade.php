@@ -304,5 +304,52 @@
       @endif
       {{-- loan end --}}
 
+       {{-- mutual fund --}}
+      @if($mutual_fund)
+      <table style="width: 100%">
+          <thead>
+              <tr>
+                  <th colspan="4" style="text-align: center; font-size: 16px; font-weight: bold;">Mutual Fund</th>
+              </tr>
+              <tr>
+                  <th>Date</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Mobile</th>
+              </tr>
+          </thead>
+          <tbody>
+              @foreach($mutualFundClients as $client)
+                  @foreach($client->mutualFunds as $mutual) <!-- Iterate over each LIC for the client -->
+                      @if (\Carbon\Carbon::parse($mutual->created_at)->between($from_date, $to_date) && 
+                          $mutual->family_member_id === null)  <!-- Check if the LIC record is within the date range and family_member_id is null -->
+                          <tr>
+                              <td>{{ \Carbon\Carbon::parse($mutual->created_at)->format('d/m/Y') }}</td>
+                              <td>{{ $client->client_name }}</td>
+                              <td>{{ $client->email }}</td>
+                              <td>{{ $client->mobile }}</td>
+                          </tr>
+                      @endif
+                  @endforeach
+      
+                  <!-- Display family members details -->
+                  @foreach($client->familyMembers as $familyMember)
+                      @foreach($familyMember->mutualFunds as $mutual) <!-- Iterate over each LIC for the family member -->
+                          @if (\Carbon\Carbon::parse($mutual->created_at)->between($from_date, $to_date))
+                              <tr>
+                                  <td>{{ \Carbon\Carbon::parse($mutual->created_at)->format('d/m/Y') }}</td>
+                                  <td>{{ $familyMember->family_member_name }}</td>
+                                  <td>{{ $familyMember->member_email }}</td>
+                                  <td>{{ $familyMember->member_mobile }}</td>
+                              </tr>
+                          @endif
+                      @endforeach
+                  @endforeach
+              @endforeach
+          </tbody>
+      </table>
+      @endif
+      {{-- demat account end --}}
+
     </body>
 </html>
