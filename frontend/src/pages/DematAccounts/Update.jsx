@@ -41,6 +41,8 @@ const formSchema = z.object({
     .array(
       z.object({
         client_id: z.coerce.number().min(1, "Client ID field is required."),
+        demat_id: z.string().optional(),
+
         family_member_id: z.union([z.string(), z.number()]).optional(),
         account_number: z
           .string()
@@ -94,6 +96,7 @@ const Update = () => {
   const navigate = useNavigate();
 
   const defaultValues = {
+    demat_id: "",
     client_id: "",
     account_number: "",
     service_provider: "",
@@ -196,6 +199,7 @@ const Update = () => {
       editDematAccount.DematAccount.forEach((dematAccount, index) => {
         // Append empty mediclaim data first
         append({
+          demat_id: dematAccount.id.toString(),
           client_id: dematAccount.client_id,
           family_member_id: dematAccount.family_member_id || "", // if you have a family_member_id, otherwise ""
           company_name: dematAccount.company_name,
@@ -573,6 +577,26 @@ const Update = () => {
                             errors.demat_account_data[index].service_provider
                               ?.message
                           }
+                        </p>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Controller
+                        name="demat_id"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id="demat_id"
+                            className="mt-1"
+                            type="hidden"
+                            placeholder="Enter pincode"
+                          />
+                        )}
+                      />
+                      {errors.demat_id && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {errors.demat_id.message}
                         </p>
                       )}
                     </div>

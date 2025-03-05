@@ -41,6 +41,8 @@ const formSchema = z.object({
     .array(
       z.object({
         client_id: z.coerce.number().min(1, "Client ID field is required."),
+        mutual_id: z.string().optional(),
+
         family_member_id: z.union([z.string(), z.number()]).optional(),
         account_number: z
           .string()
@@ -89,6 +91,7 @@ const Update = () => {
   const navigate = useNavigate();
 
   const defaultValues = {
+    mutual_id: "",
     client_id: "",
     account_number: "",
     service_provider: "",
@@ -192,6 +195,7 @@ const Update = () => {
       editMutual.MutualFund.forEach((mutualFund, index) => {
         // Append empty mediclaim data first
         append({
+          mutual_id: mutualFund.id.toString(),
           client_id: mutualFund.client_id,
           family_member_id: mutualFund.family_member_id || "", // if you have a family_member_id, otherwise ""
           mutual_fund_name: mutualFund.mutual_fund_name,
@@ -568,6 +572,26 @@ const Update = () => {
                             errors.mutual_fund_data[index].account_number
                               ?.message
                           }
+                        </p>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Controller
+                        name="mutual_id"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id="mutual_id"
+                            className="mt-1"
+                            type="hidden"
+                            placeholder="Enter pincode"
+                          />
+                        )}
+                      />
+                      {errors.mutual_id && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {errors.mutual_id.message}
                         </p>
                       )}
                     </div>

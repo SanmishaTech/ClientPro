@@ -95,26 +95,25 @@ class GeneralInsurancesController extends BaseController
 
         $generalInsuranceData = $request->input('general_insurance_data'); // Array containing client and family member data
 
-        $removeGeneralInsurance = GeneralInsurance::where('client_id',$generalInsurance->client_id)->get();
-        if(!$removeGeneralInsurance){
-            return $this->sendError("General Insurance not found", ['error'=>'General Insurance not found']);
-        }
-        $removeGeneralInsurance->each(function($familyMember) {
-            $familyMember->delete();
-        });
-    
-        foreach ($generalInsuranceData as $data) {
-        $general_insurance = new GeneralInsurance();
-        $general_insurance->client_id = $data['client_id'];
-        $general_insurance->family_member_id = $data['family_member_id'] ?? null;
-        $general_insurance->company_name = $data['company_name'];
-        $general_insurance->premium = $data['premium'];
-        $general_insurance->start_date = $data['start_date'];
-        $general_insurance->end_date = $data['end_date'];
-        $general_insurance->insurance_type = $data['insurance_type'];
-        $general_insurance->save();
+
+        if($generalInsuranceData){
+            foreach($generalInsuranceData as $general){
+         
+           $general_insurance = GeneralInsurance::updateOrCreate(
+               ['id' => $general['general_id'], 'client_id' => $general['client_id']], // Condition to check existing member
+               [
+                   'family_member_id' => $general['family_member_id'] ?? null,
+                   'insurance_type' => $general['insurance_type'],
+                   'company_name' => $general['company_name'],
+                   'premium' => $general['premium'],
+                   'start_date' => $general['start_date'],
+                   'end_date' => $general['end_date'],
+               ]
+           );
+            }
        }
-        
+
+             
         return $this->sendResponse(['GeneralInsurance'=> new GeneralInsuranceResource($general_insurance)], "General Insurance details updated successfully");
     }
 
