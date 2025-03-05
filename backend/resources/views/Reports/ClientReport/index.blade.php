@@ -35,58 +35,143 @@
 
 <body>
   
-    {{-- <h4 style="margin:0px; padding:0px;">श्री गणेश मंदिर संस्थान - सर्व पावत्या {{ \Carbon\Carbon::parse($from_date)->format('d/m/Y') }} ते {{ \Carbon\Carbon::parse($to_date)->format('d/m/Y') }}</h4>
-    <p style="border: 1px solid black; width:100%; margin:0px; padding:0px; margin-bottom:5px;"></p> --}}
+    @if($mediclaim_insurance)
     <table style="width: 100%">
         <thead>
-        <tr>
-            <th>Created At</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Mobile</th>
-        </tr>
-    </thead>
+            <tr>
+                <th colspan="4" style="text-align: center; font-size: 16px; font-weight: bold;">Mediclaim Insurance</th>
+            </tr>
+            <tr>
+                <th>Created At</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Mobile</th>
+            </tr>
+        </thead>
         <tbody>
-            @foreach($clients as $client)
-            <!-- Display client details (if their birthday is within the range) -->
-            {{-- @if ((\Carbon\Carbon::parse($client->created_at)->between($from_date, $to_date))
-              && $client->whereHas('mediclaimInsurances') && $client->mediclaimInsurances->contains('familly_member_id',null))
-                <tr>
-                    <td>{{ \Carbon\Carbon::parse($client->created_at)->format('d/m/Y') }}</td>
-                    <td>{{ $client->client_name }}</td>
-                    <td>{{ $client->email }}</td>
-                    <td>{{ $client->mobile }}</td>
-                </tr>
-            @endif --}}
-            @if (\Carbon\Carbon::parse($client->created_at)->between($from_date, $to_date) && 
-                $client->mediclaimInsurances->filter(function($insurance) {
-                    return $insurance->family_member_id === null; // Checking if family_member_id is null
-                })->isNotEmpty())  <!-- Check if any insurance has a null family_member_id -->
-                <tr>
-                    <td>{{ \Carbon\Carbon::parse($client->created_at)->format('d/m/Y') }}</td>
-                    <td>{{ $client->client_name }}</td>
-                    <td>{{ $client->email }}</td>
-                    <td>{{ $client->mobile }}</td>
-                </tr>
-            @endif
-
-            <!-- Display family members details -->
-            @foreach($client->familyMembers as $familyMember)
-                @if ((\Carbon\Carbon::parse($familyMember->created_at)->between($from_date, $to_date))
-                && $familyMember->whereHas('mediclaimInsurances'))
-                    <tr>
-                        <td>{{ \Carbon\Carbon::parse($familyMember->created_at)->format('d/m/Y') }}</td>
-                        <td>{{ $familyMember->family_member_name }}</td> <!-- Assuming 'name' is a field in familyMembers -->
-                        <td>{{ $familyMember->member_email }}</td>
-                        <td>{{ $familyMember->member_mobile }}</td>
-                    </tr>
-                @endif
+            @foreach($mediclaimClients as $client)
+                @foreach($client->mediclaimInsurances as $mediclaim) <!-- Iterate over each LIC for the client -->
+                    @if (\Carbon\Carbon::parse($mediclaim->created_at)->between($from_date, $to_date) && 
+                        $mediclaim->family_member_id === null)  <!-- Check if the LIC record is within the date range and family_member_id is null -->
+                        <tr>
+                            <td>{{ \Carbon\Carbon::parse($mediclaim->created_at)->format('d/m/Y') }}</td>
+                            <td>{{ $client->client_name }}</td>
+                            <td>{{ $client->email }}</td>
+                            <td>{{ $client->mobile }}</td>
+                        </tr>
+                    @endif
+                @endforeach
+    
+                <!-- Display family members details -->
+                @foreach($client->familyMembers as $familyMember)
+                    @foreach($familyMember->mediclaimInsurances as $mediclaim) <!-- Iterate over each LIC for the family member -->
+                        @if (\Carbon\Carbon::parse($mediclaim->created_at)->between($from_date, $to_date))
+                            <tr>
+                                <td>{{ \Carbon\Carbon::parse($mediclaim->created_at)->format('d/m/Y') }}</td>
+                                <td>{{ $familyMember->family_member_name }}</td>
+                                <td>{{ $familyMember->member_email }}</td>
+                                <td>{{ $familyMember->member_mobile }}</td>
+                            </tr>
+                        @endif
+                    @endforeach
+                @endforeach
             @endforeach
-        @endforeach
         </tbody>
     </table>
+    
+    @endif
+
+    @if($term_plan)
+    <table style="width: 100%">
+        <thead>
+            <tr>
+                <th colspan="4" style="text-align: center; font-size: 16px; font-weight: bold;">Term Plan</th>
+            </tr>
+            <tr>
+                <th>Created At</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Mobile</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($termPlanClients as $client)
+                @foreach($client->termPlans as $term) <!-- Iterate over each LIC for the client -->
+                    @if (\Carbon\Carbon::parse($term->created_at)->between($from_date, $to_date) && 
+                        $term->family_member_id === null)  <!-- Check if the LIC record is within the date range and family_member_id is null -->
+                        <tr>
+                            <td>{{ \Carbon\Carbon::parse($term->created_at)->format('d/m/Y') }}</td>
+                            <td>{{ $client->client_name }}</td>
+                            <td>{{ $client->email }}</td>
+                            <td>{{ $client->mobile }}</td>
+                        </tr>
+                    @endif
+                @endforeach
+    
+                <!-- Display family members details -->
+                @foreach($client->familyMembers as $familyMember)
+                    @foreach($familyMember->termPlans as $term) <!-- Iterate over each LIC for the family member -->
+                        @if (\Carbon\Carbon::parse($term->created_at)->between($from_date, $to_date))
+                            <tr>
+                                <td>{{ \Carbon\Carbon::parse($term->created_at)->format('d/m/Y') }}</td>
+                                <td>{{ $familyMember->family_member_name }}</td>
+                                <td>{{ $familyMember->member_email }}</td>
+                                <td>{{ $familyMember->member_mobile }}</td>
+                            </tr>
+                        @endif
+                    @endforeach
+                @endforeach
+            @endforeach
+        </tbody>
+    </table>
+    
+    @endif
+
+    @if($lic)
+    <table style="width: 100%">
+        <thead>
+            <tr>
+                <th colspan="4" style="text-align: center; font-size: 16px; font-weight: bold;">LIC</th>
+            </tr>
+            <tr>
+                <th>Created At</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Mobile</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($licClients as $client)
+                @foreach($client->lics as $lic) <!-- Iterate over each LIC for the client -->
+                    @if (\Carbon\Carbon::parse($lic->created_at)->between($from_date, $to_date) && 
+                        $lic->family_member_id === null)  <!-- Check if the LIC record is within the date range and family_member_id is null -->
+                        <tr>
+                            <td>{{ \Carbon\Carbon::parse($lic->created_at)->format('d/m/Y') }}</td>
+                            <td>{{ $client->client_name }}</td>
+                            <td>{{ $client->email }}</td>
+                            <td>{{ $client->mobile }}</td>
+                        </tr>
+                    @endif
+                @endforeach
+    
+                <!-- Display family members details -->
+                @foreach($client->familyMembers as $familyMember)
+                    @foreach($familyMember->lics as $lic) <!-- Iterate over each LIC for the family member -->
+                        @if (\Carbon\Carbon::parse($lic->created_at)->between($from_date, $to_date))
+                            <tr>
+                                <td>{{ \Carbon\Carbon::parse($lic->created_at)->format('d/m/Y') }}</td>
+                                <td>{{ $familyMember->family_member_name }}</td>
+                                <td>{{ $familyMember->member_email }}</td>
+                                <td>{{ $familyMember->member_mobile }}</td>
+                            </tr>
+                        @endif
+                    @endforeach
+                @endforeach
+            @endforeach
+        </tbody>
+    </table>
+    
+    @endif
+
     </body>
-
-
-
 </html>

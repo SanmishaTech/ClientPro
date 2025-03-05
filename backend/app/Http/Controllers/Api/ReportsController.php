@@ -143,55 +143,117 @@ class ReportsController extends BaseController
         $from_date = \Carbon\Carbon::parse($from_date)->startOfDay();
         $to_date = \Carbon\Carbon::parse($to_date)->endOfDay();
 
-        // $clients = Client::with(['familyMembers' => function($query) use ($from_date, $to_date) {
-        //     $query->whereBetween('created_at', [$from_date, $to_date]);
-            
-        // }])
-        // ->where(function ($query) use ($from_date, $to_date) {
-        //     // Include clients whose birthday is within the selected range
-        //     $query->whereBetween('created_at', [$from_date, $to_date])
-        //         ->orWhereHas('familyMembers', function($query) use ($from_date, $to_date) {
-        //             // Include clients if at least one family member's birthday is within the range
-        //             $query->whereBetween('created_at', [$from_date, $to_date]);
-        //         });
-        // })
-        // ;
-        $clients = Client::with(['familyMembers' => function($query) use ($from_date, $to_date, $mediclaim_insurance) {
-            // Apply date filter on family members
-            $query->whereBetween('created_at', [$from_date, $to_date]);
+       
+        $mediclaimClients = null;
+        if($mediclaim_insurance){
+        $mediclaimClients = Client::with(['familyMembers' => function($query) use ($from_date, $to_date, $mediclaim_insurance) {
         
             // If 'mediclaim_insurance' is true, filter family members who have mediclaimInsurances
             if ($mediclaim_insurance) {
                 $query->whereHas('mediclaimInsurances')
-                      ->with('mediclaimInsurances');
+                      ->with('mediclaimInsurances')
+                      ->whereBetween('created_at', [$from_date, $to_date]);
             }
         }])
         ->where(function ($query) use ($from_date, $to_date, $mediclaim_insurance) {
             // Include clients whose birthday is within the selected range
-            $query->whereBetween('created_at', [$from_date, $to_date]);
         
             // If 'mediclaim_insurance' is true, filter clients who have mediclaimInsurances
             if ($mediclaim_insurance) {
                 $query->whereHas('mediclaimInsurances')
-                      ->with('mediclaimInsurances');
+                      ->with('mediclaimInsurances')
+                      ->whereBetween('created_at', [$from_date, $to_date]);
             }
         
             // Include clients who have family members with a birthday within the selected range
             $query->orWhereHas('familyMembers', function($query) use ($from_date, $to_date,$mediclaim_insurance) {
-                $query->whereBetween('created_at', [$from_date, $to_date]);
                 if ($mediclaim_insurance) {
                     $query->whereHas('mediclaimInsurances')
-                          ->with('mediclaimInsurances');
+                          ->with('mediclaimInsurances')
+                          ->whereBetween('created_at', [$from_date, $to_date]);
                 }
             });
         });
         
-        
+        $mediclaimClients = $mediclaimClients->orderBy('created_at','desc')->get();
+    }
 
-        $clients = $clients->orderBy('created_at')->get();
+    // term plan start
+        $termPlanClients = null;
+        if($term_plan){
+        $termPlanClients = Client::with(['familyMembers' => function($query) use ($from_date, $to_date, $term_plan) {
+        
+            if ($term_plan) {
+                $query->whereHas('termPlans')
+                    ->with('termPlans')
+                    ->whereBetween('created_at', [$from_date, $to_date]);
+            }
+        }])
+        ->where(function ($query) use ($from_date, $to_date, $term_plan) {
+            
+            if ($term_plan) {
+                $query->whereHas('termPlans')
+                    ->with('termPlans')
+                    ->whereBetween('created_at', [$from_date, $to_date]);
+            }
+        
+            // Include clients who have family members with a birthday within the selected range
+            $query->orWhereHas('familyMembers', function($query) use ($from_date, $to_date,$term_plan) {
+                if ($term_plan) {
+                    $query->whereHas('termPlans')
+                        ->with('termPlans')
+                        ->whereBetween('created_at', [$from_date, $to_date]);
+                }
+            });
+        });
+        
+        $termPlanClients = $termPlanClients->orderBy('created_at','desc')->get();
+    }
+        //term plan end
+
+
+         // LIC start
+         $licClients = null;
+         if($lic){
+         $licClients = Client::with(['familyMembers' => function($query) use ($from_date, $to_date, $lic) {
+         
+             if ($lic) {
+                 $query->whereHas('lics')
+                     ->with('lics')
+                     ->whereBetween('created_at', [$from_date, $to_date]);
+             }
+         }])
+         ->where(function ($query) use ($from_date, $to_date, $lic) {
+             // Include clients whose birthday is within the selected range
+         
+             // If 'mediclaim_insurance' is true, filter clients who have mediclaimInsurances
+             if ($lic) {
+                 $query->whereHas('lics')
+                     ->with('lics')
+                     ->whereBetween('created_at', [$from_date, $to_date]);
+             }
+         
+             // Include clients who have family members with a birthday within the selected range
+             $query->orWhereHas('familyMembers', function($query) use ($from_date, $to_date,$lic) {
+                 if ($lic) {
+                     $query->whereHas('lics')
+                         ->with('lics')
+                         ->whereBetween('created_at', [$from_date, $to_date]);
+                 }
+             });
+         });
+         
+         $licClients = $licClients->orderBy('created_at','desc')->get();
+     }
+         //LIC end
 
         $data = [
-            'clients' => $clients,
+            'mediclaimClients' => $mediclaimClients,
+            'termPlanClients' => $termPlanClients,
+            'mediclaim_insurance'=> $mediclaim_insurance,
+            'licClients' => $licClients,
+            'term_plan' => $term_plan,
+            'lic' => $lic,
             'from_date' => $from_date,
             'to_date' => $to_date,
         ];

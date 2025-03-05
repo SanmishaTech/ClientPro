@@ -36,22 +36,22 @@ class FamilyMember extends Model
     }
 
     public function generalInsurances(){
-        return $this->hasMany(GeneralInsurance::class, 'client_id');
+        return $this->hasMany(GeneralInsurance::class, 'family_member_id');
     }
     
     public function lics(){
-        return $this->hasMany(LIC::class, 'client_id');
+        return $this->hasMany(LIC::class, 'family_member_id');
     }
 
     public function mutualFunds(){
-        return $this->hasMany(MutualFund::class, 'client_id');
+        return $this->hasMany(MutualFund::class, 'family_member_id');
     }
 
     public function termPlans(){
-        return $this->hasMany(TermPlan::class, 'client_id');
+        return $this->hasMany(TermPlan::class, 'family_member_id');
     }
 
     public function loans(){
-        return $this->hasMany(Loan::class, 'client_id');
+        return $this->hasMany(Loan::class, 'family_member_id');
     }
 }
