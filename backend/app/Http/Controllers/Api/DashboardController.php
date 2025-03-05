@@ -2,10 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\LIC;
+use App\Models\Loan;
 use App\Models\Client;
 use App\Models\Receipt;
+use App\Models\TermPlan;
+use App\Models\MutualFund;
+use App\Models\DematAccount;
+use App\Models\FamilyMember;
 use Illuminate\Http\Request;
+use App\Models\GeneralInsurance;
 use Illuminate\Http\JsonResponse;
+use App\Models\MediclaimInsurance;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ClientResource;
 use App\Http\Controllers\Api\BaseController;
@@ -18,11 +26,88 @@ class DashboardController extends BaseController
     public function index(Request $request): JsonResponse
     {
         // Get clients whose 'date_of_birth' is today's date
-        $clients = Client::whereDate('date_of_birth', today())->get();
-    
+        $clients = Client::count();
+        $familyMembers = FamilyMember::count();
+        $totalMediclaimInsurances = MediclaimInsurance::count();
+        $totalTermPlans = TermPlan::count();
+        $totalLic = LIC::count();
+        $totalLoan = Loan::count();
+        $totalgeneralInsurance = GeneralInsurance::count();
+        $totalDematAccount = DematAccount::count();
+        $totalMutualFund = MutualFund::count();
+        
+        $currentDate = now()->startOfDay(); // Current date
+        $threeMonthsLater = $currentDate->copy()->addMonths(3)->endOfDay(); // Date 3 months from today
+
+        // $birthdayClients = Client::whereBetween('date_of_birth', [$currentDate, $threeMonthsLater])->get();
+
+        // $birthdayFamilyMembers = FamilyMember::whereBetween('family_member_dob', [$currentDate, $threeMonthsLater])->get();
+
+        // $birthdayClients = $birthdayClients->flatMap(function ($record) {
+        //     return [
+        //         'name'  => $record->client_name,
+        //         'email' => $record->email,
+        //         'mobile' => $record->mobile,
+        //         'date_of_birth' => $record->date_of_birth
+        //     ];
+        // });
+
+        // $birthdayFamilyMembers = $birthdayFamilyMembers->flatMap(function ($record) {
+        //     return [
+        //         'name'  => $record->family_member_name,
+        //         'email' => $record->member_email,
+        //         'mobile' => $record->member_mobile,
+        //         'date_of_birth' => $record->family_member_dob
+        //     ];
+        // });
+        
+        // $mergedRecords = $birthdayClients->merge($birthdayFamilyMembers);
+        $birthdayClients = Client::whereBetween('date_of_birth', [$currentDate, $threeMonthsLater])->get();
+
+// Get Family Members whose birthday is within the next 3 months
+$birthdayFamilyMembers = FamilyMember::whereBetween('family_member_dob', [$currentDate, $threeMonthsLater])->get();
+
+// Use map to extract specific fields like name, email, and others
+$birthdayClients = $birthdayClients->map(function ($record) {
+    // Assuming both Client and FamilyMember have 'name' and 'email' attributes
+    return [
+        'name'  => $record->client_name,
+        'email' => $record->email,
+        'mobile' => $record->mobile,
+        'date_of_birth' => $record->date_of_birth
+    ];
+});
+
+$birthdayFamilyMembers = $birthdayFamilyMembers->map(function ($record) {
+    // Assuming FamilyMember has 'name', 'email', and 'mobile' attributes
+    return [
+        'name'  => $record->family_member_name,
+        'email' => $record->member_email,
+        'mobile' => $record->member_mobile,
+        'date_of_birth' => $record->family_member_dob
+    ];
+});
+
+// Merge both records into one collection
+$mergedRecords = $birthdayClients->merge($birthdayFamilyMembers);
+
+// Optionally, you can use flatMap if you want to further flatten the records (but this is not required in your case)
+
+
+        
+
         // Return the response with the client data
         return $this->sendResponse(
-            ["Clients" => ClientResource::collection($clients)],
+            ["totalClients" =>$clients,
+             "totalMediclaimInsurances"=>$totalMediclaimInsurances,
+             "totalTermPlans"=>$totalTermPlans,
+             "totalLic"=>$totalLic,
+             "totalLoan"=>$totalLoan,
+             "totalgeneralInsurance"=>$totalgeneralInsurance,
+             "totalDematAccount"=>$totalDematAccount,
+             "totalMutualFund"=>$totalMutualFund,
+             "birthdayUsers" =>$mergedRecords,
+            ],
             "Dashboard data retrieved successfully"
         );
     }
