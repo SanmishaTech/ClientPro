@@ -43,6 +43,7 @@ const formSchema = z.object({
       z.object({
         // Client validation (this can be at index 0)
         client_id: z.coerce.number().min(1, "Client ID field is required."),
+        term_id: z.string().optional(),
 
         // Family member validation (for family members, the `family_member_id` is required)
         // family_member_id: z.unionstring().number().optional(),
@@ -129,6 +130,7 @@ const Update = () => {
   const navigate = useNavigate();
 
   const defaultValues = {
+    term_id: "",
     client_id: "",
     term_company_name: "",
     broker_name: "",
@@ -257,6 +259,7 @@ const Update = () => {
       editTerm.TermPlan.forEach((term, index) => {
         // Append empty mediclaim data first
         append({
+          term_id: term.id.toString(),
           client_id: term.client_id,
           family_member_id: term.family_member_id || "", // if you have a family_member_id, otherwise ""
           term_company_name: term.term_company_name,
@@ -785,6 +788,26 @@ const Update = () => {
                             errors.term_plan_data[index].premium_without_gst
                               ?.message
                           }
+                        </p>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Controller
+                        name="term_id"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id="term_id"
+                            className="mt-1"
+                            type="hidden"
+                            placeholder="Enter pincode"
+                          />
+                        )}
+                      />
+                      {errors.term_id && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {errors.term_id.message}
                         </p>
                       )}
                     </div>

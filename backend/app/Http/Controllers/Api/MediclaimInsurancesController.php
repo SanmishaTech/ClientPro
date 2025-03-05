@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\TermPlan;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\MediclaimInsurance;
@@ -100,31 +101,49 @@ class MediclaimInsurancesController extends BaseController
       
         $mediclaimData = $request->input('mediclaim_data'); // Array containing client and family member data
 
-        // foreach ($mediclaimData as $data) {
 
-        $removeFamilyMediclaim = MediclaimInsurance::where('client_id',$mediclaimData[0]['client_id'])->get();
-        $removeFamilyMediclaim->each(function($familyMember) {
-            $familyMember->delete();
-        });
-    // }
-
-        foreach ($mediclaimData as $data) {
-        $mediclaimInsurance = new MediclaimInsurance();
-        $mediclaimInsurance->client_id = $data['client_id'];
-        $mediclaimInsurance->family_member_id = $data['family_member_id'] ?? null;
-        $mediclaimInsurance->company_name = $data['company_name'];
-        $mediclaimInsurance->broker_name = $data['broker_name'];
-        $mediclaimInsurance->policy_number = $data['policy_number'];
-        $mediclaimInsurance->plan_name = $data['plan_name'];
-        $mediclaimInsurance->premium = $data['premium'];
-        $mediclaimInsurance->proposal_date = $data['proposal_date'];
-        $mediclaimInsurance->end_date = $data['end_date'];
-        $mediclaimInsurance->premium_payment_mode = $data['premium_payment_mode'];
-        $mediclaimInsurance->sum_insured = $data['sum_insured'];
-        $mediclaimInsurance->save();
+        // $removeFamilyMediclaim = MediclaimInsurance::where('client_id',$mediclaimData[0]['client_id'])->get();
+        // $removeFamilyMediclaim->each(function($familyMember) {
+        //     $familyMember->delete();
+        // });
+        if($mediclaimData){
+            foreach($mediclaimData as $mediclaim){
+         
+           $mediclaim_insurance = MediclaimInsurance::updateOrCreate(
+               ['id' => $mediclaim['mediclaim_id'], 'client_id' => $mediclaim['client_id']], // Condition to check existing member
+               [
+                   'family_member_id' => $mediclaim['family_member_id'] ?? null,
+                   'company_name' => $mediclaim['company_name'],
+                   'broker_name' => $mediclaim['broker_name'],
+                   'policy_number' => $mediclaim['policy_number'],
+                   'plan_name' => $mediclaim['plan_name'],
+                   'premium' => $mediclaim['premium'],
+                   'proposal_date' => $mediclaim['proposal_date'],
+                   'end_date' => $mediclaim['end_date'],
+                   'premium_payment_mode' => $mediclaim['premium_payment_mode'],
+                   'sum_insured' => $mediclaim['sum_insured'],
+               ]
+           );
+            }
        }
+
+    //     foreach ($mediclaimData as $data) {
+    //     $mediclaimInsurance = new MediclaimInsurance();
+    //     $mediclaimInsurance->client_id = $data['client_id'];
+    //     $mediclaimInsurance->family_member_id = $data['family_member_id'] ?? null;
+    //     $mediclaimInsurance->company_name = $data['company_name'];
+    //     $mediclaimInsurance->broker_name = $data['broker_name'];
+    //     $mediclaimInsurance->policy_number = $data['policy_number'];
+    //     $mediclaimInsurance->plan_name = $data['plan_name'];
+    //     $mediclaimInsurance->premium = $data['premium'];
+    //     $mediclaimInsurance->proposal_date = $data['proposal_date'];
+    //     $mediclaimInsurance->end_date = $data['end_date'];
+    //     $mediclaimInsurance->premium_payment_mode = $data['premium_payment_mode'];
+    //     $mediclaimInsurance->sum_insured = $data['sum_insured'];
+    //     $mediclaimInsurance->save();
+    //    }
        
-        return $this->sendResponse(['MediclaimInsurance'=> new MediclaimInsuranceResource($mediclaimInsurance)], "Mediclaim Insurance updated successfully");
+        return $this->sendResponse(['MediclaimInsurance'=> new MediclaimInsuranceResource($mediclaim_insurance)], "Mediclaim Insurance updated successfully");
     }
 
     /**

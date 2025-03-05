@@ -195,17 +195,7 @@ class ClientsController extends BaseController
             $familyMembers = $request->input('family_members');
              foreach($familyMembers as $familyMember){
                $this->validateFamilyMember($familyMember); // Custom validation method
-            //    $member = new FamilyMember();
-            //    $member->client_id = $client->id;
-            //    $member->family_member_name = $familyMember['name'];
-            //    $member->member_email = $familyMember['member_email'];
-            //    $member->member_mobile = $familyMember['member_mobile'];
-            //    $member->member_height = $familyMember['member_height'];
-            //    $member->member_weight = $familyMember['member_weight'];
-            //    $member->member_existing_ped = $familyMember['member_existing_ped'];
-            //    $member->relation = $familyMember['relation'];
-            //    $member->family_member_dob = $familyMember['date_of_birth'];
-            //    $member->save();
+          
             $member = FamilyMember::updateOrCreate(
                 ['id' => $familyMember['member_id'], 'client_id' => $client->id], // Condition to check existing member
                 [

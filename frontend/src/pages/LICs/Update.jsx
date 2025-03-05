@@ -43,6 +43,7 @@ const formSchema = z.object({
       z.object({
         // Client validation (this can be at index 0)
         client_id: z.coerce.number().min(1, "Client ID field is required."),
+        lic_id: z.string().optional(),
 
         // Family member validation (for family members, the `family_member_id` is required)
         // family_member_id: z.unionstring().number().optional(),
@@ -136,6 +137,7 @@ const Update = () => {
   const navigate = useNavigate();
 
   const defaultValues = {
+    lic_id: "",
     client_id: "",
     company_name: "",
     broker_name: "",
@@ -267,6 +269,7 @@ const Update = () => {
       editLIC.LIC.forEach((lic, index) => {
         // Append empty mediclaim data first
         append({
+          lic_id: lic.id.toString(),
           client_id: lic.client_id,
           family_member_id: lic.family_member_id || "", // if you have a family_member_id, otherwise ""
           company_name: lic.company_name,
@@ -871,6 +874,26 @@ const Update = () => {
                       {errors.lic_data?.[index]?.ppt && (
                         <p className=" text-red-500 text-sm mt-1 left-0">
                           {errors.lic_data[index].ppt?.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Controller
+                        name="lic_id"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id="lic_id"
+                            className="mt-1"
+                            type="hidden"
+                            placeholder="Enter pincode"
+                          />
+                        )}
+                      />
+                      {errors.lic_id && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {errors.lic_id.message}
                         </p>
                       )}
                     </div>

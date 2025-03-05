@@ -43,7 +43,7 @@ const formSchema = z.object({
       z.object({
         // Client validation (this can be at index 0)
         client_id: z.coerce.number().min(1, "Client ID field is required."),
-
+        mediclaim_id: z.string().optional(),
         // Family member validation (for family members, the `family_member_id` is required)
         // family_member_id: z.unionstring().number().optional(),
         family_member_id: z.union([z.string(), z.number()]).optional(),
@@ -129,6 +129,7 @@ const Update = () => {
   const navigate = useNavigate();
 
   const defaultValues = {
+    mediclaim_id: "",
     client_id: "",
     company_name: "",
     broker_name: "",
@@ -257,6 +258,7 @@ const Update = () => {
       editMediclaim.MediclaimInsurance.forEach((insurance, index) => {
         // Append empty mediclaim data first
         append({
+          mediclaim_id: insurance.id.toString(),
           client_id: insurance.client_id,
           family_member_id: insurance.family_member_id || "", // if you have a family_member_id, otherwise ""
           company_name: insurance.company_name,
@@ -782,6 +784,26 @@ const Update = () => {
                       {errors.mediclaim_data?.[index]?.premium && (
                         <p className=" text-red-500 text-sm mt-1 left-0">
                           {errors.mediclaim_data[index].premium?.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Controller
+                        name="mediclaim_id"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id="mediclaim_id"
+                            className="mt-1"
+                            type="hidden"
+                            placeholder="Enter pincode"
+                          />
+                        )}
+                      />
+                      {errors.mediclaim_id && (
+                        <p className=" text-red-500 text-sm mt-1 left-0">
+                          {errors.mediclaim_id.message}
                         </p>
                       )}
                     </div>

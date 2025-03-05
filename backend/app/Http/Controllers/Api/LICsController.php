@@ -108,35 +108,31 @@ class LICsController extends BaseController
         
         $licData = $request->input('lic_data'); // Array containing client and family member data
 
-        $removelic = LIC::where('client_id',$lic->client_id)->get();
-        if(!$removelic){
-            return $this->sendError("LIC details not found", ['error'=>'LIC details not found']);
-        }
-        
-        $removelic->each(function($familyMember) {
-            $familyMember->delete();
-        });
-    
-        foreach ($licData as $data) {
-        $lic = new LIC();
-        $lic->client_id = $data['client_id'];
-        $lic->family_member_id = $data['family_member_id'] ?? null;
-        $lic->company_name = $data['company_name'];
-        $lic->broker_name = $data['broker_name'];
-        $lic->policy_number = $data['policy_number'];
-        $lic->plan_name = $data['plan_name'];
-        $lic->premium_without_gst = $data['premium_without_gst'];
-        $lic->commencement_date = $data['commencement_date'];
-        $lic->term = $data['term'];
-        $lic->ppt = $data['ppt'];
-        $lic->proposal_date = $data['proposal_date'];
-        $lic->end_date = $data['end_date'];
-        $lic->premium_payment_mode = $data['premium_payment_mode'];
-        $lic->sum_insured = $data['sum_insured'];
-        $lic->save();
+        if($licData){
+            foreach($licData as $lic){
+         
+           $LIC = LIC::updateOrCreate(
+               ['id' => $lic['lic_id'], 'client_id' => $lic['client_id']], // Condition to check existing member
+               [
+                   'family_member_id' => $lic['family_member_id'] ?? null,
+                   'company_name' => $lic['company_name'],
+                   'broker_name' => $lic['broker_name'],
+                   'policy_number' => $lic['policy_number'],
+                   'plan_name' => $lic['plan_name'],
+                   'premium_without_gst' => $lic['premium_without_gst'],
+                   'commencement_date' => $lic['commencement_date'],
+                   'term' => $lic['term'],
+                   'ppt' => $lic['ppt'],
+                   'proposal_date' => $lic['proposal_date'],
+                   'end_date' => $lic['end_date'],
+                   'premium_payment_mode' => $lic['premium_payment_mode'],
+                   'sum_insured' => $lic['sum_insured'],
+               ]
+           );
+            }
        }
        
-        return $this->sendResponse(['LIC'=> new LICResource($lic)], "LIC details updated successfully");
+        return $this->sendResponse(['LIC'=> new LICResource($LIC)], "LIC details updated successfully");
     }
 
     /**
