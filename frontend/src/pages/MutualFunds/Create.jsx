@@ -15,6 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toTitleCase } from "../../lib/titleCase.js";
+
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -425,6 +427,10 @@ const Create = () => {
                             className="mt-1"
                             type="text"
                             placeholder="Enter name"
+                            onChange={(e) => {
+                              const formatedValue = toTitleCase(e.target.value);
+                              field.onChange(formatedValue);
+                            }}
                           />
                         )}
                       />
@@ -454,6 +460,10 @@ const Create = () => {
                             className="mt-1"
                             type="text"
                             placeholder="Enter reference name"
+                            onChange={(e) => {
+                              const formatedValue = toTitleCase(e.target.value);
+                              field.onChange(formatedValue);
+                            }}
                           />
                         )}
                       />
@@ -512,6 +522,10 @@ const Create = () => {
                             className="mt-1"
                             type="text"
                             placeholder="Enter service provider"
+                            onChange={(e) => {
+                              const formatedValue = toTitleCase(e.target.value);
+                              field.onChange(formatedValue);
+                            }}
                           />
                         )}
                       />

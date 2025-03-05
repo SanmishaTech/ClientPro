@@ -34,6 +34,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { toTitleCase } from "../../lib/titleCase.js";
 
 const formSchema = z.object({
   client_id: z.coerce.number().min(1, "Client field is required."),
@@ -548,6 +549,10 @@ const Update = () => {
                             className="mt-1"
                             type="text"
                             placeholder="Enter company name"
+                            onChange={(e) => {
+                              const formatedValue = toTitleCase(e.target.value);
+                              field.onChange(formatedValue);
+                            }}
                           />
                         )}
                       />
@@ -576,6 +581,10 @@ const Update = () => {
                             className="mt-1"
                             type="text"
                             placeholder="Enter broker name"
+                            onChange={(e) => {
+                              const formatedValue = toTitleCase(e.target.value);
+                              field.onChange(formatedValue);
+                            }}
                           />
                         )}
                       />
@@ -759,6 +768,10 @@ const Update = () => {
                             className="mt-1"
                             type="text"
                             placeholder="Enter plan name"
+                            onChange={(e) => {
+                              const formatedValue = toTitleCase(e.target.value);
+                              field.onChange(formatedValue);
+                            }}
                           />
                         )}
                       />

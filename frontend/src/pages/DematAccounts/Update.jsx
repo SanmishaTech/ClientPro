@@ -15,6 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import axios from "axios";
+import { toTitleCase } from "../../lib/titleCase.js";
+
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -453,6 +455,10 @@ const Update = () => {
                             className="mt-1"
                             type="text"
                             placeholder="Enter company name"
+                            onChange={(e) => {
+                              const formatedValue = toTitleCase(e.target.value);
+                              field.onChange(formatedValue);
+                            }}
                           />
                         )}
                       />
@@ -513,6 +519,10 @@ const Update = () => {
                             className="mt-1"
                             type="text"
                             placeholder="Enter plan name"
+                            onChange={(e) => {
+                              const formatedValue = toTitleCase(e.target.value);
+                              field.onChange(formatedValue);
+                            }}
                           />
                         )}
                       />
@@ -568,6 +578,10 @@ const Update = () => {
                             className="mt-1"
                             type="text"
                             placeholder="Enter service provider"
+                            onChange={(e) => {
+                              const formatedValue = toTitleCase(e.target.value);
+                              field.onChange(formatedValue);
+                            }}
                           />
                         )}
                       />

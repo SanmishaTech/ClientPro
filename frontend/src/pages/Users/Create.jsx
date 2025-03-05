@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { toTitleCase } from "../../lib/titleCase.js";
 
 const formSchema = z.object({
   email: z
@@ -174,6 +175,10 @@ const Create = () => {
                       className="mt-1"
                       type="text"
                       placeholder="Enter name"
+                      onChange={(e) => {
+                        const formatedValue = toTitleCase(e.target.value);
+                        field.onChange(formatedValue);
+                      }}
                     />
                   )}
                 />

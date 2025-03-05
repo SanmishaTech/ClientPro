@@ -35,6 +35,8 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { toTitleCase } from "../../lib/titleCase.js";
+
 
 const formSchema = z.object({
   // devta_name: z.string().min(2, "Name must be at least 2 characters"),
@@ -359,6 +361,10 @@ const Create = () => {
                       className="mt-1"
                       type="text"
                       placeholder="Enter bank name"
+                      onChange={(e) => {
+                        const formatedValue = toTitleCase(e.target.value);
+                        field.onChange(formatedValue);
+                      }}
                     />
                   )}
                 />

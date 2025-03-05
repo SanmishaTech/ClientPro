@@ -22,6 +22,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css"; // Import styles for the phone input
+import { toTitleCase } from "../../lib/titleCase.js";
 
 const formSchema = z.object({
   email: z
@@ -205,6 +206,10 @@ const Update = () => {
                       className="mt-1"
                       type="text"
                       placeholder="Enter name"
+                      onChange={(e) => {
+                        const formatedValue = toTitleCase(e.target.value);
+                        field.onChange(formatedValue);
+                      }}
                     />
                   )}
                 />

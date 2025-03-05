@@ -39,13 +39,15 @@
     <table style="width: 100%">
         <thead>
             <tr>
-                <th colspan="4" style="text-align: center; font-size: 16px; font-weight: bold;">Mediclaim Insurance</th>
+                <th colspan="6" style="text-align: center; font-size: 16px; font-weight: bold;">Mediclaim Insurance</th>
             </tr>
             <tr>
-                <th>Created At</th>
+                <th>Date</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Mobile</th>
+                <th>Broker Name</th>
+                <th>End Date</th>
             </tr>
         </thead>
         <tbody>
@@ -58,6 +60,8 @@
                             <td>{{ $client->client_name }}</td>
                             <td>{{ $client->email }}</td>
                             <td>{{ $client->mobile }}</td>
+                            <td>{{ $mediclaim->broker_name ?? "N/A" }}</td>
+                            <td>{{ \Carbon\Carbon::parse($mediclaim->end_date)->format('d/m/Y') ?? "N/A" }}</td>
                         </tr>
                     @endif
                 @endforeach
@@ -71,6 +75,8 @@
                                 <td>{{ $familyMember->family_member_name }}</td>
                                 <td>{{ $familyMember->member_email }}</td>
                                 <td>{{ $familyMember->member_mobile }}</td>
+                                <td>{{ $mediclaim->broker_name ?? N/A }}</td>
+                                <td>{{ \Carbon\Carbon::parse($mediclaim->end_date)->format('d/m/Y') ?? "N/A" }}</td>
                             </tr>
                         @endif
                     @endforeach
@@ -88,7 +94,7 @@
                 <th colspan="4" style="text-align: center; font-size: 16px; font-weight: bold;">Term Plan</th>
             </tr>
             <tr>
-                <th>Created At</th>
+                <th>Date</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Mobile</th>
@@ -134,7 +140,7 @@
                 <th colspan="4" style="text-align: center; font-size: 16px; font-weight: bold;">LIC</th>
             </tr>
             <tr>
-                <th>Created At</th>
+                <th>Date</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Mobile</th>
@@ -181,7 +187,7 @@
                 <th colspan="4" style="text-align: center; font-size: 16px; font-weight: bold;">General Insurance</th>
             </tr>
             <tr>
-                <th>Created At</th>
+                <th>Date</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Mobile</th>
@@ -229,7 +235,7 @@
                  <th colspan="4" style="text-align: center; font-size: 16px; font-weight: bold;">Demat Account</th>
              </tr>
              <tr>
-                 <th>Created At</th>
+                 <th>Date</th>
                  <th>Name</th>
                  <th>Email</th>
                  <th>Mobile</th>

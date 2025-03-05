@@ -27,6 +27,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { toTitleCase } from "../../lib/titleCase.js";
+
 import {
   Command,
   CommandEmpty,
@@ -459,6 +461,10 @@ const Create = () => {
                             className="mt-1"
                             type="text"
                             placeholder="Enter company name"
+                            onChange={(e) => {
+                              const formatedValue = toTitleCase(e.target.value);
+                              field.onChange(formatedValue);
+                            }}
                           />
                         )}
                       />
@@ -519,6 +525,10 @@ const Create = () => {
                             className="mt-1"
                             type="text"
                             placeholder="Enter plan name"
+                            onChange={(e) => {
+                              const formatedValue = toTitleCase(e.target.value);
+                              field.onChange(formatedValue);
+                            }}
                           />
                         )}
                       />
@@ -574,6 +584,10 @@ const Create = () => {
                             className="mt-1"
                             type="text"
                             placeholder="Enter service provider"
+                            onChange={(e) => {
+                              const formatedValue = toTitleCase(e.target.value);
+                              field.onChange(formatedValue);
+                            }}
                           />
                         )}
                       />
