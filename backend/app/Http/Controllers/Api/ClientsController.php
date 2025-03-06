@@ -252,6 +252,16 @@ class ClientsController extends BaseController
             'termPlans' => $client->termPlans()->exists(),
         ];
 
+        $tableNames = [
+            'mediclaimInsurances' => 'Mediclaim Insurance',
+            'lics' => 'LIC',
+            'loans' => 'Loan',
+            'generalInsurances' => 'General Insurance',
+            'dematAccounts' => 'Demat Account',
+            'mutualFunds' => 'Mutual Fund',
+            'termPlans' => 'Term Plan',
+        ];
+
         foreach ($client->familyMembers as $familyMember) {
             $associatedRecords['mediclaimInsurances'] |= $familyMember->mediclaimInsurances()->exists();
             $associatedRecords['lics'] |= $familyMember->lics()->exists();
@@ -267,7 +277,7 @@ class ClientsController extends BaseController
                     'status' => false,
                     'message' => 'Validation failed',
                     'errors' => [
-                        'categories_exists' => ["Client or family member has associated records in the {$table} table. Deletion is not allowed."]
+                        'categories_exists' => ["Client or family member has associated records in the {$tableNames[$table]} Category. Deletion is not allowed."]
                     ],
                 ], 422);
                 // return $this->sendError("categories_exists", [
@@ -331,6 +341,16 @@ class ClientsController extends BaseController
         'termPlans' => $familyMember->termPlans()->exists(),
     ];
 
+    $tableNames = [
+        'mediclaimInsurances' => 'Mediclaim Insurance',
+        'lics' => 'LIC',
+        'loans' => 'Loan',
+        'generalInsurances' => 'General Insurance',
+        'dematAccounts' => 'Demat Account',
+        'mutualFunds' => 'Mutual Fund',
+        'termPlans' => 'Term Plan',
+    ];
+
     // Loop through and check if any associated record exists
     foreach ($associatedRecords as $table => $exists) {
         if ($exists) {
@@ -338,7 +358,7 @@ class ClientsController extends BaseController
                 'status' => false,
                 'message' => 'Validation failed',
                 'errors' => [
-                    'categories_exists' => ["Family member has associated records in the {$table} table. Deletion is not allowed."]
+                    'categories_exists' => ["Family member has associated records in the {$tableNames[$table]} Category. Deletion is not allowed."]
                 ],
             ], 422);
         }
