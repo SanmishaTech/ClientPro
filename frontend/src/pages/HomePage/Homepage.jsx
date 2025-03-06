@@ -253,7 +253,7 @@ const Homepage = () => {
             {/* <h2 className="text-lg  font-normal">
               Clients with Birthdays in the Coming 3 Months{" "}
             </h2> */}
-            <h2 className="text-2xl pt-2 pb-6 font-semibold leading-none tracking-tight">
+            <h2 className="text-xl pt-2 pb-6 font-medium leading-none tracking-tight">
               Clients with Birthdays in the Coming 3 Months{" "}
             </h2>
           </div>
