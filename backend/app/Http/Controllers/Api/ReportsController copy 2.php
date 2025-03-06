@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Client;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\BaseController;
+use Mpdf\Config\ConfigVariables;
+use Mpdf\Config\FontVariables;
 use File;
 use Response;
 use Mpdf\Mpdf;
 use Carbon\Carbon;
-use App\Models\Client;
-use App\Models\FamilyMember;
-use Illuminate\Http\Request;
-use Mpdf\Config\FontVariables;
-use Mpdf\Config\ConfigVariables;
-use App\Http\Controllers\Controller;
-use App\Http\Controllers\Api\BaseController;
 
 
 class ReportsController extends BaseController
@@ -26,80 +25,23 @@ class ReportsController extends BaseController
           $from_date = \Carbon\Carbon::parse($from_date);
           $to_date = \Carbon\Carbon::parse($to_date);
           
-        //   // Extract month and day only (ignoring the year)
-        //   $fromMonthDay = $from_date->format('m-d');
-        //   $toMonthDay = $to_date->format('m-d');
+          // Extract month and day only (ignoring the year)
+          $fromMonthDay = $from_date->format('m-d');
+          $toMonthDay = $to_date->format('m-d');
           
-        //   $clients = Client::with(['familyMembers' => function($query) use ($fromMonthDay, $toMonthDay) {
-        //       $query->whereRaw("DATE_FORMAT(family_member_dob, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay]);
-        //   }])
-        //   ->where(function ($query) use ($fromMonthDay, $toMonthDay) {
-        //       $query->whereRaw("DATE_FORMAT(date_of_birth, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay])
-        //             ->orWhereHas('familyMembers', function($query) use ($fromMonthDay, $toMonthDay) {
-        //                 $query->whereRaw("DATE_FORMAT(family_member_dob, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay]);
-        //             });
-        //   })
-        //   ->get();
-          // Extract month and day for filtering
-    $fromMonthDay = $from_date->format('m-d');
-    $toMonthDay = $to_date->format('m-d');
-
-    // Get clients with birthdays in range
-    $clients = Client::whereRaw("DATE_FORMAT(date_of_birth, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay])->get();
-
-    // Get family members with birthdays in range
-    $familyMembers = FamilyMember::whereRaw("DATE_FORMAT(family_member_dob, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay])->get();
-
-    // Format clients
-    // $formattedClients = $clients->map(function ($client) {
-    //     return [
-    //         'name'  => $client->client_name,
-    //         'email' => $client->email,
-    //         'mobile' => $client->mobile,
-    //         'date_of_birth' => $client->date_of_birth
-    //     ];
-    // });
-
-    // // Format family members
-    // $formattedFamilyMembers = $familyMembers->map(function ($familyMember) {
-    //     return [
-    //         'name'  => $familyMember->family_member_name,
-    //         'email' => $familyMember->member_email,
-    //         'mobile' => $familyMember->member_mobile,
-    //         'date_of_birth' => $familyMember->family_member_dob
-    //     ];
-    // });
-
-    // // Merge and sort by date_of_birth (ignoring year)
-    // $mergedCollection = $formattedClients->merge($formattedFamilyMembers)
-    //     ->sortBy(fn($item) => \Carbon\Carbon::parse($item['date_of_birth'])->format('m-d'))
-    //     ->values(); // Reset indexes
-    $formattedClients = collect($clients)->map(function ($client) {
-        return [
-            'name'  => $client->client_name,
-            'email' => $client->email,
-            'mobile' => $client->mobile,
-            'date_of_birth' => $client->date_of_birth
-        ];
-    });
-    
-    $formattedFamilyMembers = collect($familyMembers)->map(function ($familyMember) {
-        return [
-            'name'  => $familyMember->family_member_name,
-            'email' => $familyMember->member_email,
-            'mobile' => $familyMember->member_mobile,
-            'date_of_birth' => $familyMember->family_member_dob
-        ];
-    });
-    
-    // Merge and sort by date_of_birth
-    $mergedCollection = $formattedClients->merge($formattedFamilyMembers)
-        ->sortBy(fn($item) => \Carbon\Carbon::parse($item['date_of_birth'])->format('m-d'))
-        ->values(); // Reset indexes
-    
+          $clients = Client::with(['familyMembers' => function($query) use ($fromMonthDay, $toMonthDay) {
+              $query->whereRaw("DATE_FORMAT(family_member_dob, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay]);
+          }])
+          ->where(function ($query) use ($fromMonthDay, $toMonthDay) {
+              $query->whereRaw("DATE_FORMAT(date_of_birth, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay])
+                    ->orWhereHas('familyMembers', function($query) use ($fromMonthDay, $toMonthDay) {
+                        $query->whereRaw("DATE_FORMAT(family_member_dob, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay]);
+                    });
+          })
+          ->get();
         
         $data = [
-            'clients' => $mergedCollection,
+            'clients' => $clients,
             'from_date' => $from_date,
             'to_date' => $to_date,
             'fromMonthDay' =>$fromMonthDay,

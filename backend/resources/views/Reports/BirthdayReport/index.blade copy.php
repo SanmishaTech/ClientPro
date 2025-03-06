@@ -73,17 +73,29 @@
         </tbody> --}}
         <tbody>
             @foreach($clients as $client)
-                @if (\Carbon\Carbon::parse($client['date_of_birth'])->format('m-d') >= $fromMonthDay && \Carbon\Carbon::parse($client['date_of_birth'])->format('m-d') <= $toMonthDay)
+                <!-- Display client details (if their birthday is within the range) -->
+                @if (\Carbon\Carbon::parse($client->date_of_birth)->format('m-d') >= $fromMonthDay && \Carbon\Carbon::parse($client->date_of_birth)->format('m-d') <= $toMonthDay)
                     <tr>
-                        <td>{{ \Carbon\Carbon::parse($client['date_of_birth'])->format('d/m/Y') }}</td>
-                        <td>{{ $client['name'] }}</td>
-                        <td>{{ $client['email'] }}</td>
-                        <td>{{ $client['mobile'] }}</td>
+                        <td>{{ \Carbon\Carbon::parse($client->date_of_birth)->format('d/m/Y') }}</td>
+                        <td>{{ $client->client_name }}</td>
+                        <td>{{ $client->email }}</td>
+                        <td>{{ $client->mobile }}</td>
                     </tr>
                 @endif
+        
+                <!-- Display family members details -->
+                @foreach($client->familyMembers as $familyMember)
+                    @if (\Carbon\Carbon::parse($familyMember->family_member_dob)->format('m-d') >= $fromMonthDay && \Carbon\Carbon::parse($familyMember->family_member_dob)->format('m-d') <= $toMonthDay)
+                        <tr>
+                            <td>{{ \Carbon\Carbon::parse($familyMember->family_member_dob)->format('d/m/Y') }}</td>
+                            <td>{{ $familyMember->family_member_name }}</td>
+                            <td>{{ $familyMember->member_email }}</td>
+                            <td>{{ $familyMember->member_mobile }}</td>
+                        </tr>
+                    @endif
+                @endforeach
             @endforeach
         </tbody>
-        
         
     </table>
     </body>

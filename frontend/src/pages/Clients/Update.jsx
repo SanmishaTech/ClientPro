@@ -533,7 +533,7 @@ const Update = () => {
               </div>
               <div className="relative">
                 <Label className="font-normal" htmlFor="height">
-                  Height (inches): <span className="text-red-500">*</span>
+                  Height (ft in): <span className="text-red-500">*</span>
                 </Label>
                 <Controller
                   name="height"
@@ -963,7 +963,7 @@ const Update = () => {
                             className="font-normal"
                             htmlFor={`family_members[${index}].member_height`}
                           >
-                            Height (inches):
+                            Height (ft in):
                             <span className="text-red-500">*</span>
                           </Label>
                           <Controller
