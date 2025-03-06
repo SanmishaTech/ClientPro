@@ -41,46 +41,40 @@ class DashboardController extends BaseController
         $threeMonthsLater = $currentDate->copy()->addMonths(3)->endOfDay(); // Date 3 months from today
 
         
-        $clients = Client::whereBetween('date_of_birth', [$currentDate, $threeMonthsLater])->get();
-    $familyMembers = FamilyMember::whereBetween('family_member_dob', [$currentDate, $threeMonthsLater])->get();
+        $perPage = 20;
+        $currentPage = $request->query('page', 1);
+        // $mergedRecords = $birthdayClients->merge($birthdayFamilyMembers);
+        $birthdayClients = Client::whereBetween('date_of_birth', [$currentDate, $threeMonthsLater])->get();
 
-    // Map data to return required fields
-    $formattedClients = $clients->map(function ($record) {
-        return [
-            'name'  => $record->client_name,
-            'email' => $record->email,
-            'mobile' => $record->mobile,
-            'date_of_birth' => $record->date_of_birth
-        ];
-    });
+// Get Family Members whose birthday is within the next 3 months
+$birthdayFamilyMembers = FamilyMember::whereBetween('family_member_dob', [$currentDate, $threeMonthsLater])->get();
 
-    $formattedFamilyMembers = $familyMembers->map(function ($record) {
-        return [
-            'name'  => $record->family_member_name,
-            'email' => $record->member_email,
-            'mobile' => $record->member_mobile,
-            'date_of_birth' => $record->family_member_dob
-        ];
-    });
+// Use map to extract specific fields like name, email, and others
+$birthdayClients = $birthdayClients->map(function ($record) {
+    // Assuming both Client and FamilyMember have 'name' and 'email' attributes
+    return [
+        'name'  => $record->client_name,
+        'email' => $record->email,
+        'mobile' => $record->mobile,
+        'date_of_birth' => $record->date_of_birth
+    ];
+});
 
-    // Merge both records
-    $mergedCollection = $formattedClients->merge($formattedFamilyMembers);
-    $mergedCollection = $mergedCollection->sortBy('date_of_birth')->values();
+$birthdayFamilyMembers = $birthdayFamilyMembers->map(function ($record) {
+    // Assuming FamilyMember has 'name', 'email', and 'mobile' attributes
+    return [
+        'name'  => $record->family_member_name,
+        'email' => $record->member_email,
+        'mobile' => $record->member_mobile,
+        'date_of_birth' => $record->family_member_dob
+    ];
+});
 
-    // Apply pagination on merged collection
-    $perPage = 5;
-    $currentPage = $request->query('page', 1);
-    $totalItems = $mergedCollection->count();
+// Merge both records into one collection
+$mergedRecords = $birthdayClients->merge($birthdayFamilyMembers);
 
-    $pagedData = $mergedCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
+// Optionally, you can use flatMap if you want to further flatten the records (but this is not required in your case)
 
-    $paginatedResults = new \Illuminate\Pagination\LengthAwarePaginator(
-        $pagedData,
-        $totalItems,
-        $perPage,
-        $currentPage,
-        ['path' => $request->url()]
-    );
 
         
 
@@ -94,13 +88,7 @@ class DashboardController extends BaseController
              "totalgeneralInsurance"=>$totalgeneralInsurance,
              "totalDematAccount"=>$totalDematAccount,
              "totalMutualFund"=>$totalMutualFund,
-             "birthdayUsers" =>$paginatedResults->items(),
-             'pagination' => [
-                'current_page' => $paginatedResults->currentPage(),
-                'last_page' => $paginatedResults->lastPage(),
-                'per_page' => $paginatedResults->perPage(),
-                'total' => $paginatedResults->total(),
-            ]
+             "birthdayUsers" =>$mergedRecords,
             ],
             "Dashboard data retrieved successfully"
         );

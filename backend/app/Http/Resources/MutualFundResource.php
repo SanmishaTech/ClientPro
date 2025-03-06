@@ -19,6 +19,7 @@ class MutualFundResource extends JsonResource
             'client_id' => $this->client_id,
             'client_name'         => $this->client ? $this->client->client_name : "",
             'family_member_id'         => $this->family_member_id,
+            'family_members'         =>  $this->familyMember ? $this->familyMember->family_member_name : "",
             'mutual_fund_name' => $this->mutual_fund_name,
             'start_date' => $this->start_date,
             'reference_name' => $this->reference_name,

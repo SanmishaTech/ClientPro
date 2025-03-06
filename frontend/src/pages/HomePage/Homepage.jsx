@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import {
@@ -9,6 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Pagination from "@/customComponents/Pagination/Pagination";
+
 import {
   Table,
   TableBody,
@@ -40,19 +42,24 @@ const Homepage = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const token = user.token;
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
 
   const {
     data: DashboardData,
     isLoading: isDashboardDataLoading,
     isError: isDashboardDataError,
   } = useQuery({
-    queryKey: ["dashboards"], // This is the query key
+    queryKey: ["dashboards", currentPage], // This is the query key
     queryFn: async () => {
       try {
         const response = await axios.get("/api/dashboards", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+          },
+          params: {
+            page: currentPage,
+            // search: search,
           },
         });
         return response.data?.data; // Return the fetched data
@@ -74,7 +81,10 @@ const Homepage = () => {
     totalMutualFund,
     totalClients,
     birthdayUsers,
+    pagination,
   } = DashboardData || {};
+
+  const { current_page, last_page, total, per_page } = pagination || {};
 
   // if (isDashboardDataError) {
   //   return <p>Error</p>;
@@ -250,14 +260,14 @@ const Homepage = () => {
           <Table className="mb-2">
             <TableCaption className="mb-2">
               <div className="flex justify-end">
-                {/* <Pagination
+                <Pagination
                   className="pagination-bar"
                   currentPage={current_page}
                   totalCount={total}
                   pageSize={per_page}
                   onPageChange={(page) => setCurrentPage(page)}
                   lastPage={last_page} // Pass the last_page value here
-                /> */}
+                />
               </div>
             </TableCaption>
             <TableHeader className="dark:bg-background bg-gray-100  rounded-md">

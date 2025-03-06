@@ -881,7 +881,9 @@ const Update = () => {
                                 className="mt-1"
                                 placeholder="Enter family member name"
                                 onChange={(e) => {
-                                  const formatedValue = toTitleCase(e.target.value);
+                                  const formatedValue = toTitleCase(
+                                    e.target.value
+                                  );
                                   field.onChange(formatedValue);
                                 }}
                               />
@@ -911,7 +913,9 @@ const Update = () => {
                                 className="mt-1"
                                 placeholder="Enter relation"
                                 onChange={(e) => {
-                                  const formatedValue = toTitleCase(e.target.value);
+                                  const formatedValue = toTitleCase(
+                                    e.target.value
+                                  );
                                   field.onChange(formatedValue);
                                 }}
                               />
@@ -997,12 +1001,21 @@ const Update = () => {
                           <Controller
                             name={`family_members[${index}].member_mobile`}
                             control={control}
+                            rules={{
+                              required: "Mobile number is required",
+                              pattern: {
+                                value: /^[0-9]{10}$/,
+                                message:
+                                  "Mobile number must be exact 10 digits",
+                              },
+                            }}
                             render={({ field }) => (
                               <Input
                                 {...field}
                                 id={`family_members[${index}].member_mobile`}
                                 className="mt-1"
                                 placeholder="Enter mobile"
+                                maxLength={10}
                               />
                             )}
                           />
@@ -1090,7 +1103,9 @@ const Update = () => {
                                 type="text"
                                 placeholder="Enter ped"
                                 onChange={(e) => {
-                                  const formatedValue = toTitleCase(e.target.value);
+                                  const formatedValue = toTitleCase(
+                                    e.target.value
+                                  );
                                   field.onChange(formatedValue);
                                 }}
                               />

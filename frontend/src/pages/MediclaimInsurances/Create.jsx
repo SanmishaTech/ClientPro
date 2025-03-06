@@ -730,7 +730,7 @@ const Create = () => {
                             {...field}
                             id={`mediclaim_data[${index}].premium`}
                             className="mt-1"
-                            type="text"
+                            type="number"
                             placeholder="Enter premium"
                           />
                         )}

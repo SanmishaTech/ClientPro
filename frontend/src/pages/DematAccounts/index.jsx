@@ -145,6 +145,7 @@ const Index = () => {
             <TableHeader className="dark:bg-background bg-gray-100  rounded-md">
               <TableRow>
                 <TableHead className="p-2">Client Name</TableHead>
+                <TableHead className="p-2">Family Member Name</TableHead>
                 <TableHead className="p-2">Account Number</TableHead>
                 <TableHead className="p-2">Service Provider</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -159,6 +160,9 @@ const Index = () => {
                   >
                     <TableCell className="font-medium p-2">
                       {DematAccount.client_name}
+                    </TableCell>
+                    <TableCell className="font-medium p-2">
+                      {DematAccount.family_members || "N/A"}
                     </TableCell>
                     <TableCell className="font-medium p-2">
                       {DematAccount.account_number || "N/A"}

@@ -313,7 +313,7 @@ const MobileSidebar = ({ open, setOpen }) => {
               <div className="flex gap-3 p-1 text-2xl items-center text-white">
                 {" "}
                 <LayoutDashboard />
-                Designer
+                ClientPro
               </div>{" "}
             </SheetTitle>
           </SheetHeader>

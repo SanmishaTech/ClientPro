@@ -791,7 +791,7 @@ const Update = () => {
                             {...field}
                             id={`term_plan_data[${index}].premium_without_gst`}
                             className="mt-1"
-                            type="text"
+                            type="number"
                             placeholder="Enter premium"
                           />
                         )}

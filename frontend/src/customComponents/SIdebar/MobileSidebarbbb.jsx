@@ -54,7 +54,7 @@ const MobileSidebar = ({
           <button onClick={handleBar}>
             <FaBars />
           </button>
-          <p className=" font-bold">Designer</p>
+          <p className=" font-bold">ClientPro</p>
         </div>
         <div className="text-2xl gap-4 flex justify-end">
           <button
@@ -106,7 +106,7 @@ const MobileSidebar = ({
             <p className="text-4xl p-1 text-sky-400">
               <IoLogoSlack />
             </p>
-            <p className="text-3xl text-white">Designer</p>
+            <p className="text-3xl text-white">ClientPro</p>
           </div>
           <button
             onClick={() => setIsMobileSidebarOpen(false)}

@@ -27,6 +27,9 @@ class DematAccountController extends BaseController
                 ->orWhere('account_number', 'like', '%' . $searchTerm . '%')
                 ->orWhereHas('client', function($query) use($searchTerm){
                     $query->where('client_name','like', '%' . $searchTerm . '%');
+                })
+                ->orWhereHas('familyMember', function($query) use($searchTerm){
+                    $query->where('family_member_name','like', '%' . $searchTerm . '%');
                 });
 
             });

@@ -209,6 +209,7 @@ const Index = () => {
             <TableHeader className="dark:bg-background bg-gray-100  rounded-md">
               <TableRow>
                 <TableHead className="p-2">Client Name</TableHead>
+                <TableHead className="p-2">Family Member Name</TableHead>
                 <TableHead className="p-2">Insurance Type</TableHead>
                 <TableHead className="p-2">Company Name</TableHead>
                 <TableHead className="p-2">Premium</TableHead>
@@ -224,6 +225,10 @@ const Index = () => {
                   >
                     <TableCell className="font-medium p-2">
                       {GeneralInsurance.client_name}
+                    </TableCell>
+
+                    <TableCell className="font-medium p-2">
+                      {GeneralInsurance.family_members || "N/A"}
                     </TableCell>
 
                     <TableCell className="font-medium p-2">
