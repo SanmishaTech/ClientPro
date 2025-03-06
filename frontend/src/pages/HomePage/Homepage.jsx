@@ -254,7 +254,8 @@ const Homepage = () => {
               Clients with Birthdays in the Coming 3 Months{" "}
             </h2> */}
             <h2 className="text-xl pt-2 pb-6 font-medium leading-none tracking-tight">
-              Clients with Birthdays in the Coming 3 Months{" "}
+              {/* Clients with Birthdays in the Coming 3 Months{" "} */}
+              Members with Birthdays This Month
             </h2>
           </div>
           <Table className="mb-2">

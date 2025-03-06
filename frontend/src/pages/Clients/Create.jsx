@@ -449,7 +449,7 @@ const Create = () => {
               </div>
               <div className="relative">
                 <Label className="font-normal" htmlFor="height">
-                  Height (ft in): <span className="text-red-500">*</span>
+                  Height (inches): <span className="text-red-500">*</span>
                 </Label>
                 <Controller
                   name="height"
@@ -459,7 +459,7 @@ const Create = () => {
                       {...field}
                       id="height"
                       className="mt-1"
-                      type="text"
+                      type="number"
                       placeholder="Enter height"
                     />
                   )}
@@ -860,7 +860,7 @@ const Create = () => {
                             className="font-normal"
                             htmlFor={`family_members[${index}].member_height`}
                           >
-                            Height (ft in):
+                            Height (inches):
                             <span className="text-red-500">*</span>
                           </Label>
                           <Controller
@@ -871,7 +871,7 @@ const Create = () => {
                                 {...field}
                                 id={`family_members[${index}].member_height`}
                                 className="mt-1"
-                                type="text"
+                                type="number"
                                 placeholder="Enter height"
                               />
                             )}

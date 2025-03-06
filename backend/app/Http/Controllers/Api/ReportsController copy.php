@@ -33,24 +33,23 @@ class ReportsController extends BaseController
         // $clients->whereBetween('date_of_birth', [$from_date, $to_date]);
         // $clients = $clients->get();
           // Ensure the dates are in the correct format (e.g., Y-m-d)
-          $from_date = \Carbon\Carbon::parse($from_date);
-          $to_date = \Carbon\Carbon::parse($to_date);
-          
-          // Extract month and day only (ignoring the year)
-          $fromMonthDay = $from_date->format('m-d');
-          $toMonthDay = $to_date->format('m-d');
-          
-          $clients = Client::with(['familyMembers' => function($query) use ($fromMonthDay, $toMonthDay) {
-              $query->whereRaw("DATE_FORMAT(family_member_dob, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay]);
-          }])
-          ->where(function ($query) use ($fromMonthDay, $toMonthDay) {
-              $query->whereRaw("DATE_FORMAT(date_of_birth, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay])
-                    ->orWhereHas('familyMembers', function($query) use ($fromMonthDay, $toMonthDay) {
-                        $query->whereRaw("DATE_FORMAT(family_member_dob, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay]);
-                    });
-          })
-          ->get();
-          
+    $from_date = \Carbon\Carbon::parse($from_date)->startOfDay();
+    $to_date = \Carbon\Carbon::parse($to_date)->endOfDay();
+
+    // Get clients with their family members' date of birth filtered
+    $clients = Client::with(['familyMembers' => function($query) use ($from_date, $to_date) {
+        // Apply the date filter to family members' date_of_birth
+        $query->whereBetween('family_member_dob', [$from_date, $to_date]);
+    }])
+    ->where(function ($query) use ($from_date, $to_date) {
+        // Include clients whose birthday is within the selected range
+        $query->whereBetween('date_of_birth', [$from_date, $to_date])
+              ->orWhereHas('familyMembers', function($query) use ($from_date, $to_date) {
+                  // Include clients if at least one family member's birthday is within the range
+                  $query->whereBetween('family_member_dob', [$from_date, $to_date]);
+              });
+    })
+    ->get();
 
        
         
@@ -58,8 +57,6 @@ class ReportsController extends BaseController
             'clients' => $clients,
             'from_date' => $from_date,
             'to_date' => $to_date,
-            'fromMonthDay' =>$fromMonthDay,
-            'toMonthDay'=>$toMonthDay,
         ];
 
         // Render the Blade view to HTML

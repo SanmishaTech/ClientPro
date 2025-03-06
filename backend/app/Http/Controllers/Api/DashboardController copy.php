@@ -37,9 +37,10 @@ class DashboardController extends BaseController
         $totalDematAccount = DematAccount::count();
         $totalMutualFund = MutualFund::count();
         
-        $currentDate = now()->startOfDay(); // Current date
-        $threeMonthsLater = $currentDate->copy()->addMonths(3)->endOfDay(); // Date 3 months from today
-
+        // $currentDate = now()->startOfDay(); // Current date
+        // $threeMonthsLater = $currentDate->copy()->addMonths(1)->endOfDay(); // Date 3 months from today
+        $currentDate = now()->startOfMonth(); // Current date
+        $threeMonthsLater = now()->endOfMonth(); 
         
         $perPage = 20;
         $currentPage = $request->query('page', 1);

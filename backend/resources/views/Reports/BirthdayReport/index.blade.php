@@ -46,10 +46,10 @@
             <th>Mobile</th>
         </tr>
     </thead>
-        <tbody>
+        {{-- <tbody>
             @foreach($clients as $client)
             <!-- Display client details (if their birthday is within the range) -->
-            @if (\Carbon\Carbon::parse($client->date_of_birth)->between($from_date, $to_date))
+            @if (\Carbon\Carbon::parse($client->date_of_birth)->between($fromMonthDay, $toMonthDay))
                 <tr>
                     <td>{{ \Carbon\Carbon::parse($client->date_of_birth)->format('d/m/Y') }}</td>
                     <td>{{ $client->client_name }}</td>
@@ -60,7 +60,7 @@
 
             <!-- Display family members details -->
             @foreach($client->familyMembers as $familyMember)
-                @if (\Carbon\Carbon::parse($familyMember->family_member_dob)->between($from_date, $to_date))
+                @if (\Carbon\Carbon::parse($familyMember->family_member_dob)->between($fromMonthDay, $toMonthDay))
                     <tr>
                         <td>{{ \Carbon\Carbon::parse($familyMember->family_member_dob)->format('d/m/Y') }}</td>
                         <td>{{ $familyMember->family_member_name }}</td> <!-- Assuming 'name' is a field in familyMembers -->
@@ -70,7 +70,33 @@
                 @endif
             @endforeach
         @endforeach
+        </tbody> --}}
+        <tbody>
+            @foreach($clients as $client)
+                <!-- Display client details (if their birthday is within the range) -->
+                @if (\Carbon\Carbon::parse($client->date_of_birth)->format('m-d') >= $fromMonthDay && \Carbon\Carbon::parse($client->date_of_birth)->format('m-d') <= $toMonthDay)
+                    <tr>
+                        <td>{{ \Carbon\Carbon::parse($client->date_of_birth)->format('d/m/Y') }}</td>
+                        <td>{{ $client->client_name }}</td>
+                        <td>{{ $client->email }}</td>
+                        <td>{{ $client->mobile }}</td>
+                    </tr>
+                @endif
+        
+                <!-- Display family members details -->
+                @foreach($client->familyMembers as $familyMember)
+                    @if (\Carbon\Carbon::parse($familyMember->family_member_dob)->format('m-d') >= $fromMonthDay && \Carbon\Carbon::parse($familyMember->family_member_dob)->format('m-d') <= $toMonthDay)
+                        <tr>
+                            <td>{{ \Carbon\Carbon::parse($familyMember->family_member_dob)->format('d/m/Y') }}</td>
+                            <td>{{ $familyMember->family_member_name }}</td>
+                            <td>{{ $familyMember->member_email }}</td>
+                            <td>{{ $familyMember->member_mobile }}</td>
+                        </tr>
+                    @endif
+                @endforeach
+            @endforeach
         </tbody>
+        
     </table>
     </body>
 

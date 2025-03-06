@@ -37,52 +37,50 @@ class DashboardController extends BaseController
         $totalDematAccount = DematAccount::count();
         $totalMutualFund = MutualFund::count();
         
-        $currentDate = now()->startOfDay(); // Current date
-        $threeMonthsLater = $currentDate->copy()->addMonths(3)->endOfDay(); // Date 3 months from today
+        $currentMonth = now()->month; 
 
-        
-        $clients = Client::whereBetween('date_of_birth', [$currentDate, $threeMonthsLater])->get();
-    $familyMembers = FamilyMember::whereBetween('family_member_dob', [$currentDate, $threeMonthsLater])->get();
-
-    // Map data to return required fields
-    $formattedClients = $clients->map(function ($record) {
-        return [
-            'name'  => $record->client_name,
-            'email' => $record->email,
-            'mobile' => $record->mobile,
-            'date_of_birth' => $record->date_of_birth
-        ];
-    });
-
-    $formattedFamilyMembers = $familyMembers->map(function ($record) {
-        return [
-            'name'  => $record->family_member_name,
-            'email' => $record->member_email,
-            'mobile' => $record->member_mobile,
-            'date_of_birth' => $record->family_member_dob
-        ];
-    });
-
-    // Merge both records
-    $mergedCollection = $formattedClients->merge($formattedFamilyMembers);
-    $mergedCollection = $mergedCollection->sortBy('date_of_birth')->values();
-
-    // Apply pagination on merged collection
-    $perPage = 5;
-    $currentPage = $request->query('page', 1);
-    $totalItems = $mergedCollection->count();
-
-    $pagedData = $mergedCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
-
-    $paginatedResults = new \Illuminate\Pagination\LengthAwarePaginator(
-        $pagedData,
-        $totalItems,
-        $perPage,
-        $currentPage,
-        ['path' => $request->url()]
-    );
-
-        
+        // Fetch clients and family members with birthdays in the current month
+        $clients = Client::whereMonth('date_of_birth', $currentMonth)->get();
+        $familyMembers = FamilyMember::whereMonth('family_member_dob', $currentMonth)->get();
+    
+        // Format the data
+        $formattedClients = $clients->map(function ($record) {
+            return [
+                'name'  => $record->client_name,
+                'email' => $record->email,
+                'mobile' => $record->mobile,
+                'date_of_birth' => $record->date_of_birth
+            ];
+        });
+    
+        $formattedFamilyMembers = $familyMembers->map(function ($record) {
+            return [
+                'name'  => $record->family_member_name,
+                'email' => $record->member_email,
+                'mobile' => $record->member_mobile,
+                'date_of_birth' => $record->family_member_dob
+            ];
+        });
+    
+        // Merge and sort by date_of_birth (ignoring year)
+        $mergedCollection = $formattedClients->merge($formattedFamilyMembers)
+            ->sortBy(fn($item) => \Carbon\Carbon::parse($item['date_of_birth'])->format('m-d'))
+            ->values();
+    
+        // Apply pagination
+        $perPage = 5;
+        $currentPage = $request->query('page', 1);
+        $totalItems = $mergedCollection->count();
+    
+        $pagedData = $mergedCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
+    
+        $paginatedResults = new \Illuminate\Pagination\LengthAwarePaginator(
+            $pagedData,
+            $totalItems,
+            $perPage,
+            $currentPage,
+            ['path' => $request->url()]
+        );
 
         // Return the response with the client data
         return $this->sendResponse(

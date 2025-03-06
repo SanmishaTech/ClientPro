@@ -75,7 +75,7 @@
                                 <td>{{ $familyMember->family_member_name }}</td>
                                 <td>{{ $familyMember->member_email }}</td>
                                 <td>{{ $familyMember->member_mobile }}</td>
-                                <td>{{ $mediclaim->broker_name ?? N/A }}</td>
+                                <td>{{ $mediclaim->broker_name ?? "N/A" }}</td>
                                 <td>{{ \Carbon\Carbon::parse($mediclaim->end_date)->format('d/m/Y') ?? "N/A" }}</td>
                             </tr>
                         @endif
@@ -297,7 +297,7 @@
                               <td>{{ \Carbon\Carbon::parse($loan->created_at)->format('d/m/Y') }}</td>
                               <td>{{ $client->client_name }}</td>
                               <td>@if($loan->family_member_id){{ $loan->familymember->family_member_name }}@else 
-                                N/A
+                                "N/A"
                                 @endif</td>
                               <td>{{ $client->email }}</td>
                               <td>{{ $client->mobile }}</td>

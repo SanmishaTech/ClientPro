@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-// import background from '../../images/doitBackground.avif';
+// import background from "../../images/doitBackground.avif";
 import background from "../../images/angel.jpeg";
 // import templeImage from '../../images/ganesh.jpeg';
 // import templeImage from "../../images/temple-4.jpg";
@@ -77,7 +77,7 @@ const Login = () => {
           className="absolute inset-0 "
         /> */}
         {/* <img src={templeImage} className="absolute inset-0"  alt="" /> */}
-        <img
+        {/* <img
           src={background}
           className="absolute inset-0"
           style={{
@@ -85,7 +85,19 @@ const Login = () => {
             width: "700px", // Set the fixed height
             // objectFit: "contain", // Ensures the whole image is visible without stretching or cropping
           }}
-        />
+        /> */}
+        {/* <div className="relative h-full w-full">
+          <img
+            src={background}
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full object-contain"
+          />
+        </div> */}
+        <div className="relative pr-14 h-full w-full flex justify-center items-center">
+          <img
+            src={background}
+            className="max-w-full max-h-full object-contain"
+          />
+        </div>
 
         <div className="relative z-20 flex items-center text-lg font-medium text-white">
           <svg
@@ -103,6 +115,16 @@ const Login = () => {
               d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3"
             />
           </svg>
+          {/* <img
+            src={AgnelImage}
+            style={{
+              height: "80px", // Set the fixed width
+              width: "80px", // Set the fixed height
+              // objectFit: "contain", // Ensures the whole image is visible without stretching or cropping
+            }}
+            alt=""
+          /> */}
+
           {/* Logo */}
         </div>
         <div className="relative z-20 mt-auto">
