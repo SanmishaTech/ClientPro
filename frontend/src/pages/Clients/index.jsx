@@ -176,8 +176,14 @@ const Index = () => {
                       {client?.Family_members?.length > 0 ? (
                         <>
                           {client?.Family_members[0]?.family_member_name}
-                          {client?.Family_members.length > 1 &&
-                            ` +${client?.Family_members.length - 1} more`}
+                          {` `}
+                          {client?.Family_members.length > 1 ? (
+                            <Badge className="bg-blue-700">
+                              +{client?.Family_members.length - 1} more
+                            </Badge>
+                          ) : (
+                            ""
+                          )}
                         </>
                       ) : (
                         "N/A"
