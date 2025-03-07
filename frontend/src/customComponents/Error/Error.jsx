@@ -1,7 +1,7 @@
-import React from 'react';
-import { Link, useRouteError } from 'react-router-dom';
-import errorImg from '../../assets/404.svg';
-import basicError from '../../assets/error.svg';
+import React from "react";
+import { Link, useRouteError } from "react-router-dom";
+import errorImg from "../../assets/404.svg";
+import basicError from "../../assets/error.svg";
 const Error = () => {
   const error = useRouteError();
 
@@ -13,16 +13,18 @@ const Error = () => {
           <p className="font-bold leading-7 dark:text-white">
             We couldn't find the page you'r looking for.
           </p>
-          <Link
+          {/* <Link
             to="/"
             className="px-5 font-bold py-2 bg-sky-500 hover:bg-sky-600 text-white rounded"
           >
             Go Back Home
-          </Link>
+          </Link> */}
         </div>
       </>
     );
   }
+
+ 
 
   return (
     <>
@@ -31,9 +33,9 @@ const Error = () => {
         <p className=" dark:text-white font-bold text-4xl leading-7">
           There was an error.
         </p>
-        <Link to="/" className=" dark:text-white bg-sky-500 px-5 py-2 rounded">
+        {/* <Link to="/" className=" dark:text-white bg-sky-500 px-5 py-2 rounded">
           Go Back Home
-        </Link>
+        </Link> */}
       </div>
     </>
   );
