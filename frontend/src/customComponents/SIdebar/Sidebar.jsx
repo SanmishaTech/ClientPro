@@ -52,7 +52,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     {
       name: "Categories",
       path: "#",
-      logo: <SquareUserRound size={16} />,
+      logo: <Settings size={16} />,
       children: [
         {
           name: "Mediclaim Insurances",
@@ -146,7 +146,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     {
       name: "Categories",
       path: "#",
-      logo: <SquareUserRound size={16} />,
+      logo: <Settings size={16} />,
       children: [
         {
           name: "Mediclaim Insurances",

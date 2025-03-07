@@ -115,7 +115,7 @@ const MobileSidebar = ({ open, setOpen }) => {
     {
       name: "Categories",
       path: "#",
-      logo: <SquareUserRound size={16} />,
+      logo: <Settings size={16} />,
       children: [
         {
           name: "Mediclaim Insurances",
@@ -164,11 +164,11 @@ const MobileSidebar = ({ open, setOpen }) => {
           path: "/birthday_report",
           logo: <AlignStartVertical size={16} />,
         },
-        // {
-        //   name: "Client Reports",
-        //   path: "/client_report",
-        //   logo: <AlignStartVertical size={16} />,
-        // },
+        {
+          name: "Client Reports",
+          path: "/client_report",
+          logo: <AlignStartVertical size={16} />,
+        },
       ],
     },
     {
@@ -209,7 +209,7 @@ const MobileSidebar = ({ open, setOpen }) => {
     {
       name: "Categories",
       path: "#",
-      logo: <SquareUserRound size={16} />,
+      logo: <Settings size={16} />,
       children: [
         {
           name: "Mediclaim Insurances",
@@ -258,11 +258,11 @@ const MobileSidebar = ({ open, setOpen }) => {
           path: "/birthday_report",
           logo: <AlignStartVertical size={16} />,
         },
-        // {
-        //   name: "Client Reports",
-        //   path: "/client_report",
-        //   logo: <AlignStartVertical size={16} />,
-        // },
+        {
+          name: "Client Reports",
+          path: "/client_report",
+          logo: <AlignStartVertical size={16} />,
+        },
       ],
     },
     {
