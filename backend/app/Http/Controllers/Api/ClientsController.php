@@ -71,6 +71,7 @@ class ClientsController extends BaseController
     {
 
         $mobile = $request->input("mobile");
+        $mobile_2 = $request->input("mobile_2");
 
         // Only query if the date is provided
         if ($mobile) {
@@ -87,12 +88,28 @@ class ClientsController extends BaseController
                 ], 422);
             }
         }
+
+        if ($mobile_2) {
+            $mobile_2 = Client::where('mobile', $mobile_2)->first();
+            
+            // Check if the date exists in the database
+            if ($mobile_2) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed',
+                    'errors' => [
+                        'mobile_2' => ['mobile number has already been taken.']
+                    ],
+                ], 422);
+            }
+        }
         
         $client = new Client();
         $client->client_name = $request->input("client_name");
         $client->date_of_birth = $request->input("date_of_birth");
         $client->email = $request->input("email");
         $client->mobile = $request->input("mobile");
+        $client->mobile_2 = $request->input("mobile_2");
         $client->height = $request->input("height");
         $client->weight = $request->input("weight");
         $client->existing_ped = $request->input("existing_ped");
@@ -153,6 +170,7 @@ class ClientsController extends BaseController
         }
         
         $mobile = $request->input("mobile");
+        $mobile_2 = $request->input("mobile_2");
 
         // Only query if the mobile number is provided
         if ($mobile) {
@@ -172,11 +190,30 @@ class ClientsController extends BaseController
                 ], 422);
             }
         }
+
+        if ($mobile_2) {
+            // Exclude current profile ID from the query
+            $existingMobile = client::where('mobile', $mobile_2)
+                                     ->where('id', '!=', $client->id) // Exclude current profile
+                                     ->first();
+    
+            // Check if mobile number is already taken
+            if ($existingMobile) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation failed',
+                    'errors' => [
+                        'mobile_2' => ['Mobile number has already been taken.']
+                    ],
+                ], 422);
+            }
+        }
         
         $client->client_name = $request->input('client_name');
         $client->date_of_birth = $request->input("date_of_birth");
         $client->email = $request->input("email");
         $client->mobile = $request->input("mobile");
+        $client->mobile_2 = $request->input("mobile_2");
         $client->height = $request->input("height");
         $client->weight = $request->input("weight");
         $client->existing_ped = $request->input("existing_ped");

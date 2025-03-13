@@ -55,18 +55,29 @@ const formSchema = z.object({
     .min(1, "Name field is required.")
     .max(100, "Name must be at max 100 characters")
     .regex(/^[A-Za-z\s\u0900-\u097F]+$/, "Name can only contain letters."), // Allow letters and spaces, including Marathi
-  height: z
-    .string()
-    .min(1, "Height field is required.")
-    .max(4, "Height must be at max 4 characters")
-    .regex(
-      /^[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/,
-      "Height can only contain numbers and special characters."
-    ),
-  weight: z.coerce
-    .number()
-    .min(1, "Weight field is required.")
-    .max(200, "Weight must be less than or equal to 200."),
+  // height: z
+  //   .string()
+  //   .min(1, "Height field is required.")
+  //   .max(4, "Height must be at max 4 characters")
+  //   .regex(
+  //     /^[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/,
+  //     "Height can only contain numbers and special characters."
+  //   ),
+  height: z.string().max(6, "Height must be at max 6 characters").optional(),
+
+  // weight: z.coerce
+  //   .number()
+  //   .min(1, "Weight field is required.")
+  //   .max(200, "Weight must be less than or equal to 200."),
+
+  weight: z
+    .string() // first, handle input as a string
+    .transform((val) => (val === "" ? null : Number(val))) // Convert empty string to null, or number
+    .refine(
+      (val) => val === null || val <= 200,
+      "Weight must be less than or equal to 200."
+    ) // max validation
+    .optional(),
   // existing_ped: z
   //   .string()
   //   .max(100, "PED must be at max 255 characters")
@@ -110,7 +121,10 @@ const formSchema = z.object({
     })
     .optional(),
   mobile: z.string().refine((val) => /^[0-9]{10}$/.test(val), {
-    message: "Mobile number must contain exact 10 digits.",
+    message: "Mobile 1 number must contain exact 10 digits.",
+  }),
+  mobile_2: z.string().refine((val) => val === "" || /^[0-9]{10}$/.test(val), {
+    message: "Mobile 2 number must contain exactly 10 digits.",
   }),
   date_of_birth: z.string().min(1, "Date of birth field is required."),
   family_members: z
@@ -141,18 +155,32 @@ const formSchema = z.object({
         member_mobile: z.string().refine((val) => /^[0-9]{10}$/.test(val), {
           message: "Mobile number must contain exact 10 digits.",
         }),
+        // member_height: z
+        //   .string()
+        //   .min(1, "Height field is required.")
+        //   .max(4, "Height must be at max 4 characters")
+        //   .regex(
+        //     /^[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/,
+        //     "Height can only contain numbers and special characters."
+        //   ),
         member_height: z
           .string()
-          .min(1, "Height field is required.")
-          .max(4, "Height must be at max 4 characters")
-          .regex(
-            /^[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/,
-            "Height can only contain numbers and special characters."
-          ),
-        member_weight: z.coerce
-          .number()
-          .min(1, "Weight field is required.")
-          .max(200, "Weight must be less than or equal to 200."),
+          .max(6, "Height must be at max 6 characters")
+          .optional(),
+
+        // member_weight: z.coerce
+        //   .number()
+        //   .min(1, "Weight field is required.")
+        //   .max(200, "Weight must be less than or equal to 200."),
+        member_weight: z
+          .string() // first, handle input as a string
+          .transform((val) => (val === "" ? null : Number(val))) // Convert empty string to null, or number
+          .refine(
+            (val) => val === null || val <= 200,
+            "Weight must be less than or equal to 200."
+          ) // max validation
+          .optional(),
+
         // member_existing_ped: z
         //   .string()
         //   .max(100, "PED must be at max 255 characters")
@@ -195,6 +223,7 @@ const Update = () => {
     email: "",
     client_name: "",
     mobile: "",
+    mobile_2: "",
     height: "",
     weight: "",
     existing_ped: "",
@@ -246,6 +275,7 @@ const Update = () => {
       setValue("email", editClient.Client?.email || "");
       setValue("client_name", editClient.Client?.client_name || "");
       setValue("mobile", editClient?.Client?.mobile || "");
+      setValue("mobile_2", editClient?.Client?.mobile_2 || "");
       setValue("height", editClient?.Client?.height || "");
       setValue("weight", editClient?.Client?.weight || "");
       setValue("existing_ped", editClient?.Client?.existing_ped || "");
@@ -273,8 +303,8 @@ const Update = () => {
             name: member.family_member_name,
             member_email: member.member_email,
             member_mobile: member.member_mobile,
-            member_height: member.member_height,
-            member_weight: member.member_weight,
+            member_height: member.member_height || "",
+            member_weight: member.member_weight || "",
             member_existing_ped: member.member_existing_ped || "",
             relation: member.relation,
             date_of_birth: member.family_member_dob,
@@ -322,6 +352,14 @@ const Update = () => {
             });
             toast.error("Mobile number has already been taken.");
           }
+          if (serverErrors.mobile_2) {
+            setError("mobile_2", {
+              type: "manual",
+              message: serverErrors.mobile_2[0], // The error message from the server
+            });
+            toast.error("Mobile number has already been taken.");
+          }
+
           if (serverErrors.mobile) {
             setError("client_name", {
               type: "manual",
@@ -532,51 +570,39 @@ const Update = () => {
                 )}
               </div>
               <div className="relative">
-                <Label className="font-normal" htmlFor="height">
-                  Height (ft in): <span className="text-red-500">*</span>
+                <Label className="font-normal" htmlFor="mobile_2">
+                  Mobile 2:
                 </Label>
                 <Controller
-                  name="height"
+                  name="mobile_2"
                   control={control}
+                  rules={{
+                    required: "Mobile 2 field is required",
+                    pattern: {
+                      value: /^(\d{10})?$/, // This allows either an empty string or exactly 10 digits
+                      message: "Mobile number must be exactly 10 digits", // Message if validation fails
+                    },
+                  }}
                   render={({ field }) => (
                     <Input
                       {...field}
-                      id="height"
+                      id="mobile_2"
                       className="mt-1"
-                      type="number"
-                      placeholder="Enter height"
+                      type="text"
+                      placeholder="Enter mobile"
+                      maxLength={10} // Enforce max length of 10 digits
                     />
                   )}
                 />
-                {errors.height && (
+                {errors.mobile_2 && (
                   <p className=" text-red-500 text-sm mt-1 left-0">
-                    {errors.height.message}
+                    {errors.mobile_2.message}
                   </p>
                 )}
               </div>
-              <div className="relative">
-                <Label className="font-normal" htmlFor="weight">
-                  Weight (in Kg):<span className="text-red-500">*</span>
-                </Label>
-                <Controller
-                  name="weight"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      id="weight"
-                      className="mt-1"
-                      type="number"
-                      placeholder="Enter weight"
-                    />
-                  )}
-                />
-                {errors.weight && (
-                  <p className=" text-red-500 text-sm mt-1 left-0">
-                    {errors.weight.message}
-                  </p>
-                )}
-              </div>
+            </div>
+            <div className="w-full py-3 flex justify-start items-center">
+              <h2 className="text-lg  font-normal">Address Information</h2>
             </div>
             <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
               <div className="relative">
@@ -603,6 +629,52 @@ const Update = () => {
                 {errors.existing_ped && (
                   <p className=" text-red-500 text-sm mt-1 left-0">
                     {errors.existing_ped.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="height">
+                  Height (cm):
+                </Label>
+                <Controller
+                  name="height"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="height"
+                      className="mt-1"
+                      type="number"
+                      placeholder="Enter height"
+                    />
+                  )}
+                />
+                {errors.height && (
+                  <p className=" text-red-500 text-sm mt-1 left-0">
+                    {errors.height.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="weight">
+                  Weight (in Kg):
+                </Label>
+                <Controller
+                  name="weight"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="weight"
+                      className="mt-1"
+                      type="number"
+                      placeholder="Enter weight"
+                    />
+                  )}
+                />
+                {errors.weight && (
+                  <p className=" text-red-500 text-sm mt-1 left-0">
+                    {errors.weight.message}
                   </p>
                 )}
               </div>
@@ -963,8 +1035,7 @@ const Update = () => {
                             className="font-normal"
                             htmlFor={`family_members[${index}].member_height`}
                           >
-                            Height (ft in):
-                            <span className="text-red-500">*</span>
+                            Height (cm):
                           </Label>
                           <Controller
                             name={`family_members[${index}].member_height`}
@@ -1034,7 +1105,6 @@ const Update = () => {
                             htmlFor={`family_members[${index}].member_weight`}
                           >
                             Weight (kg):
-                            <span className="text-red-500">*</span>
                           </Label>
                           <Controller
                             name={`family_members[${index}].member_weight`}
@@ -1090,7 +1160,6 @@ const Update = () => {
                             htmlFor={`family_members[${index}].member_existing_ped`}
                           >
                             PED (Pre-existing Disease):
-                            <span className="text-red-500">*</span>
                           </Label>
                           <Controller
                             name={`family_members[${index}].member_existing_ped`}

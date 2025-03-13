@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('client_name', 100)->nullable();
             $table->string('email', 50)->nullable();
             $table->string('mobile', 15)->nullable();
+            $table->string('mobile_2', 15)->nullable();
             $table->date('date_of_birth')->nullable();
             $table->string('height')->nullable();
             $table->decimal('weight',10,2)->nullable();

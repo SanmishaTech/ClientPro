@@ -20,6 +20,7 @@ class ClientResource extends JsonResource
             'email' => $this->email,
             'date_of_birth' => $this->date_of_birth,
             'mobile' => $this->mobile,
+            'mobile_2' => $this->mobile_2,
             'height' => $this->height,
             'weight' => $this->weight,
             'existing_ped' => $this->existing_ped,
