@@ -44,6 +44,7 @@
             <th>Name</th>
             <th>Email</th>
             <th>Mobile</th>
+            <th>Categories</th>
         </tr>
     </thead>
         {{-- <tbody>
@@ -79,6 +80,30 @@
                         <td>{{ $client['name'] }}</td>
                         <td>{{ $client['email'] }}</td>
                         <td>{{ $client['mobile'] }}</td>
+                        <td>
+                            @if($client['mediclaimInsurances']->isNotEmpty())
+                                Mediclaim Insurance <br>
+                            @endif
+                            @if($client['termPlans']->isNotEmpty())
+                             Term Plan <br>
+                            @endif
+                            @if($client['lics']->isNotEmpty())
+                            LIC <br>
+                            @endif
+                            @if($client['loans']->isNotEmpty())
+                            Loan <br>
+                            @endif
+                            @if($client['generalInsurances']->isNotEmpty())
+                            General Insurance <br>
+                            @endif
+                            @if($client['mutualFunds']->isNotEmpty())
+                            Mutual Fund <br>
+                            @endif
+                            @if($client['dematAccounts']->isNotEmpty())
+                            Demat Account <br>
+                            @endif
+                        </td>
+
                     </tr>
                 @endif
             @endforeach

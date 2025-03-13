@@ -32,10 +32,12 @@ class ReportsController extends BaseController
     $toMonthDay = $to_date->format('m-d');
 
     // Get clients with birthdays in range
-    $clients = Client::whereRaw("DATE_FORMAT(date_of_birth, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay])->get();
+    $clients = Client::with(["mediclaimInsurances",'loans','termPlans','lics', 'generalInsurances','mutualFunds','dematAccounts'])
+        ->whereRaw("DATE_FORMAT(date_of_birth, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay])->get();
 
     // Get family members with birthdays in range
-    $familyMembers = FamilyMember::whereRaw("DATE_FORMAT(family_member_dob, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay])->get();
+    $familyMembers = FamilyMember::with(["mediclaimInsurances",'loans','termPlans','lics', 'generalInsurances','mutualFunds','dematAccounts'])
+     ->whereRaw("DATE_FORMAT(family_member_dob, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay])->get();
 
     // // Merge and sort by date_of_birth (ignoring year)
     // $mergedCollection = $formattedClients->merge($formattedFamilyMembers)
@@ -46,7 +48,14 @@ class ReportsController extends BaseController
             'name'  => $client->client_name,
             'email' => $client->email,
             'mobile' => $client->mobile,
-            'date_of_birth' => $client->date_of_birth
+            'date_of_birth' => $client->date_of_birth,
+            'mediclaimInsurances' =>$client->mediclaimInsurances,
+            'loans' =>$client->loans,
+            'termPlans' =>$client->termPlans,
+            'lics' =>$client->lics,
+            'generalInsurances' =>$client->generalInsurances,
+            'mutualFunds' =>$client->mutualFunds,
+            'dematAccounts' =>$client->dematAccounts,
         ];
     });
     
@@ -55,7 +64,14 @@ class ReportsController extends BaseController
             'name'  => $familyMember->family_member_name,
             'email' => $familyMember->member_email,
             'mobile' => $familyMember->member_mobile,
-            'date_of_birth' => $familyMember->family_member_dob
+            'date_of_birth' => $familyMember->family_member_dob,
+            'mediclaimInsurances' =>$familyMember->mediclaimInsurances,
+            'loans' =>$familyMember->loans,
+            'termPlans' =>$familyMember->termPlans,
+            'lics' =>$familyMember->lics,
+            'generalInsurances' =>$familyMember->generalInsurances,
+            'mutualFunds' =>$familyMember->mutualFunds,
+            'dematAccounts' =>$familyMember->dematAccounts,
         ];
     });
     
