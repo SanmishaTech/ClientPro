@@ -169,6 +169,11 @@ const MobileSidebar = ({ open, setOpen }) => {
           path: "/client_report",
           logo: <AlignStartVertical size={16} />,
         },
+        {
+          name: "Client Portfolio",
+          path: "/client_portfolio",
+          logo: <AlignStartVertical size={16} />,
+        },
       ],
     },
     {
@@ -261,6 +266,11 @@ const MobileSidebar = ({ open, setOpen }) => {
         {
           name: "Client Reports",
           path: "/client_report",
+          logo: <AlignStartVertical size={16} />,
+        },
+        {
+          name: "Client Portfolio",
+          path: "/client_portfolio",
           logo: <AlignStartVertical size={16} />,
         },
       ],

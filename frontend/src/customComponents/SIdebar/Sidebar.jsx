@@ -106,6 +106,11 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           path: "/client_report",
           logo: <AlignStartVertical size={16} />,
         },
+        {
+          name: "Client Portfolio",
+          path: "/client_portfolio",
+          logo: <AlignStartVertical size={16} />,
+        },
       ],
     },
     {
@@ -198,6 +203,11 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         {
           name: "Client Reports",
           path: "/client_report",
+          logo: <AlignStartVertical size={16} />,
+        },
+        {
+          name: "Client Portfolio",
+          path: "/client_portfolio",
           logo: <AlignStartVertical size={16} />,
         },
       ],

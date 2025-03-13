@@ -77,6 +77,7 @@ import ReceiptsReport from "./pages/Reports/ReceiptsReport/index";
 import GotravaliSummaryReport from "./pages/Reports/GotravaliSummaryReport/index";
 import BirthdayReport from "./pages/Reports/BirthdayReport/index";
 import ClientReport from "./pages/Reports/ClientReport/index";
+import ClientPortfolio from "./pages/Reports/ClientPortfolio/index";
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
 import Error from "./customComponents/Error/Error";
@@ -154,6 +155,7 @@ const App = () => {
           <Route path="/permissions" element={<Permissions />} />
           <Route path="/birthday_report" element={<BirthdayReport />} />
           <Route path="/client_report" element={<ClientReport />} />
+          <Route path="/client_portfolio" element={<ClientPortfolio />} />
         </Route>
         <Route
           errorElement={<Error />}
