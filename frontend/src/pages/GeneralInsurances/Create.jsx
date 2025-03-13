@@ -84,6 +84,7 @@ const Create = () => {
   const [openClient, setOpenClient] = useState(false);
   const [clientData, setClientData] = useState(null);
   const [familyMembers, setFamilyMembers] = useState([]);
+  const [copyClientData, setCopyClientData] = useState(false);
 
   const queryClient = useQueryClient();
   const user = JSON.parse(localStorage.getItem("user"));
@@ -123,6 +124,7 @@ const Create = () => {
   const {
     control,
     handleSubmit,
+    getValues,
     formState: { errors },
     setError,
     setValue,
@@ -238,6 +240,47 @@ const Create = () => {
     console.log(errors); // Log errors
   }, [errors]);
 
+  const handleCheckboxChange = (e) => {
+    setCopyClientData(e.target.checked);
+
+    if (e.target.checked) {
+      // If the checkbox is checked, copy data from client form to family members
+      const clientFormData = getValues(); // Get all form values
+
+      // Assuming the first form (client's form) is the first item in the array
+      const clientData = clientFormData.general_insurance_data[0];
+
+      // Loop through the other family members and copy the client data to each of them
+      for (let i = 1; i < clientFormData.general_insurance_data.length; i++) {
+        setValue(
+          `general_insurance_data[${i}].insurance_type`,
+          clientData.insurance_type
+        );
+        setValue(
+          `general_insurance_data[${i}].company_name`,
+          clientData.company_name
+        );
+        setValue(
+          `general_insurance_data[${i}].start_date`,
+          clientData.start_date
+        );
+        setValue(`general_insurance_data[${i}].premium`, clientData.premium);
+        setValue(`general_insurance_data[${i}].end_date`, clientData.end_date);
+      }
+    } else {
+      // If unchecked, clear the fields for all family members
+      const clientFormData = getValues(); // Get current form values
+
+      for (let i = 1; i < clientFormData.general_insurance_data.length; i++) {
+        setValue(`general_insurance_data[${i}].insurance_type`, "");
+        setValue(`general_insurance_data[${i}].company_name`, "");
+        setValue(`general_insurance_data[${i}].start_date`, "");
+        setValue(`general_insurance_data[${i}].premium`, "");
+        setValue(`general_insurance_data[${i}].end_date`, "");
+      }
+    }
+  };
+
   return (
     <>
       <div className="p-5">
@@ -261,8 +304,22 @@ const Create = () => {
 
         {/* form style strat */}
         <div className="px-5 pb-7 dark:bg-background pt-1 w-full bg-white shadow-lg border  rounded-md">
-          <div className="w-full py-3 flex justify-start items-center">
+          <div className="w-full py-3 flex justify-between items-center">
             <h2 className="text-lg  font-normal">Add General Insurance</h2>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={copyClientData}
+                onChange={handleCheckboxChange}
+                id="copyClientData"
+              />
+              <label
+                htmlFor="copyClientData"
+                className="font-normal text-blue-500 text-sm font-light hover:text-blue-700"
+              >
+                Copy Data in All Forms
+              </label>
+            </div>
           </div>
           {/* row starts */}
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -494,7 +551,7 @@ const Create = () => {
                         className="font-normal"
                         htmlFor={`general_insurance_data[${index}].premium`}
                       >
-                        Sum Insured: <span className="text-red-500">*</span>
+                        Premium: <span className="text-red-500">*</span>
                       </Label>
                       <Controller
                         name={`general_insurance_data[${index}].premium`}

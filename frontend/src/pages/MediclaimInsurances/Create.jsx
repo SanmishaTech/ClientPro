@@ -126,6 +126,7 @@ const Create = () => {
   const [openClient, setOpenClient] = useState(false);
   const [clientData, setClientData] = useState(null);
   const [familyMembers, setFamilyMembers] = useState([]);
+  const [copyClientData, setCopyClientData] = useState(false);
 
   const queryClient = useQueryClient();
   const user = JSON.parse(localStorage.getItem("user"));
@@ -173,6 +174,7 @@ const Create = () => {
     formState: { errors },
     setError,
     setValue,
+    getValues,
     watch,
   } = useForm({ resolver: zodResolver(formSchema), defaultValues });
 
@@ -293,6 +295,114 @@ const Create = () => {
     console.log(errors); // Log errors
   }, [errors]);
 
+  // const handleCopyClientData = (isChecked, familyMemberIndex) => {
+  //   if (isChecked) {
+  //     // Copy data from the client form to the family member form
+  //     const clientFormData = getValues(); // Get the current form values
+
+  //     // Assuming that the client form's fields are in the first index (index 0)
+  //     const clientData = clientFormData.mediclaim_data[0];
+
+  //     // Set the values to the family member form
+  //     setValue(
+  //       `mediclaim_data[${familyMemberIndex}].company_name`,
+  //       clientData.company_name
+  //     );
+  //     setValue(
+  //       `mediclaim_data[${familyMemberIndex}].broker_name`,
+  //       clientData.broker_name
+  //     );
+  //     setValue(
+  //       `mediclaim_data[${familyMemberIndex}].proposal_date`,
+  //       clientData.proposal_date
+  //     );
+  //     setValue(
+  //       `mediclaim_data[${familyMemberIndex}].sum_insured`,
+  //       clientData.sum_insured
+  //     );
+  //     setValue(
+  //       `mediclaim_data[${familyMemberIndex}].premium_payment_mode`,
+  //       clientData.premium_payment_mode
+  //     );
+  //     setValue(
+  //       `mediclaim_data[${familyMemberIndex}].end_date`,
+  //       clientData.end_date
+  //     );
+  //     setValue(
+  //       `mediclaim_data[${familyMemberIndex}].policy_number`,
+  //       clientData.policy_number
+  //     );
+  //     setValue(
+  //       `mediclaim_data[${familyMemberIndex}].plan_name`,
+  //       clientData.plan_name
+  //     );
+  //     setValue(
+  //       `mediclaim_data[${familyMemberIndex}].premium`,
+  //       clientData.premium
+  //     );
+  //   } else {
+  //     // If unchecked, clear the fields for the family member
+  //     setValue(`mediclaim_data[${familyMemberIndex}].company_name`, "");
+  //     setValue(`mediclaim_data[${familyMemberIndex}].broker_name`, "");
+  //     setValue(`mediclaim_data[${familyMemberIndex}].proposal_date`, "");
+  //     setValue(`mediclaim_data[${familyMemberIndex}].sum_insured`, "");
+  //     setValue(`mediclaim_data[${familyMemberIndex}].premium_payment_mode`, "");
+  //     setValue(`mediclaim_data[${familyMemberIndex}].end_date`, "");
+  //     setValue(`mediclaim_data[${familyMemberIndex}].policy_number`, "");
+  //     setValue(`mediclaim_data[${familyMemberIndex}].plan_name`, "");
+  //     setValue(`mediclaim_data[${familyMemberIndex}].premium`, "");
+  //   }
+  // };
+
+  const handleCheckboxChange = (e) => {
+    setCopyClientData(e.target.checked);
+
+    if (e.target.checked) {
+      // If the checkbox is checked, copy data from client form to family members
+      const clientFormData = getValues(); // Get all form values
+
+      // Assuming the first form (client's form) is the first item in the array
+      const clientData = clientFormData.mediclaim_data[0];
+
+      // Loop through the other family members and copy the client data to each of them
+      for (let i = 1; i < clientFormData.mediclaim_data.length; i++) {
+        setValue(`mediclaim_data[${i}].company_name`, clientData.company_name);
+        setValue(`mediclaim_data[${i}].broker_name`, clientData.broker_name);
+        setValue(
+          `mediclaim_data[${i}].proposal_date`,
+          clientData.proposal_date
+        );
+        setValue(`mediclaim_data[${i}].sum_insured`, clientData.sum_insured);
+        setValue(
+          `mediclaim_data[${i}].premium_payment_mode`,
+          clientData.premium_payment_mode
+        );
+        setValue(`mediclaim_data[${i}].end_date`, clientData.end_date);
+        setValue(
+          `mediclaim_data[${i}].policy_number`,
+          clientData.policy_number
+        );
+        setValue(`mediclaim_data[${i}].plan_name`, clientData.plan_name);
+        setValue(`mediclaim_data[${i}].premium`, clientData.premium);
+      }
+    } else {
+      // If unchecked, clear the fields for all family members
+      const clientFormData = getValues(); // Get current form values
+
+      for (let i = 1; i < clientFormData.mediclaim_data.length; i++) {
+        setValue(`mediclaim_data[${i}].company_name`, "");
+        setValue(`mediclaim_data[${i}].broker_name`, "");
+        setValue(`mediclaim_data[${i}].proposal_date`, "");
+        setValue(`mediclaim_data[${i}].sum_insured`, "");
+        setValue(`mediclaim_data[${i}].premium_payment_mode`, "");
+        setValue(`mediclaim_data[${i}].end_date`, "");
+        setValue(`mediclaim_data[${i}].policy_number`, "");
+        setValue(`mediclaim_data[${i}].plan_name`, "");
+        setValue(`mediclaim_data[${i}].premium`, "");
+      }
+    }
+  };
+
   return (
     <>
       <div className="p-5">
@@ -316,9 +426,24 @@ const Create = () => {
 
         {/* form style strat */}
         <div className="px-5 pb-7 dark:bg-background pt-1 w-full bg-white shadow-lg border  rounded-md">
-          <div className="w-full py-3 flex justify-start items-center">
+          <div className="w-full py-3 flex justify-between items-center">
             <h2 className="text-lg  font-normal">Add Mediclaim Insurance</h2>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={copyClientData}
+                onChange={handleCheckboxChange}
+                id="copyClientData"
+              />
+              <label
+                htmlFor="copyClientData"
+                className="font-normal text-blue-500 text-sm font-light hover:text-blue-700"
+              >
+                Copy Data in All Forms
+              </label>
+            </div>
           </div>
+
           {/* row starts */}
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
@@ -791,6 +916,24 @@ const Create = () => {
                     >
                       Remove
                     </Button>
+                    {/* {!isClient && (
+                      <div className="relative flex items-center">
+                        <input
+                          type="checkbox"
+                          id={`copy_client_data_${index}`}
+                          onChange={(e) =>
+                            handleCopyClientData(e.target.checked, index)
+                          }
+                          className="mr-2"
+                        />
+                        <Label
+                          htmlFor={`copy_client_data_${index}`}
+                          className="font-normal"
+                        >
+                          Copy client data
+                        </Label>
+                      </div>
+                    )} */}
                   </div>
                 </div>
               );
