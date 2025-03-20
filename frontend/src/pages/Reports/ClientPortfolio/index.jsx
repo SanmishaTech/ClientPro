@@ -83,7 +83,7 @@ const index = () => {
 
   const handlePrint = async (data) => {
     try {
-      const response = await axios.post(`/api/client_report`, data, {
+      const response = await axios.post(`/api/portfolio_report`, data, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

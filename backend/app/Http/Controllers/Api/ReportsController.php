@@ -565,4 +565,97 @@ class ReportsController extends BaseController
         return $mpdf->Output('report.pdf', 'D'); // Download the PDF
         // return $this->sendResponse([], "Invoice generated successfully");
     }
+
+    public function portfolioReport(Request $request)
+    {
+        $clientId = $request->input("client_id");
+
+        $client = Client::with([
+            'familyMembers.mediclaimInsurances', // Eager load mediclaimInsurances for familyMembers
+            'familyMembers.loans',               // Eager load loans for familyMembers
+            'familyMembers.termPlans',               // Eager load loans for familyMembers
+            'familyMembers.lics',               // Eager load loans for familyMembers
+            'familyMembers.generalInsurances',               // Eager load loans for familyMembers
+            'familyMembers.mutualFunds',               // Eager load loans for familyMembers
+            'familyMembers.dematAccounts',               // Eager load loans for familyMembers
+            'mediclaimInsurances',               // Eager load mediclaimInsurances directly on Client
+            'loans',                             // Eager load loans directly on Client
+            'termPlans',                         // Eager load termPlans
+            'lics',                              // Eager load lics
+            'generalInsurances',                 // Eager load generalInsurances
+            'mutualFunds',                       // Eager load mutualFunds
+            'dematAccounts'                      // Eager load dematAccounts
+        ])->find($clientId);
+        
+        if (!$client) {
+            return $this->sendError("Client not found", ['error' => 'Client not found']);
+        }
+        
+        $data = [
+            'client' => $client,
+        ];
+
+        // Render the Blade view to HTML
+        $html = view('Reports.PortfolioReport.index', $data)->render();
+
+        // Create a new mPDF instance
+        // $mpdf = new Mpdf();
+            // $mpdf = new Mpdf(['mode' => 'utf-8', 'format' => 'A4', 'orientation' => 'L']);  // 'P' is for portrait (default)
+            $defaultConfig = (new ConfigVariables())->getDefaults();
+            $fontDirs = $defaultConfig['fontDir'];
+        
+            $defaultFontConfig = (new FontVariables())->getDefaults();
+            $fontData = $defaultFontConfig['fontdata'];
+
+            $mpdf = new Mpdf([
+                'mode' => 'utf-8',
+                'format' => 'A4',
+                'orientation' => 'P',
+                'fontDir' => array_merge($fontDirs, [
+                    storage_path('fonts/'), // Update to point to the storage/fonts directory
+                ]),
+                'fontdata' => $fontData + [
+                    'notosansdevanagari' => [
+                        'R' => 'NotoSansDevanagari-Regular.ttf',
+                        'B' => 'NotoSansDevanagari-Bold.ttf',
+                    ], 
+                ],
+                'default_font' => 'notosansdevanagari',
+                'margin_top' => 18,        // Set top margin to 0
+                'margin_left' => 8,      // Optional: Set left margin if needed
+                'margin_right' => 8,     // Optional: Set right margin if needed
+                'margin_bottom' => 20,     // Optional: Set bottom margin if needed
+            ]);
+            
+         
+            // Set header HTML with dynamic values
+            $headerHtml = '
+            <div style="text-align: center;">
+                <p style="margin: 0; padding: 0; font-size:17px;">Portfolio Report</p>
+            </div>
+            <p style="border: 1px solid black; width:100%; margin:0px; padding:0px; margin-bottom:5px;"></p>';
+            
+            // Set the header for each page
+            $mpdf->SetHTMLHeader($headerHtml);
+            
+           
+            $footerHtml = '
+            <div style="border-top: 1px solid black; margin-top: 5px;"></div> <!-- Line above the footer -->
+            <div style="width: 100%; text-align: center; padding-top: 5px;">
+                <span>Printed on ' . \Carbon\Carbon::now()->format('d/m/Y h:i A') . '</span>
+                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                 <span>Page {PAGENO} of {nb}</span>
+            </div>';
+        
+            
+            $mpdf->SetHTMLFooter($footerHtml);
+
+
+        // Write HTML to the PDF
+        $mpdf->WriteHTML($html);
+        // Output the PDF for download
+        return $mpdf->Output('report.pdf', 'D'); // Download the PDF
+        // return $this->sendResponse([], "Invoice generated successfully");
+    }
+
 }
