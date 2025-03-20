@@ -6,6 +6,7 @@ use App\Models\Devta;
 use App\Models\Client;
 use App\Models\FamilyMember;
 use Illuminate\Http\Request;
+use App\Models\ClientDocument;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -406,5 +407,147 @@ class ClientsController extends BaseController
     
     return $this->sendResponse([], "Family member deleted successfully");
 }
+
+
+// public function getClientImages(String $id, Request $request)
+// {
+//     // Find the client by ID
+//     $client = Client::find($id);
+     
+//     if($request->file('temp')){
+//         \Log::debug('workibng', $request->file("temp"));
+//     }
+//     \Log::file("not working");
+
+//     if (!$client) {
+//         return $this->sendError("Client not found", ['error' => 'Client not found']);
+//     }
+
+//     // Get client documents from the request
+//     $clientDocuments = $request->input("client_documents");
+
+//     // Log the incoming request to check the structure
+//     \Log::debug($request->all());  // Log all incoming data
+//     \Log::debug($request->file()); // Log all uploaded files
+
+//     $fileCount = count($clientDocuments); // To loop through client_documents array
+
+//     // Iterate over each document and handle the file upload
+//     for ($i = 0; $i < $fileCount; $i++) {
+//         // Get the client name
+//         $clientName = $clientDocuments[$i]; // This is the client_name
+//         $clientFile = $request->file("client_documents.$i.client_file"); // Access the file by index
+
+//         // Log the file to see if it's being correctly accessed
+//         \Log::debug("Processing document $i with client name: $clientName");
+
+//         // Check if the file exists and is valid
+//         if ($clientFile && $clientFile->isValid()) {
+//             // Access the file and get the original file name
+//             $documentNameWithExtension = $clientFile->getClientOriginalName();
+//             $documentName = pathinfo($documentNameWithExtension, PATHINFO_FILENAME);
+//             $documentExtension = $clientFile->getClientOriginalExtension();
+//             $documentNameToStore = $documentName . '_' . time() . '.' . $documentExtension;
+
+//             // Store the file in the 'public/ClientDocuments' directory
+//             $documentPath = $clientFile->storeAs('public/ClientDocuments', $documentNameToStore);
+
+//             // Create and save the document information
+//             $clientDocumentModel = new ClientDocument();
+//             $clientDocumentModel->client_id = $client->id;
+//             $clientDocumentModel->document_name = $clientName; // Assuming you pass the document name in the client_documents array
+//             $clientDocumentModel->document = $documentNameToStore;
+//             $clientDocumentModel->save();
+//         } else {
+//             // If file is missing or invalid, handle this case
+//             \Log::error("File is invalid or missing for document at index $i");
+//             return $this->sendError("File missing or invalid for document at index $i", ['error' => 'File missing or invalid']);
+//         }
+//     }
+
+//     return $this->sendResponse([], "Images sent successfully");
+// }
+
+
+// public function getClientImages(String $id, Request $request)
+// {
+//     // Find the client by ID
+//     $client = Client::find($id);
+
+//     // Check if the file is present in the request
+//     if ($request->file('temp')) {
+//         // Log file properties (name, size, etc.)
+//         \Log::debug('File properties: ', [
+//             'name' => $request->file('temp')->getClientOriginalName(),
+//             'size' => $request->file('temp')->getSize(),
+//             'mime' => $request->file('temp')->getMimeType(),
+//         ]);
+//     } else {
+//         // If the file is not found, log this
+//         \Log::debug('No file found in request for "temp".');
+//     }
+
+//     // Proceed with further processing if needed
+//     if (!$client) {
+//         return $this->sendError("Client not found", ['error' => 'Client not found']);
+//     }
+
+//     return $this->sendResponse([], "Images sent successfully");
+// }
+
+
+public function getClientImages(String $id, Request $request)
+{
+    // Find the client by ID
+    $client = Client::find($id);
+
+    if (!$client) {
+        return $this->sendError("Client not found", ['error' => 'Client not found']);
+    }
+
+    // Get the client_documents from the request
+    $clientDocuments = $request->input('client_documents');
+
+    // Log the received structure to inspect it
+    \Log::info('Client Documents Structure:', ['client_documents' => $clientDocuments]);
+
+    // Process each document
+    foreach ($clientDocuments as $index => $clientDocument) {
+        // Log each document name
+        \Log::debug("Processing document $index with client name: " . $clientDocument['client_name']);
+
+        // Access the client name
+        $clientName = $clientDocument['client_name'];
+
+        // Access the file for the current document
+        $clientFile = $request->file("client_documents.$index.client_file");
+
+        // Check if the file exists and is valid
+        if ($clientFile && $clientFile->isValid()) {
+            // File is valid, handle it here (e.g., save the file)
+            $documentNameWithExtension = $clientFile->getClientOriginalName();
+            $documentName = pathinfo($documentNameWithExtension, PATHINFO_FILENAME);
+            $documentExtension = $clientFile->getClientOriginalExtension();
+            $documentNameToStore = $documentName . '_' . time() . '.' . $documentExtension;
+            $documentPath = $clientFile->storeAs('public/ClientDocuments', $documentNameToStore);
+
+            // Save document information to the database
+            $clientDocumentModel = new ClientDocument();
+            $clientDocumentModel->client_id = $client->id;
+            $clientDocumentModel->document_name = $clientName; // Client name
+            $clientDocumentModel->document = $documentNameToStore; // Stored document name
+            $clientDocumentModel->save();
+        } else {
+            // Handle invalid or missing file scenario
+            \Log::error("File is missing or invalid for document at index $index");
+        }
+    }
+
+    return $this->sendResponse([], "Images sent successfully");
+}
+
+
+
+
 
 }

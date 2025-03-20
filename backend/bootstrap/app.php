@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Application;
+use App\Http\Middleware\NullMiddleware;
 use App\Http\Middleware\PermissionMiddleware;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
         $middleware->alias([
               'permission' => PermissionMiddleware::class,
+              'request.null' => NullMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

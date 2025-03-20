@@ -42,6 +42,7 @@ import Delete from "./Delete";
 import { Input } from "@/components/ui/input";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import UploadImage from "./UploadImage";
 const Index = () => {
   const [search, setSearch] = useState("");
   const user = JSON.parse(localStorage.getItem("user"));
@@ -281,6 +282,9 @@ const Index = () => {
                             </Button>
                             <div className="w-full">
                               <Delete id={client.id} />
+                            </div>
+                            <div className="w-full">
+                              <UploadImage id={client.id} />
                             </div>
                           </DropdownMenuContent>
                         </DropdownMenu>

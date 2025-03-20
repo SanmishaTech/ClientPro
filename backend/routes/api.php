@@ -31,7 +31,7 @@ use App\Http\Controllers\Api\MediclaimInsurancesController;
 
 Route::post('/login', [UserController::class, 'login']);
 
-Route::group(['middleware'=>['auth:sanctum', 'permission']], function(){
+Route::group(['middleware'=>['auth:sanctum', 'permission','request.null']], function(){
   
    Route::resource('clients', ClientsController::class);  
    Route::resource('mediclaim_insurances', MediclaimInsurancesController::class);  
@@ -53,5 +53,7 @@ Route::group(['middleware'=>['auth:sanctum', 'permission']], function(){
    Route::post('/birthday_report', [ReportsController::class, 'birthdayReport'])->name("report.birthdayReport");
    Route::post('/client_report', [ReportsController::class, 'clientReport'])->name("report.clientReport");
    Route::delete('/family_members/{id}', [ClientsController::class, 'deleteFamilyMember'])->name("clients.deleteFamilyMember");
+   Route::post('/get_client', [ClientsController::class, 'getClientImages'])->name("client.getpost");
+   Route::put('/get_client/{id}', [ClientsController::class, 'getClientImages'])->name("client.getput");
 
 });
