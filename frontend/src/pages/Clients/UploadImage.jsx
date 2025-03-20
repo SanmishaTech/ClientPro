@@ -82,15 +82,26 @@ const formSchema = z.object({
             .any() // Allow any type initially
             .refine(
               (val) => {
-                // Custom check to validate the file
-                return (
-                  val && val[0] && val[0].size > 0 && val[0] instanceof Blob
-                );
+                return val && val.size > 0 && val instanceof Blob;
               },
               {
                 message: "A valid file is required", // Custom message
               }
-            ), // Check if the field is a valid
+            ),
+
+          // client_file: z
+          //   .any() // Allow any type initially
+          //   .refine(
+          //     (val) => {
+          //       // Custom check to validate the file
+          //       return (
+          //         val && val[0] && val[0].size > 0 && val[0] instanceof Blob
+          //       );
+          //     },
+          //     {
+          //       message: "A valid file is required", // Custom message
+          //     }
+          //   ), // Check if the field is a valid
         })
         .optional()
     )
@@ -231,6 +242,36 @@ const UploadImage = ({ id }) => {
   //   storeMutation.mutate(formData);
   // };
 
+  // const onSubmit = (data) => {
+  //   setIsLoading(true);
+  //   console.log(data.client_documents);
+
+  //   // Create a new FormData object
+  //   const formData = new FormData();
+
+  //   // Append the method and other necessary data
+  //   formData.append("_method", "put");
+
+  //   // Loop through the client_documents array and append both client_name and client_file together
+  //   data.client_documents.forEach((doc, index) => {
+  //     // Ensure both client_name and client_file are added together under the same index
+  //     formData.append(
+  //       `client_documents[${index}].client_name`,
+  //       doc.client_name
+  //     );
+
+  //     // Append the file for the current document if it exists
+  //     if (doc.client_file) {
+  //       formData.append(
+  //         `client_documents[${index}].client_file`,
+  //         doc.client_file // File will be sent in binary automatically
+  //       );
+  //     }
+  //   });
+
+  //   // Send the FormData via your mutation or API call
+  //   storeMutation.mutate(formData);
+  // };
   const onSubmit = (data) => {
     setIsLoading(true);
 
@@ -256,6 +297,11 @@ const UploadImage = ({ id }) => {
         );
       }
     });
+
+    // Log the formData to make sure it's being constructed correctly
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
 
     // Send the FormData via your mutation or API call
     storeMutation.mutate(formData);
@@ -335,8 +381,12 @@ const UploadImage = ({ id }) => {
                           <Input
                             id={`client_documents[${index}].client_file`}
                             type="file"
+                            // onChange={(e) => {
+                            //   if (e.target.files && e.target.files[0]) {
+                            //     field.onChange(e.target.files[0]); // Pass the file as a File object
+                            //   }
+                            // }}
                             onChange={(e) => {
-                              // Access the selected file directly from event and update form
                               if (e.target.files && e.target.files[0]) {
                                 field.onChange(e.target.files[0]); // Pass the file as a File object
                               }

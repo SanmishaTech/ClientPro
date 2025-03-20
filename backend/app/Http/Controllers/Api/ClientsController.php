@@ -500,10 +500,11 @@ public function getClientImages(String $id, Request $request)
 {
     // Find the client by ID
     $client = Client::find($id);
-
+   dd($request->all());
     if (!$client) {
         return $this->sendError("Client not found", ['error' => 'Client not found']);
     }
+   
 
     // Get the client_documents from the request
     $clientDocuments = $request->input('client_documents');
