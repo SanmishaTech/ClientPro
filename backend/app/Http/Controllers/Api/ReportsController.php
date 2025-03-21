@@ -49,13 +49,13 @@ class ReportsController extends BaseController
             'email' => $client->email,
             'mobile' => $client->mobile,
             'date_of_birth' => $client->date_of_birth,
-            'mediclaimInsurances' =>$client->mediclaimInsurances,
-            'loans' =>$client->loans,
-            'termPlans' =>$client->termPlans,
-            'lics' =>$client->lics,
-            'generalInsurances' =>$client->generalInsurances,
-            'mutualFunds' =>$client->mutualFunds,
-            'dematAccounts' =>$client->dematAccounts,
+            'mediclaimInsurances' =>$client->mediclaimInsurances->where("cancelled", false),
+            'loans' =>$client->loans->where("cancelled", false),
+            'termPlans' =>$client->termPlans->where("cancelled", false),
+            'lics' =>$client->lics->where("cancelled", false),
+            'generalInsurances' =>$client->generalInsurances->where("cancelled", false),
+            'mutualFunds' =>$client->mutualFunds->where("cancelled", false),
+            'dematAccounts' =>$client->dematAccounts->where("cancelled", false),
         ];
     });
     
@@ -65,13 +65,13 @@ class ReportsController extends BaseController
             'email' => $familyMember->member_email,
             'mobile' => $familyMember->member_mobile,
             'date_of_birth' => $familyMember->family_member_dob,
-            'mediclaimInsurances' =>$familyMember->mediclaimInsurances,
-            'loans' =>$familyMember->loans,
-            'termPlans' =>$familyMember->termPlans,
-            'lics' =>$familyMember->lics,
-            'generalInsurances' =>$familyMember->generalInsurances,
-            'mutualFunds' =>$familyMember->mutualFunds,
-            'dematAccounts' =>$familyMember->dematAccounts,
+            'mediclaimInsurances' =>$familyMember->mediclaimInsurances->where("cancelled", false),
+            'loans' =>$familyMember->loans->where("cancelled", false),
+            'termPlans' =>$familyMember->termPlans->where("cancelled", false),
+            'lics' =>$familyMember->lics->where("cancelled", false),
+            'generalInsurances' =>$familyMember->generalInsurances->where("cancelled", false),
+            'mutualFunds' =>$familyMember->mutualFunds->where("cancelled", false),
+            'dematAccounts' =>$familyMember->dematAccounts->where("cancelled", false),
         ];
     });
     
@@ -222,15 +222,18 @@ class ReportsController extends BaseController
         $mediclaimClients = Client::with(['familyMembers' => function($query) use ($from_date, $to_date) {
             // Get family members with general insurances created within the date range
             $query->whereHas('mediclaimInsurances', function($query) use ($from_date, $to_date) {
-                $query->whereBetween('created_at', [$from_date, $to_date]);
+                $query->where('cancelled', false)
+                ->whereBetween('created_at', [$from_date, $to_date]);
             })->with(['mediclaimInsurances' => function($query) use ($from_date, $to_date) {
-                $query->whereBetween('created_at', [$from_date, $to_date]);
+                $query->where('cancelled', false)
+                ->whereBetween('created_at', [$from_date, $to_date]);
             }]);
         }])
         ->where(function ($query) use ($from_date, $to_date) {
             // For clients with general insurances created within the date range
             $query->whereHas('mediclaimInsurances', function($query) use ($from_date, $to_date) {
-                $query->whereBetween('created_at', [$from_date, $to_date]);
+                $query->where('cancelled', false)
+                ->whereBetween('created_at', [$from_date, $to_date]);
             });
         })
         ->orderBy('created_at', 'desc')
@@ -278,14 +281,17 @@ class ReportsController extends BaseController
         $termPlanClients = Client::with(['familyMembers' => function($query) use ($from_date, $to_date) {
             // Get family members with general insurances created within the date range
             $query->whereHas('termPlans', function($query) use ($from_date, $to_date) {
+                $query->where('cancelled', false);
                 $query->whereBetween('created_at', [$from_date, $to_date]);
             })->with(['termPlans' => function($query) use ($from_date, $to_date) {
+                $query->where('cancelled', false);
                 $query->whereBetween('created_at', [$from_date, $to_date]);
             }]);
         }])
         ->where(function ($query) use ($from_date, $to_date) {
             // For clients with general insurances created within the date range
             $query->whereHas('termPlans', function($query) use ($from_date, $to_date) {
+                $query->where('cancelled', false);
                 $query->whereBetween('created_at', [$from_date, $to_date]);
             });
         })
@@ -334,14 +340,17 @@ class ReportsController extends BaseController
         $licClients = Client::with(['familyMembers' => function($query) use ($from_date, $to_date) {
             // Get family members with general insurances created within the date range
             $query->whereHas('lics', function($query) use ($from_date, $to_date) {
+                $query->where('cancelled', false);
                 $query->whereBetween('created_at', [$from_date, $to_date]);
             })->with(['lics' => function($query) use ($from_date, $to_date) {
+                $query->where('cancelled', false);
                 $query->whereBetween('created_at', [$from_date, $to_date]);
             }]);
         }])
         ->where(function ($query) use ($from_date, $to_date) {
             // For clients with general insurances created within the date range
             $query->whereHas('lics', function($query) use ($from_date, $to_date) {
+                $query->where('cancelled', false);
                 $query->whereBetween('created_at', [$from_date, $to_date]);
             });
         })
@@ -393,14 +402,17 @@ class ReportsController extends BaseController
         $generalInsuranceClients = Client::with(['familyMembers' => function($query) use ($from_date, $to_date) {
             // Get family members with general insurances created within the date range
             $query->whereHas('generalInsurances', function($query) use ($from_date, $to_date) {
+                $query->where('cancelled', false);
                 $query->whereBetween('created_at', [$from_date, $to_date]);
             })->with(['generalInsurances' => function($query) use ($from_date, $to_date) {
+                $query->where('cancelled', false);
                 $query->whereBetween('created_at', [$from_date, $to_date]);
             }]);
         }])
         ->where(function ($query) use ($from_date, $to_date) {
             // For clients with general insurances created within the date range
             $query->whereHas('generalInsurances', function($query) use ($from_date, $to_date) {
+                $query->where('cancelled', false);
                 $query->whereBetween('created_at', [$from_date, $to_date]);
             });
         })
@@ -417,15 +429,18 @@ class ReportsController extends BaseController
                $dematAccountClients = Client::with(['familyMembers' => function($query) use ($from_date, $to_date) {
                    // Get family members with general insurances created within the date range
                    $query->whereHas('dematAccounts', function($query) use ($from_date, $to_date) {
+                       $query->where('cancelled', false);
                        $query->whereBetween('created_at', [$from_date, $to_date]);
                    })->with(['dematAccounts' => function($query) use ($from_date, $to_date) {
+                       $query->where('cancelled', false);
                        $query->whereBetween('created_at', [$from_date, $to_date]);
                    }]);
                }])
                ->where(function ($query) use ($from_date, $to_date) {
                    // For clients with general insurances created within the date range
                    $query->whereHas('dematAccounts', function($query) use ($from_date, $to_date) {
-                       $query->whereBetween('created_at', [$from_date, $to_date]);
+                        $query->where('cancelled', false);  
+                        $query->whereBetween('created_at', [$from_date, $to_date]);
                    });
                })
                ->orderBy('created_at', 'desc')
@@ -441,14 +456,17 @@ class ReportsController extends BaseController
             $mutualFundClients = Client::with(['familyMembers' => function($query) use ($from_date, $to_date) {
                 // Get family members with general insurances created within the date range
                 $query->whereHas('mutualFunds', function($query) use ($from_date, $to_date) {
+                    $query->where('cancelled', false);
                     $query->whereBetween('created_at', [$from_date, $to_date]);
                 })->with(['mutualFunds' => function($query) use ($from_date, $to_date) {
+                    $query->where('cancelled', false);
                     $query->whereBetween('created_at', [$from_date, $to_date]);
                 }]);
             }])
             ->where(function ($query) use ($from_date, $to_date) {
                 // For clients with general insurances created within the date range
                 $query->whereHas('mutualFunds', function($query) use ($from_date, $to_date) {
+                    $query->where('cancelled', false);
                     $query->whereBetween('created_at', [$from_date, $to_date]);
                 });
             })
@@ -464,11 +482,13 @@ class ReportsController extends BaseController
         if ($loan) {
             $loanClients = Client::with(['familyMembers','loans' => function($query) use ($from_date, $to_date) {
                 // Filter the loans to only include those created within the date range
+                $query->where('cancelled', false);
                 $query->whereBetween('created_at', [$from_date, $to_date]);
             }])
             ->where(function ($query) use ($from_date, $to_date) {
                 // For clients with loans created within the date range
                 $query->whereHas('loans', function($query) use ($from_date, $to_date) {
+                    $query->where('cancelled', false);
                     $query->whereBetween('created_at', [$from_date, $to_date]);
                 });
             })

@@ -54,7 +54,7 @@
             @foreach($mediclaimClients as $client)
                 @foreach($client->mediclaimInsurances as $mediclaim) <!-- Iterate over each LIC for the client -->
                     @if (\Carbon\Carbon::parse($mediclaim->created_at)->between($from_date, $to_date) && 
-                        $mediclaim->family_member_id === null)  <!-- Check if the LIC record is within the date range and family_member_id is null -->
+                        $mediclaim->family_member_id === null && $mediclaim->cancelled == false)  <!-- Check if the LIC record is within the date range and family_member_id is null -->
                         <tr>
                             <td>{{ \Carbon\Carbon::parse($mediclaim->created_at)->format('d/m/Y') }}</td>
                             <td>{{ $client->client_name }}</td>
@@ -69,7 +69,7 @@
                 <!-- Display family members details -->
                 @foreach($client->familyMembers as $familyMember)
                     @foreach($familyMember->mediclaimInsurances as $mediclaim) <!-- Iterate over each LIC for the family member -->
-                        @if (\Carbon\Carbon::parse($mediclaim->created_at)->between($from_date, $to_date))
+                        @if (\Carbon\Carbon::parse($mediclaim->created_at)->between($from_date, $to_date) && $mediclaim->cancelled == false)
                             <tr>
                                 <td>{{ \Carbon\Carbon::parse($mediclaim->created_at)->format('d/m/Y') }}</td>
                                 <td>{{ $familyMember->family_member_name }}</td>
@@ -104,7 +104,7 @@
             @foreach($termPlanClients as $client)
                 @foreach($client->termPlans as $term) <!-- Iterate over each LIC for the client -->
                     @if (\Carbon\Carbon::parse($term->created_at)->between($from_date, $to_date) && 
-                        $term->family_member_id === null)  <!-- Check if the LIC record is within the date range and family_member_id is null -->
+                        $term->family_member_id === null && $term->cancelled == false)  <!-- Check if the LIC record is within the date range and family_member_id is null -->
                         <tr>
                             <td>{{ \Carbon\Carbon::parse($term->created_at)->format('d/m/Y') }}</td>
                             <td>{{ $client->client_name }}</td>
@@ -117,7 +117,7 @@
                 <!-- Display family members details -->
                 @foreach($client->familyMembers as $familyMember)
                     @foreach($familyMember->termPlans as $term) <!-- Iterate over each LIC for the family member -->
-                        @if (\Carbon\Carbon::parse($term->created_at)->between($from_date, $to_date))
+                        @if (\Carbon\Carbon::parse($term->created_at)->between($from_date, $to_date) && $term->cancelled == false)
                             <tr>
                                 <td>{{ \Carbon\Carbon::parse($term->created_at)->format('d/m/Y') }}</td>
                                 <td>{{ $familyMember->family_member_name }}</td>
@@ -150,7 +150,7 @@
             @foreach($licClients as $client)
                 @foreach($client->lics as $lic) <!-- Iterate over each LIC for the client -->
                     @if (\Carbon\Carbon::parse($lic->created_at)->between($from_date, $to_date) && 
-                        $lic->family_member_id === null)  <!-- Check if the LIC record is within the date range and family_member_id is null -->
+                        $lic->family_member_id === null && $lic->cancelled == false)  <!-- Check if the LIC record is within the date range and family_member_id is null -->
                         <tr>
                             <td>{{ \Carbon\Carbon::parse($lic->created_at)->format('d/m/Y') }}</td>
                             <td>{{ $client->client_name }}</td>
@@ -163,7 +163,7 @@
                 <!-- Display family members details -->
                 @foreach($client->familyMembers as $familyMember)
                     @foreach($familyMember->lics as $lic) <!-- Iterate over each LIC for the family member -->
-                        @if (\Carbon\Carbon::parse($lic->created_at)->between($from_date, $to_date))
+                        @if (\Carbon\Carbon::parse($lic->created_at)->between($from_date, $to_date) && $lic->cancelled == false)
                             <tr>
                                 <td>{{ \Carbon\Carbon::parse($lic->created_at)->format('d/m/Y') }}</td>
                                 <td>{{ $familyMember->family_member_name }}</td>
@@ -197,7 +197,7 @@
             @foreach($generalInsuranceClients as $client)
                 @foreach($client->generalInsurances as $general) <!-- Iterate over each LIC for the client -->
                     @if (\Carbon\Carbon::parse($general->created_at)->between($from_date, $to_date) && 
-                        $general->family_member_id === null)  <!-- Check if the LIC record is within the date range and family_member_id is null -->
+                        $general->family_member_id === null && $general->cancelled == false)  <!-- Check if the LIC record is within the date range and family_member_id is null -->
                         <tr>
                             <td>{{ \Carbon\Carbon::parse($general->created_at)->format('d/m/Y') }}</td>
                             <td>{{ $client->client_name }}</td>
@@ -210,7 +210,7 @@
                 <!-- Display family members details -->
                 @foreach($client->familyMembers as $familyMember)
                     @foreach($familyMember->generalInsurances as $general) <!-- Iterate over each LIC for the family member -->
-                        @if (\Carbon\Carbon::parse($general->created_at)->between($from_date, $to_date))
+                        @if (\Carbon\Carbon::parse($general->created_at)->between($from_date, $to_date) && $general->cancelled == false)
                             <tr>
                                 <td>{{ \Carbon\Carbon::parse($general->created_at)->format('d/m/Y') }}</td>
                                 <td>{{ $familyMember->family_member_name }}</td>
@@ -245,7 +245,7 @@
              @foreach($dematAccountClients as $client)
                  @foreach($client->dematAccounts as $demat) <!-- Iterate over each LIC for the client -->
                      @if (\Carbon\Carbon::parse($demat->created_at)->between($from_date, $to_date) && 
-                         $demat->family_member_id === null)  <!-- Check if the LIC record is within the date range and family_member_id is null -->
+                         $demat->family_member_id === null && $demat->cancelled == false)  <!-- Check if the LIC record is within the date range and family_member_id is null -->
                          <tr>
                              <td>{{ \Carbon\Carbon::parse($demat->created_at)->format('d/m/Y') }}</td>
                              <td>{{ $client->client_name }}</td>
@@ -258,7 +258,7 @@
                  <!-- Display family members details -->
                  @foreach($client->familyMembers as $familyMember)
                      @foreach($familyMember->dematAccounts as $demat) <!-- Iterate over each LIC for the family member -->
-                         @if (\Carbon\Carbon::parse($demat->created_at)->between($from_date, $to_date))
+                         @if (\Carbon\Carbon::parse($demat->created_at)->between($from_date, $to_date) && $demat->cancelled == false)
                              <tr>
                                  <td>{{ \Carbon\Carbon::parse($demat->created_at)->format('d/m/Y') }}</td>
                                  <td>{{ $familyMember->family_member_name }}</td>
@@ -292,7 +292,7 @@
           <tbody>
               @foreach($loanClients as $client)
                   @foreach($client->loans as $loan) <!-- Iterate over each LIC for the client -->
-                      @if (\Carbon\Carbon::parse($loan->created_at)->between($from_date, $to_date))
+                      @if (\Carbon\Carbon::parse($loan->created_at)->between($from_date, $to_date) && $loan->cancelled == false)
                           <tr>
                               <td>{{ \Carbon\Carbon::parse($loan->created_at)->format('d/m/Y') }}</td>
                               <td>{{ $client->client_name }}</td>
@@ -328,7 +328,7 @@
               @foreach($mutualFundClients as $client)
                   @foreach($client->mutualFunds as $mutual) <!-- Iterate over each LIC for the client -->
                       @if (\Carbon\Carbon::parse($mutual->created_at)->between($from_date, $to_date) && 
-                          $mutual->family_member_id === null)  <!-- Check if the LIC record is within the date range and family_member_id is null -->
+                          $mutual->family_member_id === null && $mutual->cancelled == false)  <!-- Check if the LIC record is within the date range and family_member_id is null -->
                           <tr>
                               <td>{{ \Carbon\Carbon::parse($mutual->created_at)->format('d/m/Y') }}</td>
                               <td>{{ $client->client_name }}</td>
@@ -341,7 +341,7 @@
                   <!-- Display family members details -->
                   @foreach($client->familyMembers as $familyMember)
                       @foreach($familyMember->mutualFunds as $mutual) <!-- Iterate over each LIC for the family member -->
-                          @if (\Carbon\Carbon::parse($mutual->created_at)->between($from_date, $to_date))
+                          @if (\Carbon\Carbon::parse($mutual->created_at)->between($from_date, $to_date) && $mutual->cancelled == false)
                               <tr>
                                   <td>{{ \Carbon\Carbon::parse($mutual->created_at)->format('d/m/Y') }}</td>
                                   <td>{{ $familyMember->family_member_name }}</td>

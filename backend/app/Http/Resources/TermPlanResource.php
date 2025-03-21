@@ -29,6 +29,8 @@ class TermPlanResource extends JsonResource
             'end_date'     => $this->end_date,
             'premium_payment_mode' => $this->premium_payment_mode,
             'sum_insured'       => $this->sum_insured,
+            'cancelled'       => $this->cancelled,
+            'cancelled_by'       => $this->cancelled_by,
             'created_at'        => $this->created_at,
             'updated_at'        => $this->updated_at,
         ];

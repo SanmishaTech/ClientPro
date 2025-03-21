@@ -29,13 +29,13 @@ class DashboardController extends BaseController
         $clients = Client::count();
         $familyMembers = FamilyMember::count();
         $totalClientsCount = $clients + $familyMembers;
-        $totalMediclaimInsurances = MediclaimInsurance::count();
-        $totalTermPlans = TermPlan::count();
-        $totalLic = LIC::count();
-        $totalLoan = Loan::count();
-        $totalgeneralInsurance = GeneralInsurance::count();
-        $totalDematAccount = DematAccount::count();
-        $totalMutualFund = MutualFund::count();
+        $totalMediclaimInsurances = MediclaimInsurance::where("cancelled",false)->count();
+        $totalTermPlans = TermPlan::where("cancelled",false)->count();
+        $totalLic = LIC::where("cancelled",false)->count();
+        $totalLoan = Loan::where("cancelled",false)->count();
+        $totalgeneralInsurance = GeneralInsurance::where("cancelled",false)->count();
+        $totalDematAccount = DematAccount::where("cancelled",false)->count();
+        $totalMutualFund = MutualFund::where("cancelled",false)->count();
         
         $currentMonth = now()->month; 
 

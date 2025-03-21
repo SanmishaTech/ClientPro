@@ -20,6 +20,8 @@ return new class extends Migration
             $table->decimal("premium",10,2)->nullable();
             $table->date("start_date")->nullable();
             $table->date("end_date")->nullable();
+            $table->boolean('cancelled')->default(0);
+            $table->unsignedBigInteger('cancelled_by')->nullable();
             $table->timestamps();
         });
     }

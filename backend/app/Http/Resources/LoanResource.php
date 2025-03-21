@@ -28,6 +28,8 @@ class LoanResource extends JsonResource
             'term' => $this->term,
             'emi' => $this->emi,
             'roi' => $this->roi,
+            'cancelled'       => $this->cancelled,
+            'cancelled_by'       => $this->cancelled_by,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

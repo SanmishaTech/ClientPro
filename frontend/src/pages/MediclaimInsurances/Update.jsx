@@ -95,7 +95,6 @@ const formSchema = z.object({
 
         premium_payment_mode: z
           .string()
-          .min(1, "Premium payment mode field is required.")
           .max(
             100,
             "Premium payment mode field must not exceed 100 characters."
@@ -269,7 +268,7 @@ const Update = () => {
           plan_name: insurance.plan_name || "",
           premium: insurance.premium || "",
           proposal_date: insurance.proposal_date,
-          premium_payment_mode: insurance.premium_payment_mode,
+          premium_payment_mode: insurance.premium_payment_mode || "",
           sum_insured: insurance.sum_insured,
           end_date: insurance.end_date || "",
         });
@@ -651,7 +650,6 @@ const Update = () => {
                         htmlFor={`mediclaim_data[${index}].premium_payment_mode`}
                       >
                         Premium Payment Mode:{" "}
-                        <span className="text-red-500">*</span>
                       </Label>
                       <Controller
                         name={`mediclaim_data[${index}].premium_payment_mode`}

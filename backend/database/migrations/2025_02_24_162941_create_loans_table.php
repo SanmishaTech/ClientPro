@@ -23,6 +23,8 @@ return new class extends Migration
             $table->string("term")->nullable();
             $table->decimal("emi",10,2)->nullable();
             $table->decimal("roi",10,2)->nullable();
+            $table->boolean('cancelled')->default(0);
+            $table->unsignedBigInteger('cancelled_by')->nullable();
             $table->timestamps();
         });
     }

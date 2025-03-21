@@ -95,7 +95,6 @@ const formSchema = z.object({
 
         premium_payment_mode: z
           .string()
-          .min(1, "Premium payment mode field is required.")
           .max(
             100,
             "Premium payment mode field must not exceed 100 characters."
@@ -592,7 +591,7 @@ const Create = () => {
                         htmlFor={`term_plan_data[${index}].premium_payment_mode`}
                       >
                         Premium Payment Mode:{" "}
-                        <span className="text-red-500">*</span>
+                        
                       </Label>
                       <Controller
                         name={`term_plan_data[${index}].premium_payment_mode`}

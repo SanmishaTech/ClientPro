@@ -152,16 +152,16 @@ class MediclaimInsurancesController extends BaseController
     /**
      * Remove Mediclaim Insurance.
      */
-    public function destroy(string $id): JsonResponse
-    {
-        $mediclaimInsurance = MediclaimInsurance::find($id);
-        if(!$mediclaimInsurance){
-            return $this->sendError("Mediclaim Insurance not found", ['error'=>'Mediclaim Insurance not found']);
-        }
+    // public function destroy(string $id): JsonResponse
+    // {
+    //     $mediclaimInsurance = MediclaimInsurance::find($id);
+    //     if(!$mediclaimInsurance){
+    //         return $this->sendError("Mediclaim Insurance not found", ['error'=>'Mediclaim Insurance not found']);
+    //     }
         
-        $mediclaimInsurance->delete();
-        return $this->sendResponse([], "Mediclaim Insurance deleted successfully");
-    }
+    //     $mediclaimInsurance->delete();
+    //     return $this->sendResponse([], "Mediclaim Insurance deleted successfully");
+    // }
 
     /**
      * Fetch All Mediclaim Insurance.
@@ -173,5 +173,21 @@ class MediclaimInsurancesController extends BaseController
         return $this->sendResponse(["MediclaimInsurances"=>MediclaimInsuranceResource::collection($client),
         ], "Mediclaim Insurances retrieved successfully");
 
+    }
+
+      /**
+     * Cancle Receipt.
+     */
+    public function cancelMediclaimInsurance(string $id): JsonResponse
+    {
+        $mediclaimInsurance = MediclaimInsurance::find($id);
+        if(!$mediclaimInsurance){
+            return $this->sendError("Mediclaim Insurance not found", ['error'=>'mediclaim insurance not found']);
+        }
+        $val = 1;
+        $mediclaimInsurance->cancelled = $val;
+        $mediclaimInsurance->cancelled_by = auth()->user()->profile->id;
+        $mediclaimInsurance->save();
+        return $this->sendResponse([], "Mediclaim Insurance Cancelled successfully");
     }
 }

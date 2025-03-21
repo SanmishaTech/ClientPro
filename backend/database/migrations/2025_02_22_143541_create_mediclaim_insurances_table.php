@@ -24,6 +24,8 @@ return new class extends Migration
             $table->date('end_date')->nullable();
             $table->string('premium_payment_mode')->nullable();
             $table->decimal('sum_insured',10,2)->nullable();
+            $table->boolean('cancelled')->default(0);
+            $table->unsignedBigInteger('cancelled_by')->nullable();
             $table->timestamps();
         });
     }

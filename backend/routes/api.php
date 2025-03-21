@@ -56,5 +56,6 @@ Route::group(['middleware'=>['auth:sanctum', 'permission','request.null']], func
    Route::delete('/family_members/{id}', [ClientsController::class, 'deleteFamilyMember'])->name("clients.deleteFamilyMember");
    Route::post('/get_client', [ClientsController::class, 'getClientImages'])->name("client.getpost");
    Route::put('/get_client/{id}', [ClientsController::class, 'getClientImages'])->name("client.getput");
+   Route::get('/cancel_mediclaim_insurance/{id}', [MediclaimInsurancesController::class, 'cancelMediclaimInsurance'])->name("mediclaim.cancel_mediclaim");
 
 });

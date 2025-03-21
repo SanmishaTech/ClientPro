@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('service_provider')->nullable();
             $table->string('plan_name')->nullable();
             $table->date('start_date')->nullable();
+            $table->boolean('cancelled')->default(0);
+            $table->unsignedBigInteger('cancelled_by')->nullable();
             $table->timestamps();
         });
     }

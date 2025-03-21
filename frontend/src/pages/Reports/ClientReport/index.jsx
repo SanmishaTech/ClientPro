@@ -35,6 +35,7 @@ const formSchema = z.object({
 
 const index = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [selectAll, setSelectAll] = useState(false);
   const queryClient = useQueryClient();
   const user = JSON.parse(localStorage.getItem("user"));
   const token = user.token;
@@ -56,6 +57,7 @@ const index = () => {
     handleSubmit,
     formState: { errors },
     setError,
+    setValue,
   } = useForm({ resolver: zodResolver(formSchema), defaultValues });
 
   //   const handlePrint = async (data) => {
@@ -192,6 +194,20 @@ const index = () => {
     setIsLoading(false);
   };
 
+  const handleSelectAllChange = () => {
+    const newState = !selectAll;
+    setSelectAll(newState);
+
+    const value = newState ? true : false;
+    setValue("mediclaim_insurance", value);
+    setValue("term_plan", value);
+    setValue("lic", value);
+    setValue("loan", value);
+    setValue("general_insurance", value);
+    setValue("demat_account", value);
+    setValue("mutual_fund", value);
+  };
+
   return (
     <>
       <div className="p-5">
@@ -251,6 +267,30 @@ const index = () => {
                   </p>
                 )}
               </div>
+              <div className="relative flex gap-2 mt-10  md:pl-2 ">
+                <Controller
+                  name="selectAll"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      id="selectAll"
+                      {...field}
+                      checked={selectAll}
+                      onChange={handleSelectAllChange}
+                      type="checkbox"
+                      className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                    />
+                  )}
+                />
+                <Label className="font-normal" htmlFor="selectAll">
+                  Select All
+                </Label>
+                {errors.selectAll && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.selectAll.message}
+                  </p>
+                )}
+              </div>
             </div>
             {/* <h2 className="text-2xl mb-2">categories</h2> */}
             <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-5 gap-7 md:gap-4">
@@ -262,6 +302,7 @@ const index = () => {
                     <input
                       id="mediclaim_insurance"
                       {...field}
+                      checked={field.value}
                       type="checkbox"
                       className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                     />
@@ -284,6 +325,7 @@ const index = () => {
                     <input
                       id="term_plan"
                       {...field}
+                      checked={field.value}
                       type="checkbox"
                       className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                     />
@@ -306,6 +348,7 @@ const index = () => {
                     <input
                       id="lic"
                       {...field}
+                      checked={field.value}
                       type="checkbox"
                       className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                     />
@@ -328,6 +371,7 @@ const index = () => {
                     <input
                       id="loan"
                       {...field}
+                      checked={field.value}
                       type="checkbox"
                       className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                     />
@@ -350,6 +394,7 @@ const index = () => {
                     <input
                       id="general_insurance"
                       {...field}
+                      checked={field.value}
                       type="checkbox"
                       className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                     />
@@ -374,6 +419,7 @@ const index = () => {
                     <input
                       id="demat_account"
                       {...field}
+                      checked={field.value}
                       type="checkbox"
                       className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                     />
@@ -396,6 +442,7 @@ const index = () => {
                     <input
                       id="mutual_fund"
                       {...field}
+                      checked={field.value}
                       type="checkbox"
                       className="peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                     />

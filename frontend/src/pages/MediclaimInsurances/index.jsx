@@ -22,6 +22,7 @@ import {
   ListFilter,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import Cancel from "./Cancel";
 
 import Pagination from "@/customComponents/Pagination/Pagination";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -223,7 +224,12 @@ const Index = () => {
                   MediclaimInsurances.map((insurance) => (
                     <TableRow
                       key={insurance.id}
-                      className=" dark:border-b dark:border-gray-600"
+                      className={`${
+                        insurance.cancelled
+                          ? "relative" // Add a bottom border for strike-through effect
+                          : ""
+                      } dark:border-b dark:border-gray-600`}
+                      // className=" dark:border-b dark:border-gray-600"
                     >
                       <TableCell className="font-medium p-2">
                         {insurance.client_name}
@@ -265,14 +271,29 @@ const Index = () => {
                                 )
                               }
                             >
-                              <Pencil /> Edit
+                              <Pencil /> {insurance.cancelled ? "View" : "Edit"}
                             </Button>
-                            <div className="w-full">
+                            {/* <div className="w-full">
                               <Delete id={insurance.id} />
-                            </div>
+                            </div> */}
+                            {!insurance.cancelled && (
+                              <div className="w-full">
+                                <Cancel id={insurance.id} />
+                              </div>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
+                      {insurance.cancelled ? (
+                        <div
+                          className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-500"
+                          style={{
+                            transform: "translateY(-50%)", // Vertically center the line in the row
+                          }}
+                        ></div>
+                      ) : (
+                        ""
+                      )}
                     </TableRow>
                   ))}
               </TableBody>

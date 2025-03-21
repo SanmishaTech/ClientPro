@@ -25,6 +25,8 @@ class DematAccountResource extends JsonResource
             'plan_name' => $this->plan_name,
             'account_number' => $this->account_number,
             'service_provider' => $this->service_provider,
+            'cancelled'       => $this->cancelled,
+            'cancelled_by'       => $this->cancelled_by,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

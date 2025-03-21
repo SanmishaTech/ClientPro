@@ -102,7 +102,6 @@ const formSchema = z.object({
 
         premium_payment_mode: z
           .string()
-          .min(1, "Premium payment mode field is required.")
           .max(
             100,
             "Premium payment mode field must not exceed 100 characters."
@@ -282,7 +281,7 @@ const Update = () => {
           term: lic.term,
           ppt: lic.ppt,
           proposal_date: lic.proposal_date,
-          premium_payment_mode: lic.premium_payment_mode,
+          premium_payment_mode: lic.premium_payment_mode || "",
           sum_insured: lic.sum_insured,
           end_date: lic.end_date || "",
         });

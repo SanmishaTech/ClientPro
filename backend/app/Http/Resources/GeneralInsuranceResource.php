@@ -25,6 +25,8 @@ class GeneralInsuranceResource extends JsonResource
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
             'insurance_type' => $this->insurance_type,
+            'cancelled'       => $this->cancelled,
+            'cancelled_by'       => $this->cancelled_by,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
