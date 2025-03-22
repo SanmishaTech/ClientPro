@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import Cancel from "./Cancel";
 
 import {
   File,
@@ -80,7 +81,6 @@ const Index = () => {
   const { current_page, last_page, total, per_page } = pagination || {}; // Destructure pagination data
 
   // pagination end
-
   if (isDematAccountDataError) {
     return (
       <div className="m-5">
@@ -223,7 +223,12 @@ const Index = () => {
                   DematAccounts.map((DematAccount) => (
                     <TableRow
                       key={DematAccount.id}
-                      className=" dark:border-b dark:border-gray-600"
+                      className={`${
+                        DematAccount.cancelled
+                          ? "relative" // Add a bottom border for strike-through effect
+                          : ""
+                      } dark:border-b dark:border-gray-600`}
+                      // className=" dark:border-b dark:border-gray-600"
                     >
                       <TableCell className="font-medium p-2">
                         {DematAccount.client_name}
@@ -261,14 +266,30 @@ const Index = () => {
                                 )
                               }
                             >
-                              <Pencil /> Edit
+                              <Pencil />{" "}
+                              {DematAccount.cancelled ? "View" : "Edit"}
                             </Button>
-                            <div className="w-full">
+                            {/* <div className="w-full">
                               <Delete id={DematAccount.id} />
-                            </div>
+                            </div> */}
+                            {!DematAccount.cancelled && (
+                              <div className="w-full">
+                                <Cancel id={DematAccount.id} />
+                              </div>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
+                      {DematAccount.cancelled ? (
+                        <div
+                          className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-500"
+                          style={{
+                            transform: "translateY(-50%)", // Vertically center the line in the row
+                          }}
+                        ></div>
+                      ) : (
+                        ""
+                      )}
                     </TableRow>
                   ))}
               </TableBody>

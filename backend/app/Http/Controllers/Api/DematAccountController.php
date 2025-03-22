@@ -72,6 +72,22 @@ class DematAccountController extends BaseController
     /**
      * Show Demat Account.
      */
+    // public function show(string $id): JsonResponse
+    // {
+    //     $dematAccounts = DematAccount::find($id);
+
+    //     if(!$dematAccounts){
+    //         return $this->sendError("Demat Account Details not found", ['error'=>'Demat Account Details not found']);
+    //     }
+
+    //     $dematAccountData = DematAccount::where('client_id',$dematAccounts->client_id)->get();
+
+    //     if(!$dematAccountData){
+    //         return $this->sendError("Demat Account not found", ['error'=>'Demat Account not found']);
+    //     }
+    //     return $this->sendResponse(['DematAccount'=> DematAccountResource::collection($dematAccountData)], "Demat Account details retrieved successfully");
+    // }
+
     public function show(string $id): JsonResponse
     {
         $dematAccounts = DematAccount::find($id);
@@ -79,57 +95,60 @@ class DematAccountController extends BaseController
         if(!$dematAccounts){
             return $this->sendError("Demat Account Details not found", ['error'=>'Demat Account Details not found']);
         }
-
-        $dematAccountData = DematAccount::where('client_id',$dematAccounts->client_id)->get();
-
-        if(!$dematAccountData){
-            return $this->sendError("Demat Account not found", ['error'=>'Demat Account not found']);
-        }
-        return $this->sendResponse(['DematAccount'=> DematAccountResource::collection($dematAccountData)], "Demat Account details retrieved successfully");
+        return $this->sendResponse(['DematAccount'=> new DematAccountResource($dematAccounts)], "Demat Account details retrieved successfully");
     }
-
+    
     /**
      * Update Demat Account.
      */
+    // public function update(UpdateDematAccountRequest $request, string $id): JsonResponse
+    // {
+    //     $dematAccounts = DematAccount::find($id);
+    //     if(!$dematAccounts){
+    //         return $this->sendError("Demat Accounts details not found", ['error'=>'Demat Accounts details not found']);
+    //     }
+
+    //     $dematAccountData = $request->input('demat_account_data'); // Array containing client and family member data
+
+    //     if($dematAccountData){
+    //         foreach($dematAccountData as $demat){
+         
+    //        $demat_account = DematAccount::updateOrCreate(
+    //            ['id' => $demat['demat_id'], 'client_id' => $demat['client_id']], // Condition to check existing member
+    //            [
+    //                'family_member_id' => $demat['family_member_id'] ?? null,
+    //                'plan_name' => $demat['plan_name'],
+    //                'company_name' => $demat['company_name'],
+    //                'account_number' => $demat['account_number'],
+    //                'start_date' => $demat['start_date'],
+    //                'service_provider' => $demat['service_provider'],
+    //            ]
+    //        );
+    //         }
+    //    }
+    
+   
+       
+    //     return $this->sendResponse(['DematAccount'=> new DematAccountResource($demat_account)], "Demat Account details updated successfully");
+    // }
+
     public function update(UpdateDematAccountRequest $request, string $id): JsonResponse
     {
         $dematAccounts = DematAccount::find($id);
         if(!$dematAccounts){
             return $this->sendError("Demat Accounts details not found", ['error'=>'Demat Accounts details not found']);
         }
-
-        $dematAccountData = $request->input('demat_account_data'); // Array containing client and family member data
-
-        if($dematAccountData){
-            foreach($dematAccountData as $demat){
-         
-           $demat_account = DematAccount::updateOrCreate(
-               ['id' => $demat['demat_id'], 'client_id' => $demat['client_id']], // Condition to check existing member
-               [
-                   'family_member_id' => $demat['family_member_id'] ?? null,
-                   'plan_name' => $demat['plan_name'],
-                   'company_name' => $demat['company_name'],
-                   'account_number' => $demat['account_number'],
-                   'start_date' => $demat['start_date'],
-                   'service_provider' => $demat['service_provider'],
-               ]
-           );
-            }
-       }
-    
-    //     foreach ($dematAccountData as $data) {
-    //     $demat_account = new DematAccount();
-    //     $demat_account->client_id = $data['client_id'];
-    //     $demat_account->family_member_id = $data['family_member_id'] ?? null;
-    //     $demat_account->company_name = $data['company_name'];
-    //     $demat_account->plan_name = $data['plan_name'];
-    //     $demat_account->start_date = $data['start_date'];
-    //     $demat_account->account_number = $data['account_number'];
-    //     $demat_account->service_provider = $data['service_provider'];
-    //     $demat_account->save();
-    //    }
+        
+        $dematAccounts->client_id = $request->input("client_id");
+        $dematAccounts->family_member_id = $request->input("family_member_id");
+        $dematAccounts->plan_name = $request->input("plan_name");
+        $dematAccounts->company_name = $request->input("company_name");
+        $dematAccounts->account_number = $request->input("account_number");
+        $dematAccounts->start_date = $request->input("start_date");
+        $dematAccounts->service_provider = $request->input("service_provider");
+        $dematAccounts->save();
        
-        return $this->sendResponse(['DematAccount'=> new DematAccountResource($demat_account)], "Demat Account details updated successfully");
+        return $this->sendResponse(['DematAccount'=> new DematAccountResource($dematAccounts)], "Demat Account details updated successfully");
     }
 
     /**
