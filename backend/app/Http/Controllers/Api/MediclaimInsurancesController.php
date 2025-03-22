@@ -158,6 +158,9 @@ class MediclaimInsurancesController extends BaseController
         $mediclaimInsurance->end_date = $request->input("end_date");
         $mediclaimInsurance->premium_payment_mode = $request->input("premium_payment_mode");
         $mediclaimInsurance->sum_insured = $request->input("sum_insured");
+        $mediclaimInsurance->policy_number = $request->input("policy_number");
+        $mediclaimInsurance->plan_name = $request->input("plan_name");
+        $mediclaimInsurance->premium = $request->input("premium");
         $mediclaimInsurance->save();
        
         return $this->sendResponse(['MediclaimInsurance'=> new MediclaimInsuranceResource($mediclaimInsurance)], "Mediclaim Insurance updated successfully");

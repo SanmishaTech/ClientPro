@@ -41,30 +41,57 @@ const formSchema = z.object({
   family_member_id: z.string().optional(),
   company_name: z
     .string()
-    .min(2, "Company name must be at least 2 characters")
-    .max(100, "Company name must be at max 100 characters")
+    .min(1, "Company name field is required.")
+    .max(100, "Company name must not exceed 100 characters.")
     .regex(
       /^[A-Za-z\s\u0900-\u097F]+$/,
       "Company name can only contain letters."
     ),
-  sum_insured: z.coerce
-    .number()
-    .min(1, "Sum Insured field is required")
-    .max(99999999, "Sum Insured must not exceed 9,99,99,999"),
+
   broker_name: z
+    .string() // ensures broker_name is a string
+    .max(100, "Broker name must not exceed 100 characters.") // enforces a max length of 100 characters
+    .refine((val) => val === "" || /^[A-Za-z\s\u0900-\u097F]+$/.test(val), {
+      message: "Broker name can only contain letters.", // ensures only letters and spaces or Hindi characters are allowed
+    })
+    .optional(), // makes the broker_name field optional
+
+  policy_number: z
     .string()
-    .min(2, "Broker name must be at least 2 characters")
-    .max(100, "Broker name must be at max 100 characters")
-    .regex(
-      /^[A-Za-z\s\u0900-\u097F]+$/,
-      "Broker name can only contain letters."
-    ),
+    .min(1, "Policy number field is required.")
+    .max(100, "Policy number must not exceed 100 characters."),
+  // plan_name: z
+  //   .string()
+  //   .min(1, "Plan name field is required.")
+  //   .max(100, "Plan name must not exceed 100 characters."),
+  plan_name: z
+    .string()
+    .min(1, "Plan name field is required.")
+    .max(100, "Plan name must not exceed 100 characters.")
+    .regex(/^[A-Za-z\s\u0900-\u097F]+$/, "Plan name can only contain letters."),
+  premium: z.coerce
+    .number()
+    .min(1, "Premium field is required.")
+    .max(99999999, "Premium field must not exceed 9,99,99,999."),
+
   proposal_date: z.string().min(1, "Proposal date field is required."),
+
   premium_payment_mode: z
     .string()
-    .min(1, "Premium payment mode field is required.")
-    .max(100, "Premium payment mode field must be at max 100 characters"),
-  end_date: z.string().optional(),
+    .max(100, "Premium payment mode field must not exceed 100 characters."),
+
+  sum_insured: z.coerce
+    .number()
+    .min(1, "Sum Insured field is required.")
+    .max(99999999, "Sum Insured must not exceed 9,99,99,999."),
+
+  end_date: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || !isNaN(Date.parse(val)),
+      "End date must be a valid date if provided."
+    ),
 });
 
 const Update = () => {
@@ -86,6 +113,9 @@ const Update = () => {
     premium_payment_mode: "",
     sum_insured: "",
     end_date: "",
+    policy_number: "",
+    plan_name: "",
+    premium: "",
   };
 
   const {
@@ -191,6 +221,12 @@ const Update = () => {
         editMediclaim.MediclaimInsurance?.sum_insured || ""
       );
       setValue("end_date", editMediclaim.MediclaimInsurance?.end_date || "");
+      setValue(
+        "policy_number",
+        editMediclaim.MediclaimInsurance?.policy_number || ""
+      );
+      setValue("plan_name", editMediclaim.MediclaimInsurance?.plan_name || "");
+      setValue("premium", editMediclaim.MediclaimInsurance?.premium || "");
 
       setTimeout(() => {
         setValue(
@@ -456,7 +492,7 @@ const Update = () => {
               </div>
               <div className="relative">
                 <Label className="font-normal" htmlFor="broker_name">
-                  Broker Name: <span className="text-red-500">*</span>
+                  Broker Name:
                 </Label>
                 <Controller
                   name="broker_name"
@@ -503,8 +539,57 @@ const Update = () => {
                 )}
               </div>
               <div className="relative">
+                <Label className="font-normal" htmlFor="sum_insured">
+                  Sum Insured: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="sum_insured"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="sum_insured"
+                      className="mt-1"
+                      type="number"
+                      placeholder="Enter amount"
+                    />
+                  )}
+                />
+                {errors.sum_insured && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.sum_insured.message}
+                  </p>
+                )}
+              </div>
+
+              {/* <div className="relative">
                 <Label className="font-normal" htmlFor="premium_payment_mode">
-                  Premium Payment Mode:: <span className="text-red-500">*</span>
+                  Premium Payment Mode: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="premium_payment_mode"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="premium_payment_mode"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter mode"
+                    />
+                  )}
+                />
+                {errors.premium_payment_mode && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.premium_payment_mode.message}
+                  </p>
+                )}
+              </div> */}
+            </div>
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="premium_payment_mode">
+                  Premium Payment Mode:
                 </Label>
                 <Controller
                   name="premium_payment_mode"
@@ -534,54 +619,6 @@ const Update = () => {
                   </p>
                 )}
               </div>
-              {/* <div className="relative">
-                <Label className="font-normal" htmlFor="premium_payment_mode">
-                  Premium Payment Mode: <span className="text-red-500">*</span>
-                </Label>
-                <Controller
-                  name="premium_payment_mode"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      id="premium_payment_mode"
-                      className="mt-1"
-                      type="text"
-                      placeholder="Enter mode"
-                    />
-                  )}
-                />
-                {errors.premium_payment_mode && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.premium_payment_mode.message}
-                  </p>
-                )}
-              </div> */}
-            </div>
-            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
-              <div className="relative">
-                <Label className="font-normal" htmlFor="sum_insured">
-                  Sum Insured: <span className="text-red-500">*</span>
-                </Label>
-                <Controller
-                  name="sum_insured"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      id="sum_insured"
-                      className="mt-1"
-                      type="number"
-                      placeholder="Enter amount"
-                    />
-                  )}
-                />
-                {errors.sum_insured && (
-                  <p className="absolute text-red-500 text-sm mt-1 left-0">
-                    {errors.sum_insured.message}
-                  </p>
-                )}
-              </div>
               <div className="relative">
                 <Label className="font-normal" htmlFor="end_date">
                   End Date:
@@ -602,6 +639,79 @@ const Update = () => {
                 {errors.end_date && (
                   <p className="absolute text-red-500 text-sm mt-1 left-0">
                     {errors.end_date.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="policy_number">
+                  Policy Number: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="policy_number"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="policy_number"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter policy number"
+                    />
+                  )}
+                />
+                {errors.policy_number && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.policy_number.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="plan_name">
+                  Plan Name: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="plan_name"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="plan_name"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter plan name"
+                    />
+                  )}
+                />
+                {errors.plan_name && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.plan_name.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="premium">
+                  Premium: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="premium"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="premium"
+                      className="mt-1"
+                      type="number"
+                      placeholder="Enter company name"
+                    />
+                  )}
+                />
+                {errors.premium && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.premium.message}
                   </p>
                 )}
               </div>
