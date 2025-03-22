@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -34,102 +34,74 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { toTitleCase } from "../../lib/titleCase.js";
 
 const formSchema = z.object({
+  // devta_name: z.string().min(2, "Name must be at least 2 characters"),
   client_id: z.coerce.number().min(1, "Client field is required."),
+  family_member_id: z.string().optional(),
+  company_name: z
+    .string()
+    .min(1, "Company name field is required.")
+    .max(100, "Company name must not exceed 100 characters.")
+    .regex(
+      /^[A-Za-z\s\u0900-\u097F]+$/,
+      "Company name can only contain letters."
+    ),
 
-  lic_data: z
-    .array(
-      z.object({
-        // Client validation (this can be at index 0)
-        client_id: z.coerce.number().min(1, "Client ID field is required."),
-        lic_id: z.string().optional(),
+  broker_name: z
+    .string() // ensures broker_name is a string
+    .max(100, "Broker name must not exceed 100 characters.") // enforces a max length of 100 characters
+    .refine((val) => val === "" || /^[A-Za-z\s\u0900-\u097F]+$/.test(val), {
+      message: "Broker name can only contain letters.", // ensures only letters and spaces or Hindi characters are allowed
+    })
+    .optional(), // makes the broker_name field optional
 
-        // Family member validation (for family members, the `family_member_id` is required)
-        // family_member_id: z.unionstring().number().optional(),
-        family_member_id: z.union([z.string(), z.number()]).optional(),
-        // Fields common for both client and family members
-        company_name: z
-          .string()
-          .min(1, "Company name field is required.")
-          .max(100, "Company name must not exceed 100 characters.")
-          .regex(
-            /^[A-Za-z\s\u0900-\u097F]+$/,
-            "Company name can only contain letters."
-          ),
+  policy_number: z
+    .string()
+    .min(1, "Policy number field is required.")
+    .max(100, "Policy number must not exceed 100 characters."),
+  plan_name: z
+    .string()
+    .min(1, "Plan name field is required.")
+    .max(100, "Plan name must not exceed 100 characters.")
+    .regex(/^[A-Za-z\s\u0900-\u097F]+$/, "Plan name can only contain letters."),
+  premium_without_gst: z.coerce
+    .number()
+    .min(1, "Premium field is required.")
+    .max(99999999, "Premium field must not exceed 9,99,99,999."),
+  commencement_date: z.string().min(1, "Commencement date field is required."),
+  term: z.coerce
+    .number()
+    .min(1, "Term field is required.")
+    .max(50, "Term field must not exceed 50 years"),
+  ppt: z.coerce
+    .number()
+    .min(1, "PPT field field is required.")
+    .max(50, "PPT field must not exceed 50 years."),
 
-        broker_name: z
-          .string() // ensures broker_name is a string
-          .max(100, "Broker name must not exceed 100 characters.") // enforces a max length of 100 characters
-          .refine(
-            (val) => val === "" || /^[A-Za-z\s\u0900-\u097F]+$/.test(val),
-            {
-              message: "Broker name can only contain letters.", // ensures only letters and spaces or Hindi characters are allowed
-            }
-          )
-          .optional(), // makes the broker_name field optional
+  proposal_date: z.string().min(1, "Proposal date field is required."),
 
-        policy_number: z
-          .string()
-          .min(1, "Policy number field is required.")
-          .max(100, "Policy number must not exceed 100 characters."),
-        plan_name: z
-          .string()
-          .min(1, "Plan name field is required.")
-          .max(100, "Plan name must not exceed 100 characters.")
-          .regex(
-            /^[A-Za-z\s\u0900-\u097F]+$/,
-            "Plan name can only contain letters."
-          ),
-        premium_without_gst: z.coerce
-          .number()
-          .min(1, "Premium field is required.")
-          .max(99999999, "Premium field must not exceed 9,99,99,999."),
-        commencement_date: z
-          .string()
-          .min(1, "Commencement date field is required."),
-        term: z.coerce
-          .number()
-          .min(1, "Term field is required.")
-          .max(50, "Term field must not exceed 50 years"),
-        ppt: z.coerce
-          .number()
-          .min(1, "PPT field field is required.")
-          .max(50, "PPT field must not exceed 50 years."),
+  premium_payment_mode: z
+    .string()
+    .max(100, "Premium payment mode field must not exceed 100 characters."),
 
-        proposal_date: z.string().min(1, "Proposal date field is required."),
+  sum_insured: z.coerce
+    .number()
+    .min(1, "Sum Insured field is required.")
+    .max(99999999, "Sum Insured must not exceed 9,99,99,999."),
 
-        premium_payment_mode: z
-          .string()
-          .max(
-            100,
-            "Premium payment mode field must not exceed 100 characters."
-          ),
-
-        sum_insured: z.coerce
-          .number()
-          .min(1, "Sum Insured field is required.")
-          .max(99999999, "Sum Insured must not exceed 9,99,99,999."),
-
-        end_date: z
-          .string()
-          .optional()
-          .refine(
-            (val) => !val || !isNaN(Date.parse(val)),
-            "End date must be a valid date if provided."
-          ),
-      })
-    )
-    .min(1, "At least one LIC entry is required.") // Ensure at least one entry
-    .optional(), // Optional so it can be dynamically added or removed
+  end_date: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || !isNaN(Date.parse(val)),
+      "End date must be a valid date if provided."
+    ),
 });
 
 const Update = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [openClient, setOpenClient] = useState(false);
-  const [clientData, setClientData] = useState(null);
-  const [familyMembers, setFamilyMembers] = useState([]);
   const queryClient = useQueryClient();
   const { id } = useParams();
   const user = JSON.parse(localStorage.getItem("user"));
@@ -137,22 +109,20 @@ const Update = () => {
   const navigate = useNavigate();
 
   const defaultValues = {
-    lic_id: "",
     client_id: "",
+    family_member_id: "",
     company_name: "",
-    broker_name: "",
     policy_number: "",
     plan_name: "",
     premium_without_gst: "",
-    commencement_date: "",
-    term: "",
     ppt: "",
+    term: "",
+    commencement_date: "",
+    broker_name: "",
     proposal_date: "",
-    company_name: "",
     premium_payment_mode: "",
     sum_insured: "",
     end_date: "",
-    lic_data: [],
   };
 
   const {
@@ -185,38 +155,7 @@ const Update = () => {
     setError,
     watch,
   } = useForm({ resolver: zodResolver(formSchema), defaultValues });
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "lic_data", // This will store all mediclaim data including client and family members
-  });
-
-  const clientId = watch("client_id");
-
-  const {
-    data: showClientData,
-    isLoading: isShowClientDataLoading,
-    isError: isShowClientDataError,
-  } = useQuery({
-    queryKey: ["showClient", clientId], // This is the query key
-    queryFn: async () => {
-      try {
-        if (!clientId) {
-          return [];
-        }
-        const response = await axios.get(`/api/clients/${clientId}`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        return response.data?.data; // Return the fetched data
-      } catch (error) {
-        throw new Error(error.message);
-      }
-    },
-    enabled: !!clientId, // Enable the query only if clientId is truthy
-  });
+  const selectedClient = watch("client_id") || null;
 
   const {
     data: editLIC,
@@ -237,93 +176,59 @@ const Update = () => {
         throw new Error(error.message);
       }
     },
+    keepPreviousData: true, // Keep previous data until the new data is available
   });
 
-  // useEffect(() => {
-  //   if (editMediclaim) {
-  //     setValue(
-  //       "client_id",
-  //       editMediclaim?.LIC[0].client_id || ""
-  //     );
-  //   }
+  const {
+    data: editClient,
+    isLoading: isEditClientDataLoading,
+    isError: isEditClientDataError,
+  } = useQuery({
+    queryKey: ["editClient", selectedClient], // This is the query key
+    queryFn: async () => {
+      try {
+        if (!selectedClient) {
+          return [];
+        }
+        const response = await axios.get(`/api/clients/${selectedClient}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data?.data; // Return the fetched data
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    },
+    enabled: !!selectedClient, // Enable the query only if selectedPoojaTypeId is truthy
+  });
 
-  //   if (editMediclaim?.MediclaimInsurance?.length) {
-
-  //     const familyMembers = editMediclaim.MediclaimInsurance?.map((member) => ({
-  //       client_id: member.client_id,
-  //       family_member_id: member.family_member_id,
-  //       company_name: member.company_name,
-  //       broker_name: member.broker_name,
-  //     }));
-  //     setValue("mediclaim_data", familyMembers);
-  //   }
-
-  // }, [editMediclaim, showClientData, setValue]);
   useEffect(() => {
     if (editLIC) {
-      setValue("client_id", editLIC?.LIC[0]?.client_id);
+      setValue("client_id", editLIC.LIC?.client_id || "");
+      setValue("company_name", editLIC.LIC?.company_name || "");
+      setValue("broker_name", editLIC.LIC?.broker_name || "");
+      setValue("proposal_date", editLIC.LIC?.proposal_date || "");
+      setValue("premium_payment_mode", editLIC.LIC?.premium_payment_mode || "");
+      setValue("sum_insured", editLIC.LIC?.sum_insured || "");
+      setValue("end_date", editLIC.LIC?.end_date || "");
+      setValue("policy_number", editLIC.LIC?.policy_number || "");
+      setValue("plan_name", editLIC.LIC?.plan_name || "");
+      setValue("premium_without_gst", editLIC.LIC?.premium_without_gst || "");
+      setValue("ppt", editLIC.LIC?.ppt || "");
+      setValue("term", editLIC.LIC?.term || "");
+      setValue("commencement_date", editLIC.LIC?.commencement_date || "");
+      setTimeout(() => {
+        setValue(
+          "family_member_id",
+          editLIC?.LIC?.family_member_id
+            ? String(editLIC?.LIC?.family_member_id)
+            : ""
+        );
+      }, 200); // 1000
     }
-    if (editLIC && editLIC.LIC.length > 0) {
-      remove();
-      // Append data from editLIC to the form dynamically
-      editLIC.LIC.forEach((lic, index) => {
-        // Append empty mediclaim data first
-        append({
-          lic_id: lic.id.toString(),
-          client_id: lic.client_id,
-          family_member_id: lic.family_member_id || "", // if you have a family_member_id, otherwise ""
-          company_name: lic.company_name,
-          broker_name: lic.broker_name || "",
-          policy_number: lic.policy_number,
-          plan_name: lic.plan_name,
-          premium_without_gst: lic.premium_without_gst,
-          commencement_date: lic.commencement_date,
-          term: lic.term,
-          ppt: lic.ppt,
-          proposal_date: lic.proposal_date,
-          premium_payment_mode: lic.premium_payment_mode || "",
-          sum_insured: lic.sum_insured,
-          end_date: lic.end_date || "",
-        });
-      });
-    }
-
-    if (showClientData) {
-      setFamilyMembers(showClientData?.Client?.Family_members);
-    }
-  }, [editLIC, append, showClientData]); // Make sure to include append in the dependency array
-
-  useEffect(() => {
-    // if (showClientData) {
-    //   remove();
-    //   setClientData(showClientData?.Client);
-    //   setFamilyMembers(showClientData?.Client?.Family_members);
-    //   // Add an initial form for the client
-    //   append({
-    //     client_id: showClientData?.Client?.id,
-    //     family_member_id: "", // client doesn't have a family_member_id
-    //     company_name: "",
-    //     broker_name: "",
-    //     proposal_date: "",
-    //     premium_payment_mode: "",
-    //     sum_insured: "",
-    //     end_date: "",
-    //   });
-    //   // Append forms for each family member
-    //   showClientData?.Client?.Family_members?.forEach((familyMember) => {
-    //     append({
-    //       client_id: showClientData?.Client?.id,
-    //       family_member_id: familyMember.id || "",
-    //       company_name: "",
-    //       broker_name: "",
-    //       proposal_date: "",
-    //       premium_payment_mode: "",
-    //       sum_insured: "",
-    //       end_date: "",
-    //     });
-    //   });
-    // }
-  }, [showClientData, append]);
+  }, [editLIC, setValue]);
 
   const updateMutation = useMutation({
     mutationFn: async (data) => {
@@ -338,7 +243,7 @@ const Update = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries("lics");
 
-      toast.success("LIC details Updated Successfully.");
+      toast.success("LIC details Updated Successfully");
       setIsLoading(false);
       navigate("/lics");
     },
@@ -365,7 +270,15 @@ const Update = () => {
   });
   const onSubmit = (data) => {
     setIsLoading(true);
-    updateMutation.mutate(data);
+
+    const isCancelled = editLIC?.LIC?.cancelled === 0;
+    if (isCancelled) {
+      updateMutation.mutate(data);
+    } else {
+      setIsLoading(false);
+      toast.error("Cannot Update Cancelled LIC.");
+      navigate("/lics");
+    }
   };
 
   return (
@@ -392,11 +305,11 @@ const Update = () => {
         {/* form style strat */}
         <div className="px-5 pb-7 dark:bg-background pt-1 w-full bg-white shadow-lg border  rounded-md">
           <div className="w-full py-3 flex justify-start items-center">
-            <h2 className="text-lg  font-normal">Edit LIC Details</h2>
+            <h2 className="text-lg  font-normal">Edit LIC</h2>
           </div>
           {/* row starts */}
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-2 gap-7 md:gap-4">
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
               {/* <div className="relative">
                 <Label className="font-normal" htmlFor="client_id">
                   Client: <span className="text-red-500">*</span>
@@ -441,10 +354,9 @@ const Update = () => {
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
-                          disabled
                           role="combobox"
                           aria-expanded={openClient ? "true" : "false"} // This should depend on the popover state
-                          className=" w-[325px]  md:w-[490px] justify-between mt-1"
+                          className=" w-[325px]  md:w-[320px] justify-between mt-1"
                           onClick={() => setOpenClient((prev) => !prev)} // Toggle popover on button click
                         >
                           {field.value
@@ -461,7 +373,6 @@ const Update = () => {
                           <CommandInput
                             placeholder="Search client..."
                             className="h-9"
-                            disabled
                           />
                           <CommandList>
                             <CommandEmpty>No client found.</CommandEmpty>
@@ -473,6 +384,7 @@ const Update = () => {
                                     value={client.id}
                                     onSelect={(currentValue) => {
                                       setValue("client_id", client.id);
+                                      setValue("family_member_id", "");
                                       // setSelectedReceiptTypeId(
                                       //   currentValue === selectedReceiptTypeId
                                       //     ? ""
@@ -507,419 +419,335 @@ const Update = () => {
                   </p>
                 )}
               </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="family_member_id">
+                  Family Member:
+                </Label>
+                <Controller
+                  name="family_member_id"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select Family member" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Select Family member</SelectLabel>
+                          {editClient?.Client?.Family_members &&
+                            editClient?.Client?.Family_members?.map(
+                              (familyMember) => (
+                                <SelectItem value={String(familyMember.id)}>
+                                  {familyMember?.family_member_name}
+                                </SelectItem>
+                              )
+                            )}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.family_member_id && (
+                  <p className=" text-red-500 text-sm mt-1 left-0">
+                    {errors.family_member_id.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="company_name">
+                  Company Name: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="company_name"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="company_name"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter company name"
+                    />
+                  )}
+                />
+                {errors.company_name && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.company_name.message}
+                  </p>
+                )}
+              </div>
             </div>
-            {fields.map((item, index) => {
-              // const isClient = index === 0;
-              // const familyMember = !isClient ? familyMembers[index - 1] : null;
-              const isClient = !item.family_member_id;
-              // For family members, find the matching member from the familyMembers state
-              const memberData = !isClient
-                ? familyMembers.find(
-                    (member) => member.id === item.family_member_id
-                  )
-                : null;
-              const heading = isClient
-                ? "Client"
-                : memberData?.family_member_name || "Family Member";
-
-              return (
-                <div key={item.id}>
-                  {/* <h3 className="font-bold tracking-wide">
-                    {isClient ? "Client" : familyMember?.family_member_name}
-                  </h3> */}
-                  <h3 className="font-bold tracking-wide">{heading}</h3>
-
-                  <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
-                    {/* Company Name */}
-                    <div className="relative">
-                      <Label
-                        className="font-normal"
-                        htmlFor={`lic_data[${index}].company_name`}
-                      >
-                        Company Name: <span className="text-red-500">*</span>
-                      </Label>
-                      <Controller
-                        name={`lic_data[${index}].company_name`}
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            {...field}
-                            id={`lic_data[${index}].company_name`}
-                            className="mt-1"
-                            type="text"
-                            placeholder="Enter company name"
-                            onChange={(e) => {
-                              const formatedValue = toTitleCase(e.target.value);
-                              field.onChange(formatedValue);
-                            }}
-                          />
-                        )}
-                      />
-                      {errors.lic_data?.[index]?.company_name && (
-                        <p className=" text-red-500 text-sm mt-1 left-0">
-                          {errors.lic_data[index].company_name?.message}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Broker Name */}
-                    <div className="relative">
-                      <Label
-                        className="font-normal"
-                        htmlFor={`lic_data[${index}].broker_name`}
-                      >
-                        Broker Name:
-                      </Label>
-                      <Controller
-                        name={`lic_data[${index}].broker_name`}
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            {...field}
-                            id={`lic_data[${index}].broker_name`}
-                            className="mt-1"
-                            type="text"
-                            placeholder="Enter broker name"
-                            onChange={(e) => {
-                              const formatedValue = toTitleCase(e.target.value);
-                              field.onChange(formatedValue);
-                            }}
-                          />
-                        )}
-                      />
-                      {errors.lic_data?.[index]?.broker_name && (
-                        <p className=" text-red-500 text-sm mt-1 left-0">
-                          {errors.lic_data[index].broker_name?.message}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Proposal Date */}
-                    <div className="relative">
-                      <Label
-                        className="font-normal"
-                        htmlFor={`lic_data[${index}].proposal_date`}
-                      >
-                        Proposal Date: <span className="text-red-500">*</span>
-                      </Label>
-                      <Controller
-                        name={`lic_data[${index}].proposal_date`}
-                        control={control}
-                        render={({ field }) => (
-                          <input
-                            {...field}
-                            id={`lic_data[${index}].proposal_date`}
-                            className="dark:bg-[var(--foreground)] mt-1 text-sm w-full p-2 pr-3 rounded-md border border-1"
-                            type="date"
-                            placeholder="Enter proposal date"
-                          />
-                        )}
-                      />
-                      {errors.lic_data?.[index]?.proposal_date && (
-                        <p className=" text-red-500 text-sm mt-1 left-0">
-                          {errors.lic_data[index].proposal_date?.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
-                    {/* Sum Insured */}
-                    <div className="relative">
-                      <Label
-                        className="font-normal"
-                        htmlFor={`lic_data[${index}].sum_insured`}
-                      >
-                        Sum Insured: <span className="text-red-500">*</span>
-                      </Label>
-                      <Controller
-                        name={`lic_data[${index}].sum_insured`}
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            {...field}
-                            id={`lic_data[${index}].sum_insured`}
-                            className="mt-1"
-                            type="number"
-                            placeholder="Enter sum insured"
-                          />
-                        )}
-                      />
-                      {errors.lic_data?.[index]?.sum_insured && (
-                        <p className=" text-red-500 text-sm mt-1 left-0">
-                          {errors.lic_data[index].sum_insured?.message}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Premium Payment Mode */}
-                    <div className="relative">
-                      <Label
-                        className="font-normal"
-                        htmlFor={`lic_data[${index}].premium_payment_mode`}
-                      >
-                        Premium Payment Mode:{" "}
-                        <span className="text-red-500">*</span>
-                      </Label>
-                      <Controller
-                        name={`lic_data[${index}].premium_payment_mode`}
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <SelectTrigger className="mt-1">
-                              <SelectValue className="" placeholder="Select" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectLabel>Select</SelectLabel>
-                                <SelectItem value="Monthly">Monthly</SelectItem>
-                                <SelectItem value="Quarterly">
-                                  Quarterly
-                                </SelectItem>
-                                <SelectItem value="Semi-Annual">
-                                  Semi-Annual
-                                </SelectItem>
-                                <SelectItem value="Annual">Annual</SelectItem>
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-                      {errors.lic_data?.[index]?.premium_payment_mode && (
-                        <p className=" text-red-500 text-sm mt-1 left-0">
-                          {errors.lic_data[index].premium_payment_mode?.message}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* End Date */}
-                    <div className="relative">
-                      <Label
-                        className="font-normal"
-                        htmlFor={`lic_data[${index}].end_date`}
-                      >
-                        End Date:
-                      </Label>
-                      <Controller
-                        name={`lic_data[${index}].end_date`}
-                        control={control}
-                        render={({ field }) => (
-                          <input
-                            {...field}
-                            id={`lic_data[${index}].end_date`}
-                            className="dark:bg-[var(--foreground)] mt-1 text-sm w-full p-2 pr-3 rounded-md border border-1"
-                            type="date"
-                            placeholder="Enter end date"
-                          />
-                        )}
-                      />
-                      {errors.lic_data?.[index]?.end_date && (
-                        <p className=" text-red-500 text-sm mt-1 left-0">
-                          {errors.lic_data[index].end_date?.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
-                    <div className="relative">
-                      <Label
-                        className="font-normal"
-                        htmlFor={`lic_data[${index}].policy_number`}
-                      >
-                        Policy Number: <span className="text-red-500">*</span>
-                      </Label>
-                      <Controller
-                        name={`lic_data[${index}].policy_number`}
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            {...field}
-                            id={`lic_data[${index}].policy_number`}
-                            className="mt-1"
-                            type="text"
-                            placeholder="Enter policy number"
-                          />
-                        )}
-                      />
-                      {errors.lic_data?.[index]?.policy_number && (
-                        <p className=" text-red-500 text-sm mt-1 left-0">
-                          {errors.lic_data[index].policy_number?.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <Label
-                        className="font-normal"
-                        htmlFor={`lic_data[${index}].plan_name`}
-                      >
-                        Plan Name: <span className="text-red-500">*</span>
-                      </Label>
-                      <Controller
-                        name={`lic_data[${index}].plan_name`}
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            {...field}
-                            id={`lic_data[${index}].plan_name`}
-                            className="mt-1"
-                            type="text"
-                            placeholder="Enter plan name"
-                            onChange={(e) => {
-                              const formatedValue = toTitleCase(e.target.value);
-                              field.onChange(formatedValue);
-                            }}
-                          />
-                        )}
-                      />
-                      {errors.lic_data?.[index]?.plan_name && (
-                        <p className=" text-red-500 text-sm mt-1 left-0">
-                          {errors.lic_data[index].plan_name?.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <Label
-                        className="font-normal"
-                        htmlFor={`lic_data[${index}].premium_without_gst`}
-                      >
-                        Premium (without gst):{" "}
-                        <span className="text-red-500">*</span>
-                      </Label>
-                      <Controller
-                        name={`lic_data[${index}].premium_without_gst`}
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            {...field}
-                            id={`lic_data[${index}].premium_without_gst`}
-                            className="mt-1"
-                            type="number"
-                            placeholder="Enter premium"
-                          />
-                        )}
-                      />
-                      {errors.lic_data?.[index]?.premium_without_gst && (
-                        <p className=" text-red-500 text-sm mt-1 left-0">
-                          {errors.lic_data[index].premium_without_gst?.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="w-full mb-2 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
-                    <div className="relative">
-                      <Label
-                        className="font-normal"
-                        htmlFor={`lic_data[${index}].commencement_date`}
-                      >
-                        Commencement Date:{" "}
-                        <span className="text-red-500">*</span>
-                      </Label>
-                      <Controller
-                        name={`lic_data[${index}].commencement_date`}
-                        control={control}
-                        render={({ field }) => (
-                          <input
-                            {...field}
-                            id={`lic_data[${index}].commencement_date`}
-                            className="dark:bg-[var(--foreground)] mt-1 text-sm w-full p-2 pr-3 rounded-md border border-1"
-                            type="date"
-                            placeholder="Enter Commencement date"
-                          />
-                        )}
-                      />
-                      {errors.lic_data?.[index]?.commencement_date && (
-                        <p className=" text-red-500 text-sm mt-1 left-0">
-                          {errors.lic_data[index].commencement_date?.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <Label
-                        className="font-normal"
-                        htmlFor={`lic_data[${index}].term`}
-                      >
-                        Term: <span className="text-red-500">*</span>
-                      </Label>
-                      <Controller
-                        name={`lic_data[${index}].term`}
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            {...field}
-                            id={`lic_data[${index}].term`}
-                            className="mt-1"
-                            type="number"
-                            placeholder="Enter term"
-                          />
-                        )}
-                      />
-                      {errors.lic_data?.[index]?.term && (
-                        <p className=" text-red-500 text-sm mt-1 left-0">
-                          {errors.lic_data[index].term?.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <Label
-                        className="font-normal"
-                        htmlFor={`lic_data[${index}].ppt`}
-                      >
-                        PPT (Policy Payment Term):{" "}
-                        <span className="text-red-500">*</span>
-                      </Label>
-                      <Controller
-                        name={`lic_data[${index}].ppt`}
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            {...field}
-                            id={`lic_data[${index}].ppt`}
-                            className="mt-1"
-                            type="number"
-                            placeholder="Enter ppt"
-                          />
-                        )}
-                      />
-                      {errors.lic_data?.[index]?.ppt && (
-                        <p className=" text-red-500 text-sm mt-1 left-0">
-                          {errors.lic_data[index].ppt?.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <Controller
-                        name="lic_id"
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            {...field}
-                            id="lic_id"
-                            className="mt-1"
-                            type="hidden"
-                            placeholder="Enter pincode"
-                          />
-                        )}
-                      />
-                      {errors.lic_id && (
-                        <p className=" text-red-500 text-sm mt-1 left-0">
-                          {errors.lic_id.message}
-                        </p>
-                      )}
-                    </div>
-                    {/* <Button
-                      type="button"
-                      onClick={() => remove(index)} // Remove family member
-                      className="mt-  bg-red-600 hover:bg-red-700 text-white"
-                    >
-                      Remove
-                    </Button> */}
-                  </div>
-                </div>
-              );
-            })}
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="broker_name">
+                  Broker Name:
+                </Label>
+                <Controller
+                  name="broker_name"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="broker_name"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter broker name"
+                    />
+                  )}
+                />
+                {errors.broker_name && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.broker_name.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="proposal_date">
+                  Proposal Date: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="proposal_date"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      id="proposal_date"
+                      className="dark:bg-[var(--foreground)] mt-1 text-sm w-full p-2 pr-3 rounded-md border border-1"
+                      type="date"
+                      placeholder="Enter to date"
+                    />
+                  )}
+                />
+                {errors.proposal_date && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.proposal_date.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="premium_payment_mode">
+                  Premium Payment Mode:
+                </Label>
+                <Controller
+                  name="premium_payment_mode"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue className="" placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel className="">Select</SelectLabel>
+                          <SelectItem value="Monthly">Monthly</SelectItem>
+                          <SelectItem value="Quarterly">Quarterly</SelectItem>
+                          <SelectItem value="Semi-Annual">
+                            Semi-Annual
+                          </SelectItem>
+                          <SelectItem value="Annual">Annual</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.premium_payment_mode && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.premium_payment_mode.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="sum_insured">
+                  Sum Insured: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="sum_insured"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="sum_insured"
+                      className="mt-1"
+                      type="number"
+                      placeholder="Enter amount"
+                    />
+                  )}
+                />
+                {errors.sum_insured && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.sum_insured.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="end_date">
+                  End Date:
+                </Label>
+                <Controller
+                  name="end_date"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      id="end_date"
+                      className="dark:bg-[var(--foreground)] mt-1 text-sm w-full p-2 pr-3 rounded-md border border-1"
+                      type="date"
+                      placeholder="Enter to date"
+                    />
+                  )}
+                />
+                {errors.end_date && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.end_date.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="policy_number">
+                  Policy Number: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="policy_number"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="policy_number"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter policy number"
+                    />
+                  )}
+                />
+                {errors.policy_number && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.policy_number.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="plan_name">
+                  Plan Name: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="plan_name"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="plan_name"
+                      className="mt-1"
+                      type="text"
+                      placeholder="Enter plan name"
+                    />
+                  )}
+                />
+                {errors.plan_name && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.plan_name.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="premium_without_gst">
+                  Premium (without gst): <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="premium_without_gst"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="premium_without_gst"
+                      className="mt-1"
+                      type="number"
+                      placeholder="Enter premium"
+                    />
+                  )}
+                />
+                {errors.premium_without_gst && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.premium_without_gst.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="commencement_date">
+                  Commencement Date: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="commencement_date"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      id="commencement_date"
+                      className="dark:bg-[var(--foreground)] mt-1 text-sm w-full p-2 pr-3 rounded-md border border-1"
+                      type="date"
+                      placeholder="Enter to date"
+                    />
+                  )}
+                />
+                {errors.commencement_date && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.commencement_date.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-3 gap-7 md:gap-4">
+              <div className="relative">
+                <Label className="font-normal" htmlFor="term">
+                  Term: <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="term"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="term"
+                      className="mt-1"
+                      type="number"
+                      placeholder="Enter term"
+                    />
+                  )}
+                />
+                {errors.term && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.term.message}
+                  </p>
+                )}
+              </div>
+              <div className="relative">
+                <Label className="font-normal" htmlFor="ppt">
+                  PPT (Policy Payment Term):{" "}
+                  <span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="ppt"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="ppt"
+                      className="mt-1"
+                      type="number"
+                      placeholder="Enter company name"
+                    />
+                  )}
+                />
+                {errors.ppt && (
+                  <p className="absolute text-red-500 text-sm mt-1 left-0">
+                    {errors.ppt.message}
+                  </p>
+                )}
+              </div>
+            </div>
 
             {/* row ends */}
             <div className="w-full gap-4 mt-4 flex justify-end items-center">
@@ -931,20 +759,24 @@ const Update = () => {
                 Cancel
               </Button>
 
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className=" dark:text-white  shadow-xl bg-green-600 hover:bg-green-700"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="animate-spin mr-2" /> {/* Spinner */}
-                    Submitting...
-                  </>
-                ) : (
-                  "Submit"
-                )}
-              </Button>
+              {editLIC?.LIC?.cancelled === 1 ? (
+                ""
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className=" dark:text-white  shadow-xl bg-green-600 hover:bg-green-700"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin mr-2" /> {/* Spinner */}
+                      Updating...
+                    </>
+                  ) : (
+                    "Update"
+                  )}
+                </Button>
+              )}
             </div>
           </form>
         </div>
