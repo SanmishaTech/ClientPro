@@ -36,6 +36,7 @@ import {
 
 import Pagination from "@/customComponents/Pagination/Pagination";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import Cancel from "./Cancel";
 
 import {
   DropdownMenu,
@@ -249,7 +250,12 @@ const Index = () => {
                   GeneralInsurances.map((GeneralInsurance) => (
                     <TableRow
                       key={GeneralInsurance.id}
-                      className=" dark:border-b dark:border-gray-600"
+                      className={`${
+                        GeneralInsurance.cancelled
+                          ? "relative" // Add a bottom border for strike-through effect
+                          : ""
+                      } dark:border-b dark:border-gray-600`}
+                      // className=" dark:border-b dark:border-gray-600"
                     >
                       <TableCell className="font-medium p-2">
                         {GeneralInsurance.client_name}
@@ -292,14 +298,30 @@ const Index = () => {
                                 )
                               }
                             >
-                              <Pencil /> Edit
+                              <Pencil />{" "}
+                              {GeneralInsurance.cancelled ? "View" : "Edit"}
                             </Button>
-                            <div className="w-full">
+                            {/* <div className="w-full">
                               <Delete id={GeneralInsurance.id} />
-                            </div>
+                            </div> */}
+                            {!GeneralInsurance.cancelled && (
+                              <div className="w-full">
+                                <Cancel id={GeneralInsurance.id} />
+                              </div>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
+                      {GeneralInsurance.cancelled ? (
+                        <div
+                          className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-500"
+                          style={{
+                            transform: "translateY(-50%)", // Vertically center the line in the row
+                          }}
+                        ></div>
+                      ) : (
+                        ""
+                      )}
                     </TableRow>
                   ))}
               </TableBody>
