@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
-import Cancel from "./Cancel";
 import {
   File,
   PlusCircle,
@@ -223,12 +222,7 @@ const Index = () => {
                   MutualFunds.map((mutualFund) => (
                     <TableRow
                       key={mutualFund.id}
-                      className={`${
-                        mutualFund.cancelled
-                          ? "relative" // Add a bottom border for strike-through effect
-                          : ""
-                      } dark:border-b dark:border-gray-600`}
-                      // className=" dark:border-b dark:border-gray-600"
+                      className=" dark:border-b dark:border-gray-600"
                     >
                       <TableCell className="font-medium p-2">
                         {mutualFund.client_name}
@@ -264,30 +258,14 @@ const Index = () => {
                                 navigate(`/mutual_funds/${mutualFund.id}/edit`)
                               }
                             >
-                              <Pencil />{" "}
-                              {mutualFund.cancelled ? "View" : "Edit"}
+                              <Pencil /> Edit
                             </Button>
-                            {/* <div className="w-full">
+                            <div className="w-full">
                               <Delete id={mutualFund.id} />
-                            </div> */}
-                            {!mutualFund.cancelled && (
-                              <div className="w-full">
-                                <Cancel id={mutualFund.id} />
-                              </div>
-                            )}
+                            </div>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
-                      {mutualFund.cancelled ? (
-                        <div
-                          className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-500"
-                          style={{
-                            transform: "translateY(-50%)", // Vertically center the line in the row
-                          }}
-                        ></div>
-                      ) : (
-                        ""
-                      )}
                     </TableRow>
                   ))}
               </TableBody>
