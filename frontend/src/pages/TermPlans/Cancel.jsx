@@ -35,21 +35,18 @@ const Delete = ({ id }) => {
   const queryClient = useQueryClient();
   const cancelMutation = useMutation({
     mutationFn: async () => {
-      const response = await axios.get(
-        `/api/cancel_mediclaim_insurance/${id}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Include the Bearer token
-          },
-        }
-      );
+      const response = await axios.get(`/api/cancel_term_plan/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Include the Bearer token
+        },
+      });
       return response.data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries("mediclaim_insurances");
+      queryClient.invalidateQueries("term_plans");
       queryClient.invalidateQueries("dashboards");
-      toast.success("Mediclaim Insurance Cancelled Successfully");
+      toast.success("Term Plan Cancelled Successfully");
       setIsLoading(false);
     },
     onError: (error) => {
@@ -77,7 +74,7 @@ const Delete = ({ id }) => {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              By proceeding, you will Cancel "Mediclaim Insurance Details".
+              By proceeding, you will Cancel "Term Plan Details".
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

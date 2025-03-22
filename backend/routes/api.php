@@ -57,5 +57,11 @@ Route::group(['middleware'=>['auth:sanctum', 'permission','request.null']], func
    Route::post('/get_client', [ClientsController::class, 'getClientImages'])->name("client.getpost");
    Route::put('/get_client/{id}', [ClientsController::class, 'getClientImages'])->name("client.getput");
    Route::get('/cancel_mediclaim_insurance/{id}', [MediclaimInsurancesController::class, 'cancelMediclaimInsurance'])->name("mediclaim.cancel_mediclaim");
+   Route::get('/cancel_term_plan/{id}', [TermPlansController::class, 'cancelTermPlan'])->name("term.cancel");
+   Route::get('/cancel_lic/{id}', [LICsController::class, 'cancelLIC'])->name("lic.cancel");
+   Route::get('/cancel_loan/{id}', [LoansController::class, 'cancelLoan'])->name("loan.cancel");
+   Route::get('/cancel_general_insurance/{id}', [GeneralInsurancesController::class, 'cancelGeneralInsurance'])->name("general_insurance.cancel");
+   Route::get('/cancel_demat_account/{id}', [DematAccountController::class, 'cancelDematAccount'])->name("demat_account.cancel");
+   Route::get('/cancel_mutual_fund/{id}', [MutualFundController::class, 'cancelMutualFund'])->name("mutual_fund.cancel");
 
 });

@@ -41,6 +41,8 @@ import Delete from "./Delete";
 import { Input } from "@/components/ui/input";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import Cancel from "./Cancel";
+
 const Index = () => {
   const [search, setSearch] = useState("");
   const user = JSON.parse(localStorage.getItem("user"));
@@ -224,7 +226,12 @@ const Index = () => {
                   TermPlans.map((TermPlan) => (
                     <TableRow
                       key={TermPlan.id}
-                      className=" dark:border-b dark:border-gray-600"
+                      className={`${
+                        TermPlan.cancelled
+                          ? "relative" // Add a bottom border for strike-through effect
+                          : ""
+                      } dark:border-b dark:border-gray-600`}
+                      // className=" dark:border-b dark:border-gray-600"
                     >
                       <TableCell className="font-medium p-2">
                         {TermPlan.client_name}
@@ -264,14 +271,29 @@ const Index = () => {
                                 navigate(`/term_plans/${TermPlan.id}/edit`)
                               }
                             >
-                              <Pencil /> Edit
+                              <Pencil /> {TermPlan.cancelled ? "View" : "Edit"}
                             </Button>
-                            <div className="w-full">
+                            {/* <div className="w-full">
                               <Delete id={TermPlan.id} />
-                            </div>
+                            </div> */}
+                            {!TermPlan.cancelled && (
+                              <div className="w-full">
+                                <Cancel id={TermPlan.id} />
+                              </div>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
+                      {TermPlan.cancelled ? (
+                        <div
+                          className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-500"
+                          style={{
+                            transform: "translateY(-50%)", // Vertically center the line in the row
+                          }}
+                        ></div>
+                      ) : (
+                        ""
+                      )}
                     </TableRow>
                   ))}
               </TableBody>
