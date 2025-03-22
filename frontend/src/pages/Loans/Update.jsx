@@ -36,7 +36,6 @@ import {
 } from "@/components/ui/command";
 import { toTitleCase } from "../../lib/titleCase.js";
 
-
 const formSchema = z.object({
   // devta_name: z.string().min(2, "Name must be at least 2 characters"),
   client_id: z.coerce.number().min(1, "client field is required."),
@@ -636,21 +635,24 @@ const Update = () => {
               >
                 Cancel
               </Button>
-
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className=" dark:text-white  shadow-xl bg-green-600 hover:bg-green-700"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="animate-spin mr-2" /> {/* Spinner */}
-                    Submitting...
-                  </>
-                ) : (
-                  "Submit"
-                )}
-              </Button>
+              {editLoan?.Loan?.cancelled === 1 ? (
+                ""
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className=" dark:text-white  shadow-xl bg-green-600 hover:bg-green-700"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin mr-2" /> {/* Spinner */}
+                      Submitting...
+                    </>
+                  ) : (
+                    "Submit"
+                  )}
+                </Button>
+              )}
             </div>
           </form>
         </div>

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import Cancel from "./Cancel";
 
 import {
   File,
@@ -225,7 +226,12 @@ const Index = () => {
                   Loans.map((Loan) => (
                     <TableRow
                       key={Loan.id}
-                      className=" dark:border-b dark:border-gray-600"
+                      className={`${
+                        Loan.cancelled
+                          ? "relative" // Add a bottom border for strike-through effect
+                          : ""
+                      } dark:border-b dark:border-gray-600`}
+                      // className=" dark:border-b dark:border-gray-600"
                     >
                       <TableCell className="font-medium p-2">
                         {Loan.client_name}
@@ -266,14 +272,30 @@ const Index = () => {
                               className="w-full text-sm justify-start"
                               onClick={() => navigate(`/loans/${Loan.id}/edit`)}
                             >
-                              <Pencil /> Edit
+                              <Pencil />
+                              {Loan.cancelled ? "View" : "Edit"}
                             </Button>
-                            <div className="w-full">
+                            {/* <div className="w-full">
                               <Delete id={Loan.id} />
-                            </div>
+                            </div> */}
+                            {!Loan.cancelled && (
+                              <div className="w-full">
+                                <Cancel id={Loan.id} />
+                              </div>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
+                      {Loan.cancelled ? (
+                        <div
+                          className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-500"
+                          style={{
+                            transform: "translateY(-50%)", // Vertically center the line in the row
+                          }}
+                        ></div>
+                      ) : (
+                        ""
+                      )}
                     </TableRow>
                   ))}
               </TableBody>
