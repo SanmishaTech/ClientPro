@@ -37,6 +37,8 @@
   
     {{-- <h4 style="margin:0px; padding:0px;">श्री गणेश मंदिर संस्थान - सर्व पावत्या {{ \Carbon\Carbon::parse($from_date)->format('d/m/Y') }} ते {{ \Carbon\Carbon::parse($to_date)->format('d/m/Y') }}</h4>
     <p style="border: 1px solid black; width:100%; margin:0px; padding:0px; margin-bottom:5px;"></p> --}}
+    <h2>Clients</h2>
+
     <table style="width: 100%">
         <thead>
         <tr>
@@ -47,69 +49,82 @@
             <th>Categories</th>
         </tr>
     </thead>
-        {{-- <tbody>
-            @foreach($clients as $client)
-            <!-- Display client details (if their birthday is within the range) -->
-            @if (\Carbon\Carbon::parse($client->date_of_birth)->between($fromMonthDay, $toMonthDay))
-                <tr>
-                    <td>{{ \Carbon\Carbon::parse($client->date_of_birth)->format('d/m/Y') }}</td>
-                    <td>{{ $client->client_name }}</td>
-                    <td>{{ $client->email }}</td>
-                    <td>{{ $client->mobile }}</td>
-                </tr>
-            @endif
-
-            <!-- Display family members details -->
-            @foreach($client->familyMembers as $familyMember)
-                @if (\Carbon\Carbon::parse($familyMember->family_member_dob)->between($fromMonthDay, $toMonthDay))
-                    <tr>
-                        <td>{{ \Carbon\Carbon::parse($familyMember->family_member_dob)->format('d/m/Y') }}</td>
-                        <td>{{ $familyMember->family_member_name }}</td> <!-- Assuming 'name' is a field in familyMembers -->
-                        <td>{{ $familyMember->member_email }}</td>
-                        <td>{{ $familyMember->member_mobile }}</td>
-                    </tr>
-                @endif
-            @endforeach
-        @endforeach
-        </tbody> --}}
+       
         <tbody>
             @foreach($clients as $client)
-                @if (\Carbon\Carbon::parse($client['date_of_birth'])->format('m-d') >= $fromMonthDay && \Carbon\Carbon::parse($client['date_of_birth'])->format('m-d') <= $toMonthDay)
+                @if (\Carbon\Carbon::parse($client->date_of_birth)->format('m-d') >= $fromMonthDay && \Carbon\Carbon::parse($client->date_of_birth)->format('m-d') <= $toMonthDay)
                     <tr>
-                        <td>{{ \Carbon\Carbon::parse($client['date_of_birth'])->format('d/m/Y') }}</td>
-                        <td>{{ $client['name'] }}</td>
-                        <td>{{ $client['email'] }}</td>
-                        <td>{{ $client['mobile'] }}</td>
+                        <td>{{ \Carbon\Carbon::parse($client->date_of_birth)->format('d/m/Y') }}</td>
+                        <td>{{ $client->client_name }}</td>
+                        <td>{{ $client->email }}</td>
+                        <td>{{ $client->mobile }}</td>
                         <td>
-                            @if($client['mediclaimInsurances']->isNotEmpty())
-                                Mediclaim Insurance <br>
-                            @endif
-                            @if($client['termPlans']->isNotEmpty())
-                             Term Plan <br>
-                            @endif
-                            @if($client['lics']->isNotEmpty())
-                            LIC <br>
-                            @endif
-                            @if($client['loans']->isNotEmpty())
-                            Loan <br>
-                            @endif
-                            @if($client['generalInsurances']->isNotEmpty())
-                            General Insurance <br>
-                            @endif
-                            @if($client['mutualFunds']->isNotEmpty())
-                            Mutual Fund <br>
-                            @endif
-                            @if($client['dematAccounts']->isNotEmpty())
-                            Demat Account <br>
-                            @endif
-                        </td>
+                            @php
+                            $MediclaimPrinted = false;
+                            @endphp
+                            @if($client->mediclaimInsurances->isNotEmpty())
+                              @foreach($client->mediclaimInsurances as $mediclaim)
+                               @if($mediclaim->family_member_id == null && $mediclaim->cancelled == 0
+                                && !$MediclaimPrinted)
+                                 Mediclaim Insurance
 
+                                 @php
+                                 $MediclaimPrinted = true;
+                             @endphp
+                               @endif
+                              @endforeach
+                            @endif
+
+                            
+                        </td>
                     </tr>
                 @endif
             @endforeach
         </tbody>
         
         
+    </table>
+
+   <h2>Family members</h2>
+
+    <table style="width: 100%">
+        <thead>
+        <tr>
+            <th>Date of Birth</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Mobile</th>
+            <th>Categories</th>
+        </tr>
+    </thead>
+       
+        <tbody>
+            @foreach($familyMembers as $member)
+                @if (\Carbon\Carbon::parse($member->family_member_dob)->format('m-d') >= $fromMonthDay && \Carbon\Carbon::parse($member->family_member_dob)->format('m-d') <= $toMonthDay)
+                    <tr>
+                        <td>{{ \Carbon\Carbon::parse($member->family_member_dob)->format('d/m/Y') }}</td>
+                        <td>{{ $member->family_member_name }}</td>
+                        <td>{{ $member->member_email }}</td>
+                        <td>{{ $member->member_mobile }}</td>
+                        <td>
+                            @php
+                            $familyMediclaimPrinted = false;
+                         @endphp
+                            @if($member->mediclaimInsurances->isNotEmpty())
+                              @foreach($member->mediclaimInsurances as $mediclaim)
+                               @if($mediclaim->cancelled == 0 && !$familyMediclaimPrinted)
+                                 Mediclaim Insurance
+                                 @php
+                                    $familyMediclaimPrinted = true;
+                                @endphp
+                               @endif
+                              @endforeach
+                            @endif
+                        </td>
+                    </tr>
+                @endif
+            @endforeach
+        </tbody>
     </table>
     </body>
 

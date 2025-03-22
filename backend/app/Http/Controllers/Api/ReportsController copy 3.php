@@ -31,61 +31,58 @@ class ReportsController extends BaseController
     $fromMonthDay = $from_date->format('m-d');
     $toMonthDay = $to_date->format('m-d');
 
-    $clients = Client::with([
-        "mediclaimInsurances" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "loans" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "termPlans" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "lics" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "generalInsurances" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "mutualFunds" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "dematAccounts" => function($query) {
-            $query->where("cancelled", false);
-        }
-    ])
-    ->whereRaw("DATE_FORMAT(date_of_birth, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay])
-    ->get();
+    // Get clients with birthdays in range
+    $clients = Client::with(["mediclaimInsurances",'loans','termPlans','lics', 'generalInsurances','mutualFunds','dematAccounts'])
+        ->whereRaw("DATE_FORMAT(date_of_birth, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay])->get();
+
+    // Get family members with birthdays in range
+    $familyMembers = FamilyMember::with(["mediclaimInsurances",'loans','termPlans','lics', 'generalInsurances','mutualFunds','dematAccounts'])
+     ->whereRaw("DATE_FORMAT(family_member_dob, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay])->get();
+
+    // // Merge and sort by date_of_birth (ignoring year)
+    // $mergedCollection = $formattedClients->merge($formattedFamilyMembers)
+    //     ->sortBy(fn($item) => \Carbon\Carbon::parse($item['date_of_birth'])->format('m-d'))
+    //     ->values(); // Reset indexes
+    $formattedClients = collect($clients)->map(function ($client) {
+        return [
+            'name'  => $client->client_name,
+            'email' => $client->email,
+            'mobile' => $client->mobile,
+            'date_of_birth' => $client->date_of_birth,
+            'mediclaimInsurances' =>$client->mediclaimInsurances->where("cancelled", false),
+            'loans' =>$client->loans->where("cancelled", false),
+            'termPlans' =>$client->termPlans->where("cancelled", false),
+            'lics' =>$client->lics->where("cancelled", false),
+            'generalInsurances' =>$client->generalInsurances->where("cancelled", false),
+            'mutualFunds' =>$client->mutualFunds->where("cancelled", false),
+            'dematAccounts' =>$client->dematAccounts->where("cancelled", false),
+        ];
+    });
     
-    $familyMembers = FamilyMember::with([
-        "mediclaimInsurances" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "loans" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "termPlans" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "lics" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "generalInsurances" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "mutualFunds" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "dematAccounts" => function($query) {
-            $query->where("cancelled", false);
-        }
-    ])
-    ->whereRaw("DATE_FORMAT(family_member_dob, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay])
-    ->get();
+    $formattedFamilyMembers = collect($familyMembers)->map(function ($familyMember) {
+        return [
+            'name'  => $familyMember->family_member_name,
+            'email' => $familyMember->member_email,
+            'mobile' => $familyMember->member_mobile,
+            'date_of_birth' => $familyMember->family_member_dob,
+            'mediclaimInsurances' =>$familyMember->mediclaimInsurances->where("cancelled", false),
+            'loans' =>$familyMember->loans->where("cancelled", false),
+            'termPlans' =>$familyMember->termPlans->where("cancelled", false),
+            'lics' =>$familyMember->lics->where("cancelled", false),
+            'generalInsurances' =>$familyMember->generalInsurances->where("cancelled", false),
+            'mutualFunds' =>$familyMember->mutualFunds->where("cancelled", false),
+            'dematAccounts' =>$familyMember->dematAccounts->where("cancelled", false),
+        ];
+    });
+    
+    // Merge and sort by date_of_birth
+    $mergedCollection = $formattedClients->merge($formattedFamilyMembers)
+        ->sortBy(fn($item) => \Carbon\Carbon::parse($item['date_of_birth'])->format('m-d'))
+        ->values(); // Reset indexes
+    
         
         $data = [
-            'clients' => $clients,
-            'familyMembers' => $familyMembers,
+            'clients' => $mergedCollection,
             'from_date' => $from_date,
             'to_date' => $to_date,
             'fromMonthDay' =>$fromMonthDay,
