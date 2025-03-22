@@ -178,4 +178,17 @@ class TermPlansController extends BaseController
         return $this->sendResponse(["TermPlans"=>TermPlanResource::collection($termPlan),
         ], "Term Plan retrieved successfully");
     }
+
+    public function cancelTermPlan(string $id): JsonResponse
+    {
+        $termPlan = TermPlan::find($id);
+        if(!$termPlan){
+            return $this->sendError("Term Plan not found", ['error'=>'Term PLan not found']);
+        }
+        $val = 1;
+        $termPlan->cancelled = $val;
+        $termPlan->cancelled_by = auth()->user()->profile->id;
+        $termPlan->save();
+        return $this->sendResponse([], "Term Plan Cancelled successfully");
+    }
 }

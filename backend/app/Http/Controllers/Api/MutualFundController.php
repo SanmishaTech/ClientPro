@@ -149,4 +149,17 @@ class MutualFundController extends BaseController
         $mutualFunds->delete();
         return $this->sendResponse([], "Mutual Funds details deleted successfully");
     }
+
+    public function cancelMutualFund(string $id): JsonResponse
+    {
+        $mutualFunds = MutualFund::find($id);
+        if(!$mutualFunds){
+            return $this->sendError("mutual Funds not found", ['error'=>'mutual Funds not found']);
+        }
+        $val = 1;
+        $mutualFunds->cancelled = $val;
+        $mutualFunds->cancelled_by = auth()->user()->profile->id;
+        $mutualFunds->save();
+        return $this->sendResponse([], "mutual Funds Cancelled successfully");
+    }
 }

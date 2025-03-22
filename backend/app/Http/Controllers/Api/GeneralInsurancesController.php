@@ -123,14 +123,27 @@ class GeneralInsurancesController extends BaseController
     /**
      * Remove General Insurance.
      */
-    public function destroy(string $id): JsonResponse
+    // public function destroy(string $id): JsonResponse
+    // {
+    //     $generalInsurance = GeneralInsurance::find($id);
+    //     if(!$generalInsurance){
+    //         return $this->sendError("General Insurance details not found", ['error'=>'General Insurance details not found']);
+    //     }
+        
+    //     $generalInsurance->delete();
+    //     return $this->sendResponse([], "General Insurance details deleted successfully");
+    // }
+
+    public function cancelGeneralInsurance(string $id): JsonResponse
     {
         $generalInsurance = GeneralInsurance::find($id);
         if(!$generalInsurance){
-            return $this->sendError("General Insurance details not found", ['error'=>'General Insurance details not found']);
+            return $this->sendError("general Insurance not found", ['error'=>'general Insurance not found']);
         }
-        
-        $generalInsurance->delete();
-        return $this->sendResponse([], "General Insurance details deleted successfully");
+        $val = 1;
+        $generalInsurance->cancelled = $val;
+        $generalInsurance->cancelled_by = auth()->user()->profile->id;
+        $generalInsurance->save();
+        return $this->sendResponse([], "general Insurance Cancelled successfully");
     }
 }

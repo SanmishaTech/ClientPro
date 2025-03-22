@@ -135,14 +135,27 @@ class DematAccountController extends BaseController
     /**
      * Remove Demat Account.
      */
-    public function destroy(string $id): JsonResponse
+    // public function destroy(string $id): JsonResponse
+    // {
+    //     $dematAccounts = DematAccount::find($id);
+    //     if(!$dematAccounts){
+    //         return $this->sendError("Demat Accounts details not found", ['error'=>'Demat Accounts details not found']);
+    //     }
+        
+    //     $dematAccounts->delete();
+    //     return $this->sendResponse([], "Demat Accounts details deleted successfully");
+    // }
+
+    public function cancelDematAccount(string $id): JsonResponse
     {
         $dematAccounts = DematAccount::find($id);
         if(!$dematAccounts){
-            return $this->sendError("Demat Accounts details not found", ['error'=>'Demat Accounts details not found']);
+            return $this->sendError("demat Account not found", ['error'=>'demat Account not found']);
         }
-        
-        $dematAccounts->delete();
-        return $this->sendResponse([], "Demat Accounts details deleted successfully");
+        $val = 1;
+        $dematAccounts->cancelled = $val;
+        $dematAccounts->cancelled_by = auth()->user()->profile->id;
+        $dematAccounts->save();
+        return $this->sendResponse([], "demat Account Cancelled successfully");
     }
 }

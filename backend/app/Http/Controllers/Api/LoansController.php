@@ -120,4 +120,17 @@ class LoansController extends BaseController
         $loan->delete();
         return $this->sendResponse([], "Loan details deleted successfully");
     }
+
+    public function cancelLoan(string $id): JsonResponse
+    {
+        $loan = Loan::find($id);
+        if(!$loan){
+            return $this->sendError("loan not found", ['error'=>'loan not found']);
+        }
+        $val = 1;
+        $loan->cancelled = $val;
+        $loan->cancelled_by = auth()->user()->profile->id;
+        $loan->save();
+        return $this->sendResponse([], "Loan Cancelled successfully");
+    }
 }

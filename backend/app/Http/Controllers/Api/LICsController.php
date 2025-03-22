@@ -152,4 +152,17 @@ class LICsController extends BaseController
         return $this->sendResponse([], "LIC details deleted successfully");
     }
 
+    public function cancelLic(string $id): JsonResponse
+    {
+        $lic = LIC::find($id);
+        if(!$lic){
+            return $this->sendError("LIC not found", ['error'=>'LIC not found']);
+        }
+        $val = 1;
+        $lic->cancelled = $val;
+        $lic->cancelled_by = auth()->user()->profile->id;
+        $lic->save();
+        return $this->sendResponse([], "LIC Cancelled successfully");
+    }
+
 }
