@@ -106,6 +106,34 @@ const formSchema = z.object({
         .optional()
     )
     .min(1, 'At least one document is required'),
+
+  member_documents: z
+    .array(
+      z
+        .object({
+          member_id: z.string().min(1, 'member id is required'),
+          member_document_name: z
+            .string()
+            .min(2, 'Name must be at least 2 characters')
+            .max(100, 'Name must be at max 100 characters')
+            .regex(
+              /^[A-Za-z\s\u0900-\u097F]+$/,
+              'Name can only contain letters.'
+            ), // Allow letters and spaces, including Marathi
+          member_file: z
+            .any() // Allow any type initially
+            .refine(
+              (val) => {
+                return val && val.size > 0 && val instanceof Blob;
+              },
+              {
+                message: 'A valid file is required', // Custom message
+              }
+            ),
+        })
+        .optional()
+    )
+    .min(1, 'At least one document is required'), // Ensure the array has at least one document
 });
 const UploadImage = ({ id }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -124,6 +152,7 @@ const UploadImage = ({ id }) => {
         client_file: '', // Initially empty, will be replaced when the file is selected
       },
     ],
+    member_documents: [],
   };
 
   const {
@@ -137,6 +166,15 @@ const UploadImage = ({ id }) => {
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'client_documents', // The name for the family members array
+  });
+
+  const {
+    fields: memberFields,
+    append: memberAppend,
+    remove: memberRemove,
+  } = useFieldArray({
+    control,
+    name: 'member_documents', // The name for the family members array
   });
 
   const {
@@ -160,6 +198,17 @@ const UploadImage = ({ id }) => {
     },
     keepPreviousData: true, // Keep previous data until the new data is available
   });
+
+  useEffect(() => {
+    if (editClient?.Client?.Family_members?.length > 0) {
+      editClient.Client.Family_members.forEach((familyMember) => {
+        memberAppend({
+          member_id: familyMember.id,
+          documents: [{ member_document_name: '', member_file: '' }],
+        });
+      });
+    }
+  }, [editClient, memberAppend]);
 
   const storeMutation = useMutation({
     mutationFn: async (formData) => {
@@ -251,6 +300,22 @@ const UploadImage = ({ id }) => {
     for (let [key, value] of formData.entries()) {
       console.log(key, value);
     }
+
+    // Append family member documents
+    data.member_documents.forEach((familyMember, familyIndex) => {
+      familyMember.documents.forEach((doc, docIndex) => {
+        formData.append(
+          `member_documents[${familyIndex}][documents][${docIndex}][member_document_name]`,
+          doc.member_document_name
+        );
+        if (doc.member_file) {
+          formData.append(
+            `member_documents[${familyIndex}][documents][${docIndex}][member_file]`,
+            doc.member_file
+          );
+        }
+      });
+    });
 
     // Send the FormData via your mutation or API call
     storeMutation.mutate(formData);
@@ -396,6 +461,77 @@ const UploadImage = ({ id }) => {
                   +
                 </Button>
               </div>
+
+              {/* member start */}
+              {/* Family Member Documents Fields */}
+              {memberFields.map((familyMember, familyIndex) => (
+                <div key={familyMember.family_member_id} className="mb-8">
+                  <div className="text-lg font-semibold">
+                    Family Member:{' '}
+                    {
+                      editClient.Client.Family_members.find(
+                        (fm) => fm.id === familyMember.family_member_id
+                      )?.family_member_name
+                    }
+                  </div>
+
+                  {/* Family Member's Document Fields */}
+                  {familyMember.documents.map((doc, docIndex) => (
+                    <div key={docIndex} className="mb-4">
+                      <Label
+                        htmlFor={`member_documents[${familyIndex}].documents[${docIndex}].member_document_name`}
+                      >
+                        Document Name:
+                      </Label>
+                      <Controller
+                        name={`member_documents[${familyIndex}].documents[${docIndex}].member_document_name`}
+                        control={control}
+                        render={({ field }) => <Input {...field} />}
+                      />
+                      <Label
+                        htmlFor={`member_documents[${familyIndex}].documents[${docIndex}].member_file`}
+                        className="mt-2"
+                      >
+                        File:
+                      </Label>
+                      <Controller
+                        name={`member_documents[${familyIndex}].documents[${docIndex}].member_file`}
+                        control={control}
+                        render={({ field }) => <Input type="file" {...field} />}
+                      />
+                      <Button
+                        type="button"
+                        onClick={() =>
+                          memberRemove(familyMember.documents, docIndex)
+                        }
+                        className="mt-2 bg-red-500"
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      memberAppend({
+                        family_member_id: familyMember.id,
+                        documents: [
+                          ...familyMember.documents,
+                          {
+                            member_document_name: '',
+                            member_file: '',
+                          },
+                        ],
+                      });
+                    }}
+                    className="mt-4 bg-blue-500"
+                  >
+                    + Add Document
+                  </Button>
+                </div>
+              ))}
+              {/* member end */}
 
               <DialogFooter>
                 <Button
