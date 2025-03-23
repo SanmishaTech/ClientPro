@@ -21,42 +21,100 @@ class ReportsController extends BaseController
     {
         $from_date = $request->input('from_date');
         $to_date = $request->input('to_date');
+        $mediclaim_insurance = $request->input('mediclaim_insurance');
+        $term_plan = $request->input('term_plan');
+        $lic = $request->input('lic');
+        $loan = $request->input('loan');
+        $general_insurance = $request->input('general_insurance');
+        $demat_account = $request->input('demat_account');
+        $mutual_fund = $request->input('mutual_fund');
 
-      
-          $from_date = \Carbon\Carbon::parse($from_date);
-          $to_date = \Carbon\Carbon::parse($to_date);
+        $from_date = \Carbon\Carbon::parse($from_date);
+        $to_date = \Carbon\Carbon::parse($to_date);
           
         
           // Extract month and day for filtering
-    $fromMonthDay = $from_date->format('m-d');
-    $toMonthDay = $to_date->format('m-d');
+         $fromMonthDay = $from_date->format('m-d');
+         $toMonthDay = $to_date->format('m-d');
+     
+                    $clients = Client::with([
+                "mediclaimInsurances" => function($query) {
+                    $query->where("cancelled", false);
+                },
+                "loans" => function($query) {
+                    $query->where("cancelled", false);
+                },
+                "termPlans" => function($query) {
+                    $query->where("cancelled", false);
+                },
+                "lics" => function($query) {
+                    $query->where("cancelled", false);
+                },
+                "generalInsurances" => function($query) {
+                    $query->where("cancelled", false);
+                },
+                "mutualFunds" => function($query) {
+                    $query->where("cancelled", false);
+                },
+                "dematAccounts" => function($query) {
+                    $query->where("cancelled", false);
+                }
+            ])
+            ->whereRaw("DATE_FORMAT(date_of_birth, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay])
+            ->orderByRaw("DATE_FORMAT(date_of_birth, '%m-%d') ASC");
 
-    $clients = Client::with([
-        "mediclaimInsurances" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "loans" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "termPlans" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "lics" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "generalInsurances" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "mutualFunds" => function($query) {
-            $query->where("cancelled", false);
-        },
-        "dematAccounts" => function($query) {
-            $query->where("cancelled", false);
-        }
-    ])
-    ->whereRaw("DATE_FORMAT(date_of_birth, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay])
-    ->get();
+            // Apply the conditional filtering based on mediclaim_insurance and term_plan
+            $clients = $clients->where(function ($query) use ($mediclaim_insurance, $term_plan ,$lic,$loan,$general_insurance,$demat_account,$mutual_fund) {
+                if ($mediclaim_insurance) {
+                    $query->whereHas("mediclaimInsurances", function($query) {
+                        $query->where("cancelled", false)
+                            ->whereNull("family_member_id");
+                    });
+                }
+                if ($term_plan) {
+                    $query->orWhereHas("termPlans", function($query) {
+                        $query->where("cancelled", false)
+                            ->whereNull("family_member_id");
+                    });
+                }
+                 if ($lic) {
+                    $query->orWhereHas("lics", function($query) {
+                        $query->where("cancelled", false)
+                            ->whereNull("family_member_id");
+                    });
+                }
+               if ($loan) {
+                    $query->orWhereHas("loans", function($query) {
+                        $query->where("cancelled", false)
+                            ->whereNull("family_member_id");
+                    });
+                }
+                if ($general_insurance) {
+                    $query->orWhereHas("generalInsurances", function($query) {
+                        $query->where("cancelled", false)
+                            ->whereNull("family_member_id");
+                    });
+                }
+                 if ($demat_account) {
+                    $query->orWhereHas("dematAccounts", function($query) {
+                        $query->where("cancelled", false)
+                            ->whereNull("family_member_id");
+                    });
+                }
+                 if ($mutual_fund) {
+                    $query->orWhereHas("mutualFunds", function($query) {
+                        $query->where("cancelled", false)
+                            ->whereNull("family_member_id");
+                    });
+                }
+            });
+
+            // Fetch the results
+            $clients = $clients->get();
+
+
     
+        // family members
     $familyMembers = FamilyMember::with([
         "mediclaimInsurances" => function($query) {
             $query->where("cancelled", false);
@@ -81,8 +139,52 @@ class ReportsController extends BaseController
         }
     ])
     ->whereRaw("DATE_FORMAT(family_member_dob, '%m-%d') BETWEEN ? AND ?", [$fromMonthDay, $toMonthDay])
-    ->get();
-        
+    ->orderByRaw("DATE_FORMAT(family_member_dob, '%m-%d') ASC");
+
+    
+     // Apply the conditional filtering based on mediclaim_insurance and term_plan
+            $familyMembers = $familyMembers->where(function ($query) use ($mediclaim_insurance, $term_plan ,$lic,$loan,$general_insurance,$demat_account,$mutual_fund) {
+                if ($mediclaim_insurance) {
+                    $query->whereHas("mediclaimInsurances", function($query) {
+                        $query->where("cancelled", false);
+                    });
+                }
+                if ($term_plan) {
+                    $query->orWhereHas("termPlans", function($query) {
+                        $query->where("cancelled", false);
+                    });
+                }
+                 if ($lic) {
+                    $query->orWhereHas("lics", function($query) {
+                        $query->where("cancelled", false);
+                    });
+                }
+               if ($loan) {
+                    $query->orWhereHas("loans", function($query) {
+                        $query->where("cancelled", false);
+                    });
+                }
+                if ($general_insurance) {
+                    $query->orWhereHas("generalInsurances", function($query) {
+                        $query->where("cancelled", false);
+                    });
+                }
+                 if ($demat_account) {
+                    $query->orWhereHas("dematAccounts", function($query) {
+                        $query->where("cancelled", false);
+                    });
+                }
+                 if ($mutual_fund) {
+                    $query->orWhereHas("mutualFunds", function($query) {
+                        $query->where("cancelled", false);
+                    });
+                }
+            });
+
+            // Fetch the results
+            $familyMembers = $familyMembers->get();
+
+
         $data = [
             'clients' => $clients,
             'familyMembers' => $familyMembers,
@@ -90,10 +192,27 @@ class ReportsController extends BaseController
             'to_date' => $to_date,
             'fromMonthDay' =>$fromMonthDay,
             'toMonthDay'=>$toMonthDay,
+            'is_mediclaim_insurance' => $mediclaim_insurance,
+            'is_term_plan' => $term_plan,
+            'is_lic' => $lic,
+            'is_loan' => $loan,
+            'is_general_insurance' => $general_insurance,
+            'is_demat_account' => $demat_account,
+            'is_mutual_fund' => $mutual_fund,
+
         ];
 
-        // Render the Blade view to HTML
+         if (!($mediclaim_insurance || $term_plan || $lic || $loan || $general_insurance || $demat_account || $mutual_fund)) {
+              //when no checkbox is checked
+            $html = view('Reports.BirthdayReport.index_all', $data)->render();
+
+        }else{
+            //when at least 1 checkbox is checked
+       // Render the Blade view to HTML
         $html = view('Reports.BirthdayReport.index', $data)->render();
+
+        }
+
 
         // Create a new mPDF instance
         // $mpdf = new Mpdf();
