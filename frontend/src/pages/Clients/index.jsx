@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -8,12 +8,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 
-import { Button } from "@/components/ui/button";
-import axios from "axios";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from '@/components/ui/button';
+import axios from 'axios';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import {
   File,
@@ -23,10 +23,10 @@ import {
   Trash,
   MoreHorizontal,
   ListFilter,
-} from "lucide-react";
+} from 'lucide-react';
 
-import Pagination from "@/customComponents/Pagination/Pagination";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import Pagination from '@/customComponents/Pagination/Pagination';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 import {
   DropdownMenu,
@@ -35,17 +35,19 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
-import Delete from "./Delete";
-import { Input } from "@/components/ui/input";
-import { AlertCircle } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import UploadImage from "./UploadImage";
+} from '@/components/ui/dropdown-menu';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import Delete from './Delete';
+import { Input } from '@/components/ui/input';
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import UploadImage from './UploadImage';
+import DisplayDocuments from './DisplayDocuments';
+
 const Index = () => {
-  const [search, setSearch] = useState("");
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [search, setSearch] = useState('');
+  const user = JSON.parse(localStorage.getItem('user'));
   const [currentPage, setCurrentPage] = useState(1);
 
   const token = user.token;
@@ -56,12 +58,12 @@ const Index = () => {
     isLoading: isClientsDataLoading,
     isError: isClientsDataError,
   } = useQuery({
-    queryKey: ["clients", currentPage, search], // This is the query key
+    queryKey: ['clients', currentPage, search], // This is the query key
     queryFn: async () => {
       try {
-        const response = await axios.get("/api/clients", {
+        const response = await axios.get('/api/clients', {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
           params: {
@@ -103,7 +105,7 @@ const Index = () => {
       <div className="w-full p-5">
         <div className="w-full mb-7 text-right md:pr-6">
           <Button
-            onClick={() => navigate("/clients/create")}
+            onClick={() => navigate('/clients/create')}
             variant=""
             className="text-sm dark:text-white shadow-xl bg-blue-600 hover:bg-blue-700"
           >
@@ -115,7 +117,7 @@ const Index = () => {
           <div className="w-full py-3 flex flex-col gap-2 md:flex-row justify-between items-center">
             <h2 className="text-2xl font-semibold leading-none tracking-tight">
               Clients
-            </h2>{" "}
+            </h2>{' '}
             {/* search field here */}
             <div className="relative p-0.5 ">
               <div className="absolute inset-y-0 left-0 rtl:inset-r-0 rtl:right-0 flex items-center ps-3 pointer-events-none">
@@ -215,10 +217,10 @@ const Index = () => {
               </TableCaption>
               <TableHeader className="dark:bg-background bg-gray-100  rounded-md">
                 <TableRow>
-                  <TableHead className="">Name</TableHead>{" "}
-                  <TableHead className="">Email</TableHead>{" "}
-                  <TableHead className="">Mobile</TableHead>{" "}
-                  <TableHead className="">Family Members</TableHead>{" "}
+                  <TableHead className="">Name</TableHead>{' '}
+                  <TableHead className="">Email</TableHead>{' '}
+                  <TableHead className="">Mobile</TableHead>{' '}
+                  <TableHead className="">Family Members</TableHead>{' '}
                   {/*removed w-[100px] from here */}
                   <TableHead className="text-right">Action</TableHead>
                 </TableRow>
@@ -235,9 +237,9 @@ const Index = () => {
                       </TableCell>
                       <TableCell className="font-medium p-2">
                         {client?.email}
-                      </TableCell>{" "}
+                      </TableCell>{' '}
                       <TableCell className="font-medium p-2">
-                        {client?.mobile || "N/A"}
+                        {client?.mobile || 'N/A'}
                       </TableCell>
                       <TableCell className="font-medium p-2">
                         {client?.Family_members?.length > 0 ? (
@@ -249,11 +251,11 @@ const Index = () => {
                                 +{client?.Family_members.length - 1} more
                               </Badge>
                             ) : (
-                              ""
+                              ''
                             )}
                           </>
                         ) : (
-                          "N/A"
+                          'N/A'
                         )}
                       </TableCell>
                       <TableCell className="text-right p-2 pr-5">
@@ -285,6 +287,9 @@ const Index = () => {
                             </div>
                             <div className="w-full">
                               <UploadImage id={client.id} />
+                            </div>
+                            <div className="w-full">
+                              <DisplayDocuments id={client.id} />
                             </div>
                           </DropdownMenuContent>
                         </DropdownMenu>

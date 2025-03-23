@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
 // new
@@ -105,33 +105,6 @@ const formSchema = z.object({
         })
         .optional()
     )
-    .min(1, 'At least one document is required'),
-
-  member_documents: z
-    .array(
-      z
-        .object({
-          member_document_name: z
-            .string()
-            .min(2, 'Name must be at least 2 characters')
-            .max(100, 'Name must be at max 100 characters')
-            .regex(
-              /^[A-Za-z\s\u0900-\u097F]+$/,
-              'Name can only contain letters.'
-            ), // Allow letters and spaces, including Marathi
-          member_file: z
-            .any() // Allow any type initially
-            .refine(
-              (val) => {
-                return val && val.size > 0 && val instanceof Blob;
-              },
-              {
-                message: 'A valid file is required', // Custom message
-              }
-            ),
-        })
-        .optional()
-    )
     .min(1, 'At least one document is required'), // Ensure the array has at least one document
 });
 const UploadImage = ({ id }) => {
@@ -142,7 +115,11 @@ const UploadImage = ({ id }) => {
   const user = JSON.parse(localStorage.getItem('user'));
   const token = user.token;
   const navigate = useNavigate();
+  //   const defaultValues = {
+  //     client_name: "",
+  //     client_file: "",
 
+  //   };
   const defaultValues = {
     // temp: "",
     client_documents: [
@@ -151,7 +128,6 @@ const UploadImage = ({ id }) => {
         client_file: '', // Initially empty, will be replaced when the file is selected
       },
     ],
-    member_documents: [],
   };
 
   const {
@@ -167,39 +143,20 @@ const UploadImage = ({ id }) => {
     name: 'client_documents', // The name for the family members array
   });
 
-  const {
-    fields: memberFields,
-    append: memberAppend,
-    remove: memberRemove,
-  } = useFieldArray({
-    control,
-    name: 'member_documents', // The name for the family members array
-  });
-
-  const {
-    data: editClient,
-    isLoading: isEditClientDataLoading,
-    isError: isEditClientDataError,
-  } = useQuery({
-    queryKey: ['editClient', id], // This is the query key
-    queryFn: async () => {
-      try {
-        const response = await axios.get(`/api/clients/${id}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        return response.data?.data; // Return the fetched data
-      } catch (error) {
-        throw new Error(error.message);
-      }
-    },
-    keepPreviousData: true, // Keep previous data until the new data is available
-  });
-
   const storeMutation = useMutation({
     mutationFn: async (formData) => {
+      //   const formData = new FormData();
+      //   formData.append("_method", "put");
+      //   data.client_documents.forEach((doc, index) => {
+      //     formData.append(
+      //       `client_documents[${index}].client_name`,
+      //       doc.client_name
+      //     );
+      //     formData.append(
+      //       `client_documents[${index}].client_file`,
+      //       doc.client_file
+      //     ); // Assuming it's an array of files
+      //   });
       const response = await axios.post(`/api/get_client/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -258,6 +215,65 @@ const UploadImage = ({ id }) => {
     },
   });
 
+  // const onSubmit = (data) => {
+  //   setIsLoading(true);
+
+  //   // Create a new FormData object
+  //   const formData = new FormData();
+  //   formData.append("_method", "put");
+  //   formData.append("temp", data.temp);
+
+  //   // Loop through the client_documents array
+  //   data.client_documents.forEach((doc, index) => {
+  //     // Append the client_name as usual
+  //     formData.append(
+  //       `client_documents[${index}].client_name`,
+  //       doc.client_name
+  //     );
+
+  //     // Append the file directly (it will be sent in binary)
+  //     if (doc.client_file) {
+  //       formData.append(
+  //         `client_documents[${index}].client_file`,
+  //         doc.client_file // The browser will send this in binary format automatically
+  //       );
+  //     }
+  //   });
+
+  //   // Send the FormData via mutation
+  //   storeMutation.mutate(formData);
+  // };
+
+  // const onSubmit = (data) => {
+  //   setIsLoading(true);
+  //   console.log(data.client_documents);
+
+  //   // Create a new FormData object
+  //   const formData = new FormData();
+
+  //   // Append the method and other necessary data
+  //   formData.append("_method", "put");
+
+  //   // Loop through the client_documents array and append both client_name and client_file together
+  //   data.client_documents.forEach((doc, index) => {
+  //     // Ensure both client_name and client_file are added together under the same index
+  //     formData.append(
+  //       `client_documents[${index}].client_name`,
+  //       doc.client_name
+  //     );
+
+  //     // Append the file for the current document if it exists
+  //     if (doc.client_file) {
+  //       formData.append(
+  //         `client_documents[${index}].client_file`,
+  //         doc.client_file // File will be sent in binary automatically
+  //       );
+  //     }
+  //   });
+
+  //   // Send the FormData via your mutation or API call
+  //   storeMutation.mutate(formData);
+  // };
   const onSubmit = (data) => {
     setIsLoading(true);
 
@@ -414,6 +430,35 @@ const UploadImage = ({ id }) => {
                         </div>
                       </div>
                     </div>
+                    {/* <div className="relative">
+                    <Label className="font-normal" htmlFor="temp">
+                      File:
+                      <span className="text-red-500">*</span>
+                    </Label>
+                    <Controller
+                      name="temp"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          id="temp"
+                          type="file"
+                          onChange={(e) => {
+                            // Access the selected file directly from event and update form
+                            if (e.target.files && e.target.files[0]) {
+                              field.onChange(e.target.files[0]); // Pass the file as a File object
+                            }
+                          }}
+                          className="mt-1"
+                          placeholder="Enter client_file"
+                        />
+                      )}
+                    />
+                    {errors.client_documents?.[index]?.client_file && (
+                      <p className="text-red-500 text-sm mt-1 left-0">
+                        {errors.client_documents[index].client_file.message}
+                      </p>
+                    )}
+                  </div> */}
                   </div>
                 ))}
               {/* Add Family Member Button */}

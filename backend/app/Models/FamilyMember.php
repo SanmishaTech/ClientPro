@@ -7,6 +7,7 @@ use App\Models\Loan;
 use App\Models\TermPlan;
 use App\Models\MutualFund;
 use App\Models\DematAccount;
+use App\Models\MemberDocument;
 use App\Models\GeneralInsurance;
 use App\Models\MediclaimInsurance;
 use Illuminate\Database\Eloquent\Model;
@@ -26,6 +27,10 @@ class FamilyMember extends Model
         'family_member_dob',
     ];
     
+
+     public function memberDocuments(){
+        return $this->hasMany(MemberDocument::class, 'family_member_id');
+    }
 
     public function mediclaimInsurances(){
         return $this->hasMany(MediclaimInsurance::class, 'family_member_id');

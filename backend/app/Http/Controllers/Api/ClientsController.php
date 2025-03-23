@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+
+use File;
+use Response;
+use Mpdf\Mpdf;
+use Carbon\Carbon;
+
 use App\Models\Devta;
 use App\Models\Client;
 use App\Models\FamilyMember;
@@ -498,53 +504,64 @@ class ClientsController extends BaseController
 
 public function getClientImages(String $id, Request $request)
 {
-    // Find the client by ID
     $client = Client::find($id);
-   dd($request->all());
     if (!$client) {
         return $this->sendError("Client not found", ['error' => 'Client not found']);
     }
    
-
-    // Get the client_documents from the request
     $clientDocuments = $request->input('client_documents');
 
-    // Log the received structure to inspect it
-    \Log::info('Client Documents Structure:', ['client_documents' => $clientDocuments]);
 
     // Process each document
     foreach ($clientDocuments as $index => $clientDocument) {
-        // Log each document name
-        \Log::debug("Processing document $index with client name: " . $clientDocument['client_name']);
-
-        // Access the client name
-        $clientName = $clientDocument['client_name'];
-
-        // Access the file for the current document
+        $clientDocumentName = $clientDocument['client_document_name'];
         $clientFile = $request->file("client_documents.$index.client_file");
 
         // Check if the file exists and is valid
         if ($clientFile && $clientFile->isValid()) {
-            // File is valid, handle it here (e.g., save the file)
             $documentNameWithExtension = $clientFile->getClientOriginalName();
             $documentName = pathinfo($documentNameWithExtension, PATHINFO_FILENAME);
             $documentExtension = $clientFile->getClientOriginalExtension();
             $documentNameToStore = $documentName . '_' . time() . '.' . $documentExtension;
-            $documentPath = $clientFile->storeAs('public/ClientDocuments', $documentNameToStore);
+            $documentPath = $clientFile->storeAs('public/Documents', $documentNameToStore);
 
             // Save document information to the database
             $clientDocumentModel = new ClientDocument();
             $clientDocumentModel->client_id = $client->id;
-            $clientDocumentModel->document_name = $clientName; // Client name
+            $clientDocumentModel->document_name = $clientDocumentName; // Client name
             $clientDocumentModel->document = $documentNameToStore; // Stored document name
             $clientDocumentModel->save();
         } else {
             // Handle invalid or missing file scenario
-            \Log::error("File is missing or invalid for document at index $index");
+            return $this->sendError("Cannot save this file", ['error' => 'Cannot save this file']);
         }
     }
 
-    return $this->sendResponse([], "Images sent successfully");
+    return $this->sendResponse([], "Images uploaded successfully");
+}
+
+public function displayDocuments(string $document){
+
+        // Generate the full path to the invoice in the public storage
+        $path = storage_path('app/public/Documents/'.$document);
+    
+        // Check if the file exists
+        if (!file_exists($path)) {
+            return $this->sendError("Document not found", ['error'=>['Document not found.']]);
+        }
+    
+        // Get the file content and MIME type
+        $fileContent = File::get($path);
+        $mimeType = \File::mimeType($path);
+    
+        // Create the response for the file download
+        $response = Response::make($fileContent, 200);
+        $response->header("Content-Type", $mimeType);
+        $response->header('Content-Disposition', 'inline; filename="' . $document . '"'); // Set attachment to force download
+     //to download the invoice change 'Content-Deposition to attachment from inline
+        return $response;
+    
+
 }
 
 
