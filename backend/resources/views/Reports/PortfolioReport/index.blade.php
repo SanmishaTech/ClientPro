@@ -97,7 +97,7 @@
         </table>
 
         <!-- Mediclaim Insurances -->
-        @if($client->mediclaimInsurances->where('family_member_id', null)->count() > 0)
+        @if($client->mediclaimInsurances->where('family_member_id', null)->where("cancelled",false)->count() > 0)
 
             {{-- <div class="section-title">Mediclaim Insurances</div> --}}
             <table class="details-table">
@@ -118,7 +118,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($client->mediclaimInsurances->where('family_member_id', null) as $insurance)
+                    @foreach($client->mediclaimInsurances->where('family_member_id', null)->where("cancelled",false) as $insurance)
                         <tr>
                             <td>{{ $insurance->company_name }}</td>
                             <td>{{ $insurance->broker_name }}</td>
@@ -136,7 +136,7 @@
         @endif
 
          <!-- term Plans -->
-         @if($client->termPlans->where('family_member_id', null)->count() > 0)
+         @if($client->termPlans->where('family_member_id', null)->where("cancelled",false)->count() > 0)
 
          {{-- <div class="section-title">Term Plan</div> --}}
          <table class="details-table">
@@ -157,7 +157,7 @@
                  </tr>
              </thead>
              <tbody>
-                 @foreach($client->termPlans->where('family_member_id', null) as $term)
+                 @foreach($client->termPlans->where('family_member_id', null)->where("cancelled",false) as $term)
                      <tr>
                          <td>{{ $term->term_company_name }}</td>
                          <td>{{ $term->broker_name }}</td>
@@ -175,7 +175,7 @@
      @endif
 
       <!-- LIC -->
-      @if($client->lics->where('family_member_id', null)->count() > 0)
+      @if($client->lics->where('family_member_id', null)->where("cancelled",false)->count() > 0)
 
       {{-- <div class="section-title">LIC</div> --}}
       <table class="details-table">
@@ -199,7 +199,7 @@
               </tr>
           </thead>
           <tbody>
-              @foreach($client->lics->where('family_member_id', null) as $lic)
+              @foreach($client->lics->where('family_member_id', null)->where("cancelled",false) as $lic)
                   <tr>
                       <td>{{ $lic->company_name }}</td>
                       <td>{{ $lic->broker_name }}</td>
@@ -220,7 +220,7 @@
   @endif
 
         <!-- Loans -->
-        @if($client->loans->count() > 0)
+        @if($client->loans->where("cancelled",false)->count() > 0)
             {{-- <div class="section-title">Loans</div> --}}
             <table class="details-table">
                 <thead>
@@ -240,7 +240,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($client->loans as $loan)
+                    @foreach($client->loans->where("cancelled",false) as $loan)
                         <tr>
                             <td>{{ $loan->bank_name }}</td>
                             <td>{{ @$loan->familyMember->family_member_name }}</td>
@@ -258,7 +258,7 @@
         @endif
 
         <!-- General Insurance -->
-      @if($client->generalInsurances->where('family_member_id', null)->count() > 0)
+      @if($client->generalInsurances->where('family_member_id', null)->where("cancelled",false)->count() > 0)
 
       {{-- <div class="section-title">General Insurance</div> --}}
       <table class="details-table">
@@ -275,7 +275,7 @@
               </tr>
           </thead>
           <tbody>
-              @foreach($client->generalInsurances->where('family_member_id', null) as $insurance)
+              @foreach($client->generalInsurances->where('family_member_id', null)->where("cancelled",false) as $insurance)
                   <tr>
                       <td>{{ $insurance->insurance_type }}</td>
                       <td>{{ $insurance->company_name }}</td>
@@ -290,7 +290,7 @@
 
 
    <!-- demat Account -->
-   @if($client->dematAccounts->where('family_member_id', null)->count() > 0)
+   @if($client->dematAccounts->where('family_member_id', null)->where("cancelled",false)->count() > 0)
 
    {{-- <div class="section-title">Demat Account</div> --}}
    <table class="details-table">
@@ -307,7 +307,7 @@
            </tr>
        </thead>
        <tbody>
-           @foreach($client->dematAccounts->where('family_member_id', null) as $demat)
+           @foreach($client->dematAccounts->where('family_member_id', null)->where("cancelled",false) as $demat)
                <tr>
                    <td>{{ $demat->company_name }}</td>
                    <td>{{ $demat->account_number }}</td>
@@ -322,7 +322,7 @@
 
 
         <!-- Mutual Fund -->
-        @if($client->mutualFunds->where('family_member_id', null)->count() > 0)
+        @if($client->mutualFunds->where('family_member_id', null)->where("cancelled",false)->count() > 0)
 
         {{-- <div class="section-title">Mutual Fund</div> --}}
         <table class="details-table">
@@ -339,7 +339,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($client->mutualFunds->where('family_member_id', null) as $mutual)
+                @foreach($client->mutualFunds->where('family_member_id', null)->where("cancelled",false) as $mutual)
                     <tr>
                         <td>{{ $mutual->mutual_fund_name }}</td>
                         <td>{{ $mutual->account_number }}</td>
@@ -395,7 +395,7 @@
                 </table>
 
                 <!-- Family Member's Mediclaim Insurances -->
-                @if($familyMember->mediclaimInsurances()->whereNotNull('family_member_id')->count() > 0)
+                @if($familyMember->mediclaimInsurances()->whereNotNull('family_member_id')->where("cancelled",false)->count() > 0)
                 {{-- <div class="section-title">Mediclaim Insurances</div> --}}
                     <table class="details-table">
                         <thead>
@@ -415,7 +415,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($familyMember->mediclaimInsurances()->whereNotNull('family_member_id')->get() as $insurance)
+                            @foreach($familyMember->mediclaimInsurances()->whereNotNull('family_member_id')->where("cancelled",false)->get() as $insurance)
                             <tr>
                                 <td>{{ $insurance->company_name }}</td>
                                 <td>{{ $insurance->broker_name }}</td>
@@ -433,7 +433,7 @@
                 @endif
 
                 <!-- Family Member's term Plan -->
-                @if($familyMember->termPlans()->whereNotNull('family_member_id')->count() > 0)
+                @if($familyMember->termPlans()->whereNotNull('family_member_id')->where("cancelled",false)->count() > 0)
                 {{-- <div class="section-title">Term Plan</div> --}}
                 <table class="details-table">
                     <thead>
@@ -453,7 +453,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($familyMember->termPlans()->whereNotNull('family_member_id')->get() as $term)
+                        @foreach($familyMember->termPlans()->whereNotNull('family_member_id')->where("cancelled",false)->get() as $term)
                         <tr>
                                 <td>{{ $term->term_company_name }}</td>
                                 <td>{{ $term->broker_name }}</td>
@@ -472,7 +472,7 @@
 
 
                             <!-- Family Member's LIC -->
-                @if($familyMember->lics()->whereNotNull('family_member_id')->count() > 0)
+                @if($familyMember->lics()->whereNotNull('family_member_id')->where("cancelled",false)->count() > 0)
 
                 {{-- <div class="section-title">LIC</div> --}}
                 <table class="details-table">
@@ -496,7 +496,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($familyMember->lics()->whereNotNull('family_member_id')->get() as $lic)
+                        @foreach($familyMember->lics()->whereNotNull('family_member_id')->where("cancelled",false)->get() as $lic)
                             <tr>
                                 <td>{{ $lic->company_name }}</td>
                                 <td>{{ $lic->broker_name }}</td>
@@ -517,7 +517,7 @@
             @endif
             
             <!-- Family Member's Loans -->
-            @if($familyMember->loans()->whereNotNull('family_member_id')->count() > 0)
+            @if($familyMember->loans()->whereNotNull('family_member_id')->where("cancelled",false)->count() > 0)
             <table class="details-table">
                 <thead>
                     <tr>
@@ -535,7 +535,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($familyMember->loans()->whereNotNull('family_member_id')->get() as $loan)
+                    @foreach($familyMember->loans()->whereNotNull('family_member_id')->where("cancelled",false)->get() as $loan)
                     <tr>
                             <td>{{ $loan->bank_name }}</td>
                             <td>{{ $loan->loan_type }}</td>
@@ -552,7 +552,7 @@
             @endif
 
             <!-- Family Member's General Insurance -->
-            @if($familyMember->generalInsurances()->whereNotNull('family_member_id')->count() > 0)
+            @if($familyMember->generalInsurances()->whereNotNull('family_member_id')->where("cancelled",false)->count() > 0)
             {{-- <div class="section-title">General Insurance</div> --}}
             <table class="details-table">
             <thead>
@@ -568,7 +568,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($familyMember->generalInsurances()->whereNotNull('family_member_id')->get() as $insurance)
+                @foreach($familyMember->generalInsurances()->whereNotNull('family_member_id')->where("cancelled",false)->get() as $insurance)
                 <tr>
                         <td>{{ $insurance->insurance_type }}</td>
                         <td>{{ $insurance->company_name }}</td>
@@ -583,7 +583,7 @@
 
 
             <!-- Family Member's demat Account -->
-            @if($familyMember->dematAccounts()->whereNotNull('family_member_id')->count() > 0)
+            @if($familyMember->dematAccounts()->whereNotNull('family_member_id')->where("cancelled",false)->count() > 0)
 
             {{-- <div class="section-title">Demat Account</div> --}}
             <table class="details-table">
@@ -600,7 +600,7 @@
             </tr>
             </thead>
             <tbody>
-                @foreach($familyMember->dematAccounts()->whereNotNull('family_member_id')->get() as $demat)
+                @foreach($familyMember->dematAccounts()->whereNotNull('family_member_id')->where("cancelled",false)->get() as $demat)
                 <tr>
                     <td>{{ $demat->company_name }}</td>
                     <td>{{ $demat->account_number }}</td>
@@ -615,7 +615,7 @@
 
 
             <!-- family Member's Mutual Fund -->
-            @if($familyMember->mutualFunds()->whereNotNull('family_member_id')->count() > 0)
+            @if($familyMember->mutualFunds()->whereNotNull('family_member_id')->where("cancelled",false)->count() > 0)
             <div class="section-title">Mutual Fund</div>
             <table class="details-table">
             <thead>
@@ -631,7 +631,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($familyMember->mutualFunds()->whereNotNull('family_member_id')->get() as $mutual)
+                @foreach($familyMember->mutualFunds()->whereNotNull('family_member_id')->where("cancelled",false)->get() as $mutual)
                     <tr>
                         <td>{{ $mutual->mutual_fund_name }}</td>
                         <td>{{ $mutual->account_number }}</td>
