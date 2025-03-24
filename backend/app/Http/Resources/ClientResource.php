@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use App\Http\Resources\FamilyMemberResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ClientResource extends JsonResource
@@ -30,7 +31,7 @@ class ClientResource extends JsonResource
             'office_address_pincode' => $this->office_address_pincode,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'Family_members' => $this->familyMembers,
+            'Family_members' => FamilyMemberResource::collection($this->familyMembers),
             'client_documents' => $this->clientDocuments ? $this->clientDocuments : null, // If there's a relationship with Devta model
 
            

@@ -13,6 +13,7 @@ use App\Models\Client;
 use App\Models\FamilyMember;
 use Illuminate\Http\Request;
 use App\Models\ClientDocument;
+use App\Models\MemberDocument;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -540,6 +541,46 @@ public function getClientImages(String $id, Request $request)
     return $this->sendResponse([], "Images uploaded successfully");
 }
 
+
+public function getMemberImages(String $id, Request $request)
+{
+    $familyMember = FamilyMember::find($id);
+    if (!$familyMember) {
+        return $this->sendError("Family Member not found", ['error' => 'Family Member not found']);
+    }
+   
+    $memberDocuments = $request->input('member_documents');
+
+
+    // Process each document
+    foreach ($memberDocuments as $index => $memberDocument) {
+        $memberDocumentName = $memberDocument['member_document_name'];
+        $memberFile = $request->file("member_documents.$index.member_file");
+
+        // Check if the file exists and is valid
+        if ($memberFile && $memberFile->isValid()) {
+            $documentNameWithExtension = $memberFile->getClientOriginalName();
+            $documentName = pathinfo($documentNameWithExtension, PATHINFO_FILENAME);
+            $documentExtension = $memberFile->getClientOriginalExtension();
+            $documentNameToStore = $documentName . '_' . time() . '.' . $documentExtension;
+            $documentPath = $memberFile->storeAs('public/Documents', $documentNameToStore);
+
+            // Save document information to the database
+            $memberDocumentModel = new MemberDocument();
+            $memberDocumentModel->client_id = $familyMember->client_id;
+            $memberDocumentModel->family_member_id = $familyMember->id;
+            $memberDocumentModel->document_name = $memberDocumentName; // Client name
+            $memberDocumentModel->document = $documentNameToStore; // Stored document name
+            $memberDocumentModel->save();
+        } else {
+            // Handle invalid or missing file scenario
+            return $this->sendError("Cannot save this file", ['error' => 'Cannot save this file']);
+        }
+    }
+
+    return $this->sendResponse([], "Document uploaded successfully");
+}
+
 public function displayDocuments(string $document){
 
         // Generate the full path to the invoice in the public storage
@@ -563,6 +604,9 @@ public function displayDocuments(string $document){
     
 
 }
+
+
+
 
 
 
