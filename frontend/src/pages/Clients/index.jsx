@@ -256,7 +256,10 @@ const Index = () => {
                       <TableCell className="font-medium p-2 text-center">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
+                            <Button
+                              variant="ghost"
+                              className="h-auto w-auto p-0"
+                            >
                               <span className="sr-only">Open menu</span>
                               {client?.Family_members?.length > 0 ? (
                                 <>
@@ -268,16 +271,23 @@ const Index = () => {
                                     client?.Family_members[0]?.family_member_name?.split(
                                       " "
                                     )[0]
-                                  }{" "}
-                                  {` `}
+                                  }
                                   {client?.Family_members.length > 1 ? (
-                                    <Badge className="bg-blue-700">
-                                      +{client?.Family_members.length - 1} more{" "}
-                                    </Badge>
+                                    ""
+                                  ) : (
+                                    <ChevronDown />
+                                  )}
+                                  {client?.Family_members.length > 1 ? (
+                                    <>
+                                      <Badge className="bg-blue-700 dark:text-white">
+                                        +{client?.Family_members.length - 1}{" "}
+                                        more{" "}
+                                      </Badge>
+                                      <ChevronDown />
+                                    </>
                                   ) : (
                                     ""
                                   )}
-                                  <ChevronDown />
                                 </>
                               ) : (
                                 "N/A"
@@ -288,13 +298,15 @@ const Index = () => {
                             align="center"
                             className="w-full flex-col items-center flex justify-center"
                           >
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuLabel className="">
+                              Actions
+                            </DropdownMenuLabel>
                             <b className="border border-gray-100 w-full"></b>
                             <div className="w-full">
                               {client?.Family_members.length > 0 &&
                                 client?.Family_members?.map((member) => (
                                   <>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex p-1 items-center justify-between gap-2">
                                       <div className="a">
                                         {member.family_member_name}
                                       </div>

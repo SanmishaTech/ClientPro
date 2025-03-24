@@ -85,8 +85,7 @@ class ReportsController extends BaseController
                 }
                if ($loan) {
                     $query->orWhereHas("loans", function($query) {
-                        $query->where("cancelled", false)
-                            ->whereNull("family_member_id");
+                        $query->where("cancelled", false);
                     });
                 }
                 if ($general_insurance) {

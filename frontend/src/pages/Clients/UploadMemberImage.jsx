@@ -230,7 +230,8 @@ const UploadMemberImage = ({ id }) => {
           <Button
             variant="ghost"
             size="sm"
-            className="w-full text-sm justify-start"
+            // className="w-full text-sm justify-start"
+            className="text-sm text-white hover:text-white dark:text-white shadow-xl bg-blue-600 hover:bg-blue-700"
           >
             <File /> Upload Documents
           </Button>
@@ -358,11 +359,14 @@ const UploadMemberImage = ({ id }) => {
                 <Button
                   type="button"
                   onClick={handleCancel}
-                  className="bg-red-500"
+                  className="dark:text-white shadow-xl bg-red-600 hover:bg-red-700"
                 >
                   Cancel
                 </Button>
-                <Button type="submit" className="bg-blue-500">
+                <Button
+                  type="submit"
+                  className=" dark:text-white  shadow-xl bg-blue-600 hover:bg-blue-700"
+                >
                   Save changes
                 </Button>
               </DialogFooter>

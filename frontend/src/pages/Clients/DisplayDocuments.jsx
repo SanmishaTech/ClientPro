@@ -143,9 +143,9 @@ const DisplayDocuments = ({ id }) => {
         <DialogContent className="w-full h-[90%] max-w-[800px]">
           <ScrollArea className="w-full p-2  max-w-[800px] rounded-md ">
             <DialogHeader>
-              <DialogTitle>Upload Documents</DialogTitle>
+              <DialogTitle>Documents</DialogTitle>
               <DialogDescription>
-                Upload the documents of clients and its family members.
+                View All Documents of Clients and its Family Members.
               </DialogDescription>
             </DialogHeader>
 
@@ -153,52 +153,62 @@ const DisplayDocuments = ({ id }) => {
             {/* Display the documents here */}
 
             {/* start */}
-            <h1 className="text-lg font-semibold mt-2">
+
+            <h1 className="text-lg font-medium mt-2">
               {" "}
               Client: {editClient?.Client?.client_name}
             </h1>
-            <Table className="mb-2">
-              <TableCaption className="mb-2">
-                <div className="flex justify-end"></div>
-              </TableCaption>
-              <TableHeader className="dark:bg-background bg-gray-100  rounded-md">
-                <TableRow>
-                  <TableHead className="p-2">Document Name</TableHead>
-                  <TableHead className="text-right">Documents</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {editClient?.Client?.client_documents &&
-                  editClient?.Client?.client_documents.map((document) => (
-                    <TableRow
-                      key={document.id}
-                      className=" dark:border-b dark:border-gray-600"
-                    >
-                      <TableCell className="font-medium p-2">
-                        {document.document_name}
-                        {/* {new Date(denomination.deposit_date).toLocaleDateString("en-GB")} */}
-                      </TableCell>
-                      <TableCell className="font-medium p-2 text-right">
-                        <Button
-                          onClick={() => handleViewDocument(document.document)}
-                          type="button"
-                          className="bg-blue-500"
-                        >
-                          view Document
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
-
+            {editClient?.Client?.client_documents.length > 0 ? (
+              <Table className="mb-2">
+                <TableCaption className="mb-2">
+                  <div className="flex justify-end"></div>
+                </TableCaption>
+                <TableHeader className="dark:bg-background bg-gray-100  rounded-md">
+                  <TableRow>
+                    <TableHead className="p-2">Document Name</TableHead>
+                    <TableHead className="text-right">Documents</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {editClient?.Client?.client_documents &&
+                    editClient?.Client?.client_documents.map((document) => (
+                      <TableRow
+                        key={document.id}
+                        className=" dark:border-b dark:border-gray-600"
+                      >
+                        <TableCell className="font-medium p-2">
+                          {document.document_name}
+                          {/* {new Date(denomination.deposit_date).toLocaleDateString("en-GB")} */}
+                        </TableCell>
+                        <TableCell className="font-medium p-2 text-right">
+                          <Button
+                            onClick={() =>
+                              handleViewDocument(document.document)
+                            }
+                            type="button"
+                            className=" dark:text-white  shadow-xl bg-blue-600 hover:bg-blue-700"
+                          >
+                            view Document
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <p>No documents available for this Client.</p>
+            )}
             {/* end */}
 
             {/* member start */}
             {editClient?.Client?.Family_members?.length > 0 ? (
               editClient?.Client?.Family_members.map((member) => (
                 <div key={member.id}>
-                  <h1>{member.family_member_name}</h1>
+                  {/* <h1>{member.family_member_name}</h1> */}
+                  <h1 className="text-lg font-medium mt-2">
+                    {" "}
+                    Family Member: {member.family_member_name}
+                  </h1>
                   {member?.member_documents?.length > 0 ? (
                     <>
                       {/* Render the table headers once per family member */}
@@ -229,7 +239,7 @@ const DisplayDocuments = ({ id }) => {
                                     handleViewDocument(document.document)
                                   }
                                   type="button"
-                                  className="bg-blue-500"
+                                  className=" dark:text-white  shadow-xl bg-blue-600 hover:bg-blue-700"
                                 >
                                   View Document
                                 </Button>
