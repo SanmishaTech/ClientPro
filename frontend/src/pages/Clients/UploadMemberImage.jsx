@@ -55,17 +55,6 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 const formSchema = z.object({
-  // temp: z
-  //   .any() // Allow any type initially
-  //   .refine(
-  //     (val) => {
-  //       // Custom check to validate the file
-  //       return val;
-  //     },
-  //     {
-  //       message: "A valid file is required", // Custom message
-  //     }
-  //   ), // Check if the field is a valid
   member_documents: z
     .array(
       z
@@ -88,20 +77,6 @@ const formSchema = z.object({
                 message: "A valid file is required", // Custom message
               }
             ),
-
-          // member_file: z
-          //   .any() // Allow any type initially
-          //   .refine(
-          //     (val) => {
-          //       // Custom check to validate the file
-          //       return (
-          //         val && val[0] && val[0].size > 0 && val[0] instanceof Blob
-          //       );
-          //     },
-          //     {
-          //       message: "A valid file is required", // Custom message
-          //     }
-          //   ), // Check if the field is a valid
         })
         .optional()
     )
@@ -187,40 +162,18 @@ const UploadMemberImage = ({ id }) => {
         const serverStatus = error.response.data.status;
         const serverErrors = error.response.data.errors;
         if (serverStatus === false) {
-          if (serverErrors.email) {
-            setError("email", {
+          if (serverErrors.member_file) {
+            setError("member_file", {
               type: "manual",
-              message: serverErrors.email[0], // The error message from the server
+              message: serverErrors.member_file[0], // The error message from the server
             });
-            toast.error("Email has already been taken.");
-          }
-          if (serverErrors.mobile) {
-            setError("mobile", {
-              type: "manual",
-              message: serverErrors.mobile[0], // The error message from the server
-            });
-            toast.error("mobile number has already been taken.");
-          }
-          if (serverErrors.mobile_2) {
-            setError("mobile_2", {
-              type: "manual",
-              message: serverErrors.mobile_2[0], // The error message from the server
-            });
-            toast.error("mobile number has already been taken.");
-          }
-          if (serverErrors.client_name) {
-            setError("client_name", {
-              type: "manual",
-              message: serverErrors.client_name[0], // The error message from the server
-            });
-            toast.error("Client Name has already been taken.");
           }
         } else {
-          toast.error("Failed to Add Client details 1.");
+          toast.error("Failed to upload Documents.");
         }
       } else {
         console.log(error);
-        toast.error("Failed to Add Client details 2.");
+        toast.error("Failed to upload Documents..");
       }
     },
   });
@@ -279,7 +232,7 @@ const UploadMemberImage = ({ id }) => {
             size="sm"
             className="w-full text-sm justify-start"
           >
-            <File /> Upload Image
+            <File /> Upload Documents
           </Button>
         </DialogTrigger>
         <DialogContent className="w-full h-[90%] max-w-[800px]">
@@ -288,7 +241,7 @@ const UploadMemberImage = ({ id }) => {
               <DialogHeader>
                 <DialogTitle>Upload Documents</DialogTitle>
                 <DialogDescription>
-                  Upload the documents of clients and its family members.
+                  Upload the documents of Family Members.
                 </DialogDescription>
               </DialogHeader>
 

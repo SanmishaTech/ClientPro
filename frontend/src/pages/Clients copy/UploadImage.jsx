@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import React, { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -8,9 +8,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   File,
   PlusCircle,
@@ -19,21 +19,21 @@ import {
   Trash,
   MoreHorizontal,
   ListFilter,
-} from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 
 // new
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller, useFieldArray } from "react-hook-form";
-import { z } from "zod";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { z } from 'zod';
 
-import { Loader2, CircleX } from "lucide-react";
-import { PhoneInput } from "react-international-phone";
-import "react-international-phone/style.css"; // Import styles for the phone input
-import { toTitleCase } from "../../lib/titleCase.js";
+import { Loader2, CircleX } from 'lucide-react';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css'; // Import styles for the phone input
+import { toTitleCase } from '../../lib/titleCase.js';
 import {
   Table,
   TableBody,
@@ -43,7 +43,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import {
   Select,
   SelectContent,
@@ -52,20 +52,31 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from '@/components/ui/select';
+import { ScrollArea } from '@/components/ui/scroll-area';
 const formSchema = z.object({
+  // temp: z
+  //   .any() // Allow any type initially
+  //   .refine(
+  //     (val) => {
+  //       // Custom check to validate the file
+  //       return val;
+  //     },
+  //     {
+  //       message: "A valid file is required", // Custom message
+  //     }
+  //   ), // Check if the field is a valid
   client_documents: z
     .array(
       z
         .object({
           client_document_name: z
             .string()
-            .min(2, "Name must be at least 2 characters")
-            .max(100, "Name must be at max 100 characters")
+            .min(2, 'Name must be at least 2 characters')
+            .max(100, 'Name must be at max 100 characters')
             .regex(
               /^[A-Za-z\s\u0900-\u097F]+$/,
-              "Name can only contain letters."
+              'Name can only contain letters.'
             ), // Allow letters and spaces, including Marathi
           client_file: z
             .any() // Allow any type initially
@@ -74,20 +85,34 @@ const formSchema = z.object({
                 return val && val.size > 0 && val instanceof Blob;
               },
               {
-                message: "A valid file is required", // Custom message
+                message: 'A valid file is required', // Custom message
               }
             ),
+
+          // client_file: z
+          //   .any() // Allow any type initially
+          //   .refine(
+          //     (val) => {
+          //       // Custom check to validate the file
+          //       return (
+          //         val && val[0] && val[0].size > 0 && val[0] instanceof Blob
+          //       );
+          //     },
+          //     {
+          //       message: "A valid file is required", // Custom message
+          //     }
+          //   ), // Check if the field is a valid
         })
         .optional()
     )
-    .min(1, "At least one document is required"),
+    .min(1, 'At least one document is required'),
 });
 const UploadImage = ({ id }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const queryClient = useQueryClient();
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem('user'));
   const token = user.token;
   const navigate = useNavigate();
 
@@ -95,8 +120,8 @@ const UploadImage = ({ id }) => {
     // temp: "",
     client_documents: [
       {
-        client_document_name: "",
-        client_file: "", // Initially empty, will be replaced when the file is selected
+        client_document_name: '',
+        client_file: '', // Initially empty, will be replaced when the file is selected
       },
     ],
   };
@@ -111,7 +136,7 @@ const UploadImage = ({ id }) => {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "client_documents", // The name for the family members array
+    name: 'client_documents', // The name for the family members array
   });
 
   const {
@@ -119,12 +144,12 @@ const UploadImage = ({ id }) => {
     isLoading: isEditClientDataLoading,
     isError: isEditClientDataError,
   } = useQuery({
-    queryKey: ["editClient", id], // This is the query key
+    queryKey: ['editClient', id], // This is the query key
     queryFn: async () => {
       try {
         const response = await axios.get(`/api/clients/${id}`, {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
         });
@@ -140,15 +165,15 @@ const UploadImage = ({ id }) => {
     mutationFn: async (formData) => {
       const response = await axios.post(`/api/get_client/${id}`, formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`, // Include the Bearer token
         },
       });
       return response.data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries("users");
-      toast.success("Documents uploaded Successfully");
+      queryClient.invalidateQueries('users');
+      toast.success('Documents uploaded Successfully');
       setIsLoading(false);
       closeDialog();
     },
@@ -158,18 +183,40 @@ const UploadImage = ({ id }) => {
         const serverStatus = error.response.data.status;
         const serverErrors = error.response.data.errors;
         if (serverStatus === false) {
-          if (serverErrors.client_file) {
-            setError("client_file", {
-              type: "manual",
-              message: serverErrors.client_file[0], // The error message from the server
+          if (serverErrors.email) {
+            setError('email', {
+              type: 'manual',
+              message: serverErrors.email[0], // The error message from the server
             });
+            toast.error('Email has already been taken.');
+          }
+          if (serverErrors.mobile) {
+            setError('mobile', {
+              type: 'manual',
+              message: serverErrors.mobile[0], // The error message from the server
+            });
+            toast.error('mobile number has already been taken.');
+          }
+          if (serverErrors.mobile_2) {
+            setError('mobile_2', {
+              type: 'manual',
+              message: serverErrors.mobile_2[0], // The error message from the server
+            });
+            toast.error('mobile number has already been taken.');
+          }
+          if (serverErrors.client_name) {
+            setError('client_name', {
+              type: 'manual',
+              message: serverErrors.client_name[0], // The error message from the server
+            });
+            toast.error('Client Name has already been taken.');
           }
         } else {
-          toast.error("Failed to Upload Documents.");
+          toast.error('Failed to Add Client details 1.');
         }
       } else {
         console.log(error);
-        toast.error("Failed to Upload Documents..");
+        toast.error('Failed to Add Client details 2.');
       }
     },
   });
@@ -181,7 +228,7 @@ const UploadImage = ({ id }) => {
     const formData = new FormData();
 
     // Append the method and other necessary data
-    formData.append("_method", "put");
+    formData.append('_method', 'put');
 
     // Loop through the client_documents array and append both client_name and client_file together
     data.client_documents.forEach((doc, index) => {
@@ -208,7 +255,7 @@ const UploadImage = ({ id }) => {
     // Send the FormData via your mutation or API call
     storeMutation.mutate(formData);
   };
-  console.log("Validation errors: ", errors); // Log all errors when the form is submitted
+  console.log('Validation errors: ', errors); // Log all errors when the form is submitted
 
   const closeDialog = () => {
     setDialogOpen(false);
@@ -228,16 +275,16 @@ const UploadImage = ({ id }) => {
             size="sm"
             className="w-full text-sm justify-start"
           >
-            <File /> Upload Documents
+            <File /> Upload Image
           </Button>
         </DialogTrigger>
         <DialogContent className="w-full h-[90%] max-w-[800px]">
           <ScrollArea className="w-full p-2  max-w-[800px] rounded-md ">
             <form onSubmit={handleSubmit(onSubmit)}>
               <DialogHeader>
-                <DialogTitle>Upload Client Documents</DialogTitle>
+                <DialogTitle>Upload Documents</DialogTitle>
                 <DialogDescription>
-                  Upload the documents of clients.
+                  Upload the documents of clients and its family members.
                 </DialogDescription>
               </DialogHeader>
 
@@ -340,8 +387,8 @@ const UploadImage = ({ id }) => {
                   type="button"
                   onClick={() =>
                     append({
-                      client_document_name: "",
-                      client_file: "",
+                      client_document_name: '',
+                      client_file: '',
                     })
                   } // Add new family member
                   className="bg-blue-600 hover:bg-blue-700 text-white"

@@ -55,11 +55,22 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 const formSchema = z.object({
-  client_documents: z
+  // temp: z
+  //   .any() // Allow any type initially
+  //   .refine(
+  //     (val) => {
+  //       // Custom check to validate the file
+  //       return val;
+  //     },
+  //     {
+  //       message: "A valid file is required", // Custom message
+  //     }
+  //   ), // Check if the field is a valid
+  member_documents: z
     .array(
       z
         .object({
-          client_document_name: z
+          member_document_name: z
             .string()
             .min(2, "Name must be at least 2 characters")
             .max(100, "Name must be at max 100 characters")
@@ -67,7 +78,7 @@ const formSchema = z.object({
               /^[A-Za-z\s\u0900-\u097F]+$/,
               "Name can only contain letters."
             ), // Allow letters and spaces, including Marathi
-          client_file: z
+          member_file: z
             .any() // Allow any type initially
             .refine(
               (val) => {
@@ -77,12 +88,26 @@ const formSchema = z.object({
                 message: "A valid file is required", // Custom message
               }
             ),
+
+          // member_file: z
+          //   .any() // Allow any type initially
+          //   .refine(
+          //     (val) => {
+          //       // Custom check to validate the file
+          //       return (
+          //         val && val[0] && val[0].size > 0 && val[0] instanceof Blob
+          //       );
+          //     },
+          //     {
+          //       message: "A valid file is required", // Custom message
+          //     }
+          //   ), // Check if the field is a valid
         })
         .optional()
     )
     .min(1, "At least one document is required"),
 });
-const UploadImage = ({ id }) => {
+const UploadMemberImage = ({ id }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -93,10 +118,10 @@ const UploadImage = ({ id }) => {
 
   const defaultValues = {
     // temp: "",
-    client_documents: [
+    member_documents: [
       {
-        client_document_name: "",
-        client_file: "", // Initially empty, will be replaced when the file is selected
+        member_document_name: "",
+        member_file: "", // Initially empty, will be replaced when the file is selected
       },
     ],
   };
@@ -111,7 +136,7 @@ const UploadImage = ({ id }) => {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "client_documents", // The name for the family members array
+    name: "member_documents", // The name for the family members array
   });
 
   const {
@@ -138,12 +163,16 @@ const UploadImage = ({ id }) => {
 
   const storeMutation = useMutation({
     mutationFn: async (formData) => {
-      const response = await axios.post(`/api/get_client/${id}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`, // Include the Bearer token
-        },
-      });
+      const response = await axios.post(
+        `/api/upload_member_documents/${id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`, // Include the Bearer token
+          },
+        }
+      );
       return response.data;
     },
     onSuccess: (data) => {
@@ -158,18 +187,40 @@ const UploadImage = ({ id }) => {
         const serverStatus = error.response.data.status;
         const serverErrors = error.response.data.errors;
         if (serverStatus === false) {
-          if (serverErrors.client_file) {
-            setError("client_file", {
+          if (serverErrors.email) {
+            setError("email", {
               type: "manual",
-              message: serverErrors.client_file[0], // The error message from the server
+              message: serverErrors.email[0], // The error message from the server
             });
+            toast.error("Email has already been taken.");
+          }
+          if (serverErrors.mobile) {
+            setError("mobile", {
+              type: "manual",
+              message: serverErrors.mobile[0], // The error message from the server
+            });
+            toast.error("mobile number has already been taken.");
+          }
+          if (serverErrors.mobile_2) {
+            setError("mobile_2", {
+              type: "manual",
+              message: serverErrors.mobile_2[0], // The error message from the server
+            });
+            toast.error("mobile number has already been taken.");
+          }
+          if (serverErrors.client_name) {
+            setError("client_name", {
+              type: "manual",
+              message: serverErrors.client_name[0], // The error message from the server
+            });
+            toast.error("Client Name has already been taken.");
           }
         } else {
-          toast.error("Failed to Upload Documents.");
+          toast.error("Failed to Add Client details 1.");
         }
       } else {
         console.log(error);
-        toast.error("Failed to Upload Documents..");
+        toast.error("Failed to Add Client details 2.");
       }
     },
   });
@@ -183,19 +234,19 @@ const UploadImage = ({ id }) => {
     // Append the method and other necessary data
     formData.append("_method", "put");
 
-    // Loop through the client_documents array and append both client_name and client_file together
-    data.client_documents.forEach((doc, index) => {
-      // Ensure both client_name and client_file are added together under the same index
+    // Loop through the member_documents array and append both client_name and member_file together
+    data.member_documents.forEach((doc, index) => {
+      // Ensure both client_name and member_file are added together under the same index
       formData.append(
-        `client_documents[${index}][client_document_name]`,
-        doc.client_document_name
+        `member_documents[${index}][member_document_name]`,
+        doc.member_document_name
       );
 
       // Append the file for the current document if it exists
-      if (doc.client_file) {
+      if (doc.member_file) {
         formData.append(
-          `client_documents[${index}][client_file]`,
-          doc.client_file // File will be sent in binary automatically
+          `member_documents[${index}][member_file]`,
+          doc.member_file // File will be sent in binary automatically
         );
       }
     });
@@ -228,16 +279,16 @@ const UploadImage = ({ id }) => {
             size="sm"
             className="w-full text-sm justify-start"
           >
-            <File /> Upload Documents
+            <File /> Upload Image
           </Button>
         </DialogTrigger>
         <DialogContent className="w-full h-[90%] max-w-[800px]">
           <ScrollArea className="w-full p-2  max-w-[800px] rounded-md ">
             <form onSubmit={handleSubmit(onSubmit)}>
               <DialogHeader>
-                <DialogTitle>Upload Client Documents</DialogTitle>
+                <DialogTitle>Upload Documents</DialogTitle>
                 <DialogDescription>
-                  Upload the documents of clients.
+                  Upload the documents of clients and its family members.
                 </DialogDescription>
               </DialogHeader>
 
@@ -251,18 +302,18 @@ const UploadImage = ({ id }) => {
                       <div className="relative">
                         <Label
                           className="font-normal"
-                          htmlFor={`client_documents[${index}].client_document_name`}
+                          htmlFor={`member_documents[${index}].member_document_name`}
                         >
                           File Name:
                           <span className="text-red-500">*</span>
                         </Label>
                         <Controller
-                          name={`client_documents[${index}].client_document_name`}
+                          name={`member_documents[${index}].member_document_name`}
                           control={control}
                           render={({ field }) => (
                             <Input
                               {...field}
-                              id={`client_documents[${index}].client_document_name`}
+                              id={`member_documents[${index}].member_document_name`}
                               className="mt-1"
                               placeholder="Enter name"
                               onChange={(e) => {
@@ -274,12 +325,12 @@ const UploadImage = ({ id }) => {
                             />
                           )}
                         />
-                        {errors.client_documents?.[index]
-                          ?.client_document_name && (
+                        {errors.member_documents?.[index]
+                          ?.member_document_name && (
                           <p className=" text-red-500 text-sm mt-1 left-0">
                             {
-                              errors.client_documents[index]
-                                .client_document_name.message
+                              errors.member_documents[index]
+                                .member_document_name.message
                             }
                           </p>
                         )}
@@ -288,17 +339,17 @@ const UploadImage = ({ id }) => {
                         <div className="relative">
                           <Label
                             className="font-normal"
-                            htmlFor={`client_documents[${index}].client_file`}
+                            htmlFor={`member_documents[${index}].member_file`}
                           >
                             File:
                             <span className="text-red-500">*</span>
                           </Label>
                           <Controller
-                            name={`client_documents[${index}].client_file`}
+                            name={`member_documents[${index}].member_file`}
                             control={control}
                             render={({ field }) => (
                               <Input
-                                id={`client_documents[${index}].client_file`}
+                                id={`member_documents[${index}].member_file`}
                                 type="file"
                                 onChange={(e) => {
                                   if (e.target.files && e.target.files[0]) {
@@ -306,14 +357,14 @@ const UploadImage = ({ id }) => {
                                   }
                                 }}
                                 className="mt-1"
-                                placeholder="Enter client_file"
+                                placeholder="Enter member_file"
                               />
                             )}
                           />
-                          {errors.client_documents?.[index]?.client_file && (
+                          {errors.member_documents?.[index]?.member_file && (
                             <p className="text-red-500 text-sm mt-1 left-0">
                               {
-                                errors.client_documents[index].client_file
+                                errors.member_documents[index].member_file
                                   .message
                               }
                             </p>
@@ -340,8 +391,8 @@ const UploadImage = ({ id }) => {
                   type="button"
                   onClick={() =>
                     append({
-                      client_document_name: "",
-                      client_file: "",
+                      member_document_name: "",
+                      member_file: "",
                     })
                   } // Add new family member
                   className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -370,4 +421,4 @@ const UploadImage = ({ id }) => {
   );
 };
 
-export default UploadImage;
+export default UploadMemberImage;

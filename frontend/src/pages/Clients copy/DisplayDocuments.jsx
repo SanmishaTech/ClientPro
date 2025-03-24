@@ -153,10 +153,7 @@ const DisplayDocuments = ({ id }) => {
             {/* Display the documents here */}
 
             {/* start */}
-            <h1 className="text-lg font-semibold mt-2">
-              {" "}
-              Client: {editClient?.Client?.client_name}
-            </h1>
+            <h1>{editClient?.Client?.client_name}</h1>
             <Table className="mb-2">
               <TableCaption className="mb-2">
                 <div className="flex justify-end"></div>
