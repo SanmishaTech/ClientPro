@@ -59,113 +59,79 @@
                         <td>{{ $client->email }}</td>
                         <td>{{ $client->mobile }}</td>
                         <td>
-                            @php
-                            $MediclaimPrinted = false;
-                            $TermPrinted = false;
-                            $LicPrinted = false;
-                            $LoanPrinted = false;
-                            $GeneralInsurancePrinted = false;
-                            $DematPrinted = false;
-                            $MutualPrinted = false;
-                            @endphp
-
-                            {{-- mediclaim --}}
-                            @if($client->mediclaimInsurances->isNotEmpty())
-                              @foreach($client->mediclaimInsurances as $mediclaim)
-                               @if($mediclaim->family_member_id == null && $mediclaim->cancelled == 0
-                                && !$MediclaimPrinted)
-                                 Mediclaim Insurance
-
-                                 @php
-                                 $MediclaimPrinted = true;
-                             @endphp
-                               @endif
-                              @endforeach
-                            @endif
-
-                            {{-- term plan --}}
-                             @if($client->termPlans->isNotEmpty())
-                              @foreach($client->termPlans as $term)
-                               @if($term->family_member_id == null && $term->cancelled == 0
-                                && !$TermPrinted)
-                                 Term Plan
-                                 @php
-                                 $TermPrinted = true;
-                             @endphp
-                               @endif
-                              @endforeach
-                            @endif
-
-                             {{-- lic --}}
-                             @if($client->lics->isNotEmpty())
-                              @foreach($client->lics as $lic)
-                               @if($lic->family_member_id == null && $lic->cancelled == 0
-                                && !$LicPrinted)
-                                 LIC
-                                 @php
-                                 $LicPrinted = true;
-                             @endphp
-                               @endif
-                              @endforeach
-                            @endif
-
-
-                             {{-- loan --}}
-                             @if($client->loans->isNotEmpty())
-                              @foreach($client->loans as $loan)
-                               @if($loan->cancelled == 0
-                                && !$LoanPrinted)
-                                 Loan
-                                 @php
-                                 $LoanPrinted = true;
-                             @endphp
-                               @endif
-                              @endforeach
-                            @endif
-
-
-                             {{-- General Insurance --}}
-                             @if($client->generalInsurances->isNotEmpty())
-                              @foreach($client->generalInsurances as $insurance)
-                               @if($insurance->family_member_id == null && $insurance->cancelled == 0
-                                && !$GeneralInsurancePrinted)
-                                 General Insurance
-                                 @php
-                                 $GeneralInsurancePrinted = true;
-                             @endphp
-                               @endif
-                              @endforeach
-                            @endif
-
-
-                            {{-- Demat account --}}
-                             @if($client->dematAccounts->isNotEmpty())
-                              @foreach($client->dematAccounts as $demat)
-                               @if($demat->family_member_id == null && $demat->cancelled == 0
-                                && !$DematPrinted)
-                                  Demat Account
-                                 @php
-                                 $DematPrinted = true;
-                             @endphp
-                               @endif
-                              @endforeach
-                            @endif
-
-
-                             {{-- Mutual Fund --}}
-                             @if($client->mutualFunds->isNotEmpty())
-                              @foreach($client->mutualFunds as $mutual)
-                               @if($mutual->family_member_id == null && $mutual->cancelled == 0
-                                && !$MutualPrinted)
-                                  Mutual Fund
-                                 @php
-                                 $MutualPrinted = true;
-                             @endphp
-                               @endif
-                              @endforeach
-                            @endif
-
-                        </td>
+                          @php
+                              // Initialize an empty array to store the categories
+                              $categories = [];
+                      
+                              // Mediclaim Insurance
+                              if ($client->mediclaimInsurances->isNotEmpty()) {
+                                  foreach ($client->mediclaimInsurances as $mediclaim) {
+                                      if ($mediclaim->family_member_id == null && $mediclaim->cancelled == 0 && !in_array('Mediclaim Insurance', $categories)) {
+                                          $categories[] = 'Mediclaim Insurance'; // Add category to array
+                                      }
+                                  }
+                              }
+                      
+                              // Term Plan
+                              if ($client->termPlans->isNotEmpty()) {
+                                  foreach ($client->termPlans as $term) {
+                                      if ($term->family_member_id == null && $term->cancelled == 0 && !in_array('Term Plan', $categories)) {
+                                          $categories[] = 'Term Plan'; // Add category to array
+                                      }
+                                  }
+                              }
+                      
+                              // LIC
+                              if ($client->lics->isNotEmpty()) {
+                                  foreach ($client->lics as $lic) {
+                                      if ($lic->family_member_id == null && $lic->cancelled == 0 && !in_array('LIC', $categories)) {
+                                          $categories[] = 'LIC'; // Add category to array
+                                      }
+                                  }
+                              }
+                      
+                              // Loan
+                              if ($client->loans->isNotEmpty()) {
+                                  foreach ($client->loans as $loan) {
+                                      if ($loan->cancelled == 0 && !in_array('Loan', $categories)) {
+                                          $categories[] = 'Loan'; // Add category to array
+                                      }
+                                  }
+                              }
+                      
+                              // General Insurance
+                              if ($client->generalInsurances->isNotEmpty()) {
+                                  foreach ($client->generalInsurances as $insurance) {
+                                      if ($insurance->family_member_id == null && $insurance->cancelled == 0 && !in_array('General Insurance', $categories)) {
+                                          $categories[] = 'General Insurance'; // Add category to array
+                                      }
+                                  }
+                              }
+                      
+                              // Demat Account
+                              if ($client->dematAccounts->isNotEmpty()) {
+                                  foreach ($client->dematAccounts as $demat) {
+                                      if ($demat->family_member_id == null && $demat->cancelled == 0 && !in_array('Demat Account', $categories)) {
+                                          $categories[] = 'Demat Account'; // Add category to array
+                                      }
+                                  }
+                              }
+                      
+                              // Mutual Fund
+                              if ($client->mutualFunds->isNotEmpty()) {
+                                  foreach ($client->mutualFunds as $mutual) {
+                                      if ($mutual->family_member_id == null && $mutual->cancelled == 0 && !in_array('Mutual Fund', $categories)) {
+                                          $categories[] = 'Mutual Fund'; // Add category to array
+                                      }
+                                  }
+                              }
+                      
+                              // Join categories with commas
+                              $categoryString = implode(', ', $categories);
+                          @endphp
+                          {{ $categoryString }}
+                      </td>
+                      
                     </tr>
                 @endif
             @endforeach
@@ -195,106 +161,81 @@
                         <td>{{ $member->member_email }}</td>
                         <td>{{ $member->member_mobile }}</td>
                         <td>
-                            @php
-                            $familyMediclaimPrinted = false;
-                            $familyTermPrinted = false;
-                            $familyLicPrinted = false;
-                            $familyLoanPrinted = false;
-                            $familyGeneralInsurancePrinted = false;
-                            $familyDematPrinted = false;
-                            $familyMutualPrinted = false;
-                         @endphp
-                         {{-- family mediclaim insurance --}}
-                            @if($member->mediclaimInsurances->isNotEmpty())
-                              @foreach($member->mediclaimInsurances as $mediclaim)
-                               @if($mediclaim->cancelled == 0 && !$familyMediclaimPrinted)
-                                 Mediclaim Insurance
-                                 @php
-                                    $familyMediclaimPrinted = true;
-                                @endphp
-                               @endif
-                              @endforeach
-                            @endif
-
-
-                             {{-- family term plan --}}
-                             @if($member->termPlans->isNotEmpty())
-                              @foreach($member->termPlans as $term)
-                               @if($term->cancelled == 0 && !$familyTermPrinted)
-                                 Term Plan
-                                 @php
-                                    $familyTermPrinted = true;
-                                @endphp
-                               @endif
-                              @endforeach
-                            @endif
-
-
-                              {{-- family lic --}}
-                             @if($member->lics->isNotEmpty())
-                              @foreach($member->lics as $lic)
-                               @if($lic->cancelled == 0 && !$familyLicPrinted)
-                                 LIC
-                                 @php
-                                    $familyLicPrinted = true;
-                                @endphp
-                               @endif
-                              @endforeach
-                            @endif
-
-                             {{-- family loan --}}
-                             @if($member->loans->isNotEmpty())
-                              @foreach($member->loans as $loan)
-                               @if($loan->cancelled == 0 && !$familyLoanPrinted)
-                                 Loan
-                                 @php
-                                    $familyLoanPrinted = true;
-                                @endphp
-                               @endif
-                              @endforeach
-                            @endif
-
-
-                             {{-- family general insurance --}}
-                             @if($member->generalInsurances->isNotEmpty())
-                              @foreach($member->generalInsurances as $insurance)
-                               @if($insurance->cancelled == 0 && !$familyGeneralInsurancePrinted)
-                                 General Insurance
-                                 @php
-                                    $familyGeneralInsurancePrinted = true;
-                                @endphp
-                               @endif
-                              @endforeach
-                            @endif
-
-
-                             {{-- family demat account --}}
-                             @if($member->dematAccounts->isNotEmpty())
-                              @foreach($member->dematAccounts as $demat)
-                               @if($demat->cancelled == 0 && !$familyDematPrinted)
-                                 Demat Account
-                                 @php
-                                    $familyDematPrinted = true;
-                                @endphp
-                               @endif
-                              @endforeach
-                            @endif
-
-
-                              {{-- family mutual fund --}}
-                             @if($member->mutualFunds->isNotEmpty())
-                              @foreach($member->mutualFunds as $mutual)
-                               @if($mutual->cancelled == 0 && !$familyMutualPrinted)
-                                 Mutual Fund
-                                 @php
-                                    $familyMutualPrinted = true;
-                                @endphp
-                               @endif
-                              @endforeach
-                            @endif
-
-
-                        </td>
+                          @php
+                              // Initialize an empty array to store the categories
+                              $categories = [];
+                      
+                              // Family Mediclaim Insurance
+                              if ($member->mediclaimInsurances->isNotEmpty()) {
+                                  foreach ($member->mediclaimInsurances as $mediclaim) {
+                                      if ($mediclaim->cancelled == 0 && !in_array('Mediclaim Insurance', $categories)) {
+                                          $categories[] = 'Mediclaim Insurance'; // Add category to array
+                                      }
+                                  }
+                              }
+                      
+                              // Family Term Plan
+                              if ($member->termPlans->isNotEmpty()) {
+                                  foreach ($member->termPlans as $term) {
+                                      if ($term->cancelled == 0 && !in_array('Term Plan', $categories)) {
+                                          $categories[] = 'Term Plan'; // Add category to array
+                                      }
+                                  }
+                              }
+                      
+                              // Family LIC
+                              if ($member->lics->isNotEmpty()) {
+                                  foreach ($member->lics as $lic) {
+                                      if ($lic->cancelled == 0 && !in_array('LIC', $categories)) {
+                                          $categories[] = 'LIC'; // Add category to array
+                                      }
+                                  }
+                              }
+                      
+                              // Family Loan
+                              if ($member->loans->isNotEmpty()) {
+                                  foreach ($member->loans as $loan) {
+                                      if ($loan->cancelled == 0 && !in_array('Loan', $categories)) {
+                                          $categories[] = 'Loan'; // Add category to array
+                                      }
+                                  }
+                              }
+                      
+                              // Family General Insurance
+                              if ($member->generalInsurances->isNotEmpty()) {
+                                  foreach ($member->generalInsurances as $insurance) {
+                                      if ($insurance->cancelled == 0 && !in_array('General Insurance', $categories)) {
+                                          $categories[] = 'General Insurance'; // Add category to array
+                                      }
+                                  }
+                              }
+                      
+                              // Family Demat Account
+                              if ($member->dematAccounts->isNotEmpty()) {
+                                  foreach ($member->dematAccounts as $demat) {
+                                      if ($demat->cancelled == 0 && !in_array('Demat Account', $categories)) {
+                                          $categories[] = 'Demat Account'; // Add category to array
+                                      }
+                                  }
+                              }
+                      
+                              // Family Mutual Fund
+                              if ($member->mutualFunds->isNotEmpty()) {
+                                  foreach ($member->mutualFunds as $mutual) {
+                                      if ($mutual->cancelled == 0 && !in_array('Mutual Fund', $categories)) {
+                                          $categories[] = 'Mutual Fund'; // Add category to array
+                                      }
+                                  }
+                              }
+                      
+                              // Join categories with commas
+                              $categoryString = implode(', ', $categories);
+                          @endphp
+                      
+                          <!-- Output the category string -->
+                          {{ $categoryString }}
+                      </td>
+                      
                     </tr>
                 @endif
             @endforeach
