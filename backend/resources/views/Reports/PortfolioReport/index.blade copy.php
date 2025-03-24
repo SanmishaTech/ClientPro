@@ -229,16 +229,8 @@
                     </td>
                       <td>{{ $lic->term }}</td>
                       <td>{{ $lic->ppt }}</td>
-                      <td>
-                        @if($lic->proposal_date)
-                        {{ \Carbon\Carbon::parse($lic->proposal_date)->format('d/m/Y') }}
-                      @endif
-                    </td>
-                    <td>
-                        @if($lic->end_date)
-                        {{ \Carbon\Carbon::parse($lic->end_date)->format('d/m/Y') }}
-                      @endif
-                    </td>
+                      <td>{{ \Carbon\Carbon::parse($lic->proposal_date)->format('d/m/Y') }}</td>
+                      <td>{{ \Carbon\Carbon::parse($lic->end_date)->format('d/m/Y') }}</td>
                       <td>{{ $lic->premium_payment_mode }}</td>
                       <td>{{ $lic->sum_insured }}</td>
                   </tr>
@@ -277,16 +269,8 @@
                             <td>{{ $loan->term }}</td>
                             <td>{{ $loan->emi }}</td>
                             <td>{{ $loan->roi }}</td>
-                            <td>
-                                @if($loan->start_date)
-                                {{ \Carbon\Carbon::parse($loan->start_date)->format('d/m/Y') }}
-                              @endif
-                            </td>
-                            <td>
-                                @if($loan->end_date)
-                                {{ \Carbon\Carbon::parse($loan->end_date)->format('d/m/Y') }}
-                              @endif
-                            </td>
+                            <td>{{ \Carbon\Carbon::parse($loan->start_date)->format('d/m/Y') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($loan->end_date)->format('d/m/Y') }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -316,16 +300,8 @@
                       <td>{{ $insurance->insurance_type }}</td>
                       <td>{{ $insurance->company_name }}</td>
                       <td>{{ $insurance->premium }}</td>
-                      <td>
-                        @if($insurance->start_date)
-                        {{ \Carbon\Carbon::parse($insurance->start_date)->format('d/m/Y') }}
-                      @endif
-                    </td>
-                    <td>
-                        @if($insurance->end_date)
-                        {{ \Carbon\Carbon::parse($insurance->end_date)->format('d/m/Y') }}
-                      @endif
-                    </td>
+                      <td>{{ \Carbon\Carbon::parse($insurance->start_date)->format('d/m/Y') }}</td>
+                      <td>{{ \Carbon\Carbon::parse($insurance->end_date)->format('d/m/Y') }}</td>
                   </tr>
               @endforeach
           </tbody>
@@ -357,11 +333,7 @@
                    <td>{{ $demat->account_number }}</td>
                    <td>{{ $demat->service_provider }}</td>
                    <td>{{ $demat->plan_name }}</td>
-                   <td>
-                    @if($demat->start_date)
-                    {{ \Carbon\Carbon::parse($demat->start_date)->format('d/m/Y') }}
-                  @endif
-                </td>
+                   <td>{{ \Carbon\Carbon::parse($demat->start_date)->format('d/m/Y') }}</td>
                </tr>
            @endforeach
        </tbody>
@@ -393,11 +365,7 @@
                         <td>{{ $mutual->account_number }}</td>
                         <td>{{ $mutual->service_provider }}</td>
                         <td>{{ $mutual->reference_name }}</td>
-                        <td>
-                            @if($mutual->start_date)
-                            {{ \Carbon\Carbon::parse($mutual->start_date)->format('d/m/Y') }}
-                          @endif
-                        </td>
+                        <td>{{ \Carbon\Carbon::parse($mutual->start_date)->format('d/m/Y') }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -474,17 +442,8 @@
                                 <td>{{ $insurance->policy_number }}</td>
                                 <td>{{ $insurance->plan_name }}</td>
                                 <td>{{ $insurance->premium }}</td>
-                                <td>
-                                    @if($insurance->proposal_date)
-                                    {{ \Carbon\Carbon::parse($insurance->proposal_date)->format('d/m/Y') }}
-                                   @endif
-                                </td>
-                                <td>
-                                    @if($insurance->end_date)
-                                    {{ \Carbon\Carbon::parse($insurance->end_date)->format('d/m/Y') }}
-                                    @endif
-                                </td>
-                                
+                                <td>{{ \Carbon\Carbon::parse($insurance->proposal_date)->format('d/m/Y') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($insurance->end_date)->format('d/m/Y') }}</td>
                                 <td>{{ $insurance->premium_payment_mode }}</td>
                                 <td>{{ $insurance->sum_insured }}</td>
                             </tr>
@@ -521,16 +480,8 @@
                                 <td>{{ $term->policy_number }}</td>
                                 <td>{{ $term->plan_name }}</td>
                                 <td>{{ $term->premium_without_gst }}</td>
-                                <td>
-                                    @if($term->proposal_date)
-                                    {{ \Carbon\Carbon::parse($term->proposal_date)->format('d/m/Y') }}
-                                  @endif
-                                </td>
-                                 <td>
-                                    @if($term->end_date)
-                                    {{ \Carbon\Carbon::parse($term->end_date)->format('d/m/Y') }}
-                                  @endif
-                                </td>
+                                <td>{{ \Carbon\Carbon::parse($term->proposal_date)->format('d/m/Y') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($term->end_date)->format('d/m/Y') }}</td>
                                 <td>{{ $term->premium_payment_mode }}</td>
                                 <td>{{ $term->sum_insured }}</td>
                             </tr>
@@ -572,23 +523,11 @@
                                 <td>{{ $lic->policy_number }}</td>
                                 <td>{{ $lic->plan_name }}</td>
                                 <td>{{ $lic->premium_without_gst }}</td>
-                                <td>
-                                    @if($lic->commencement_date)
-                                    {{ \Carbon\Carbon::parse($lic->commencement_date)->format('d/m/Y') }}
-                                  @endif
-                                </td>
+                                <td>{{ \Carbon\Carbon::parse($lic->commencement_date)->format('d/m/Y') }}</td>
                                 <td>{{ $lic->term }}</td>
                                 <td>{{ $lic->ppt }}</td>
-                                <td>
-                                    @if($lic->proposal_date)
-                                    {{ \Carbon\Carbon::parse($lic->proposal_date)->format('d/m/Y') }}
-                                  @endif
-                                </td>
-                                <td>
-                                    @if($lic->end_date)
-                                    {{ \Carbon\Carbon::parse($lic->end_date)->format('d/m/Y') }}
-                                  @endif
-                                </td>
+                                <td>{{ \Carbon\Carbon::parse($lic->proposal_date)->format('d/m/Y') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($lic->end_date)->format('d/m/Y') }}</td>
                                 <td>{{ $lic->premium_payment_mode }}</td>
                                 <td>{{ $lic->sum_insured }}</td>
                             </tr>
@@ -624,16 +563,8 @@
                             <td>{{ $loan->term }}</td>
                             <td>{{ $loan->emi }}</td>
                             <td>{{ $loan->roi }}</td>
-                            <td>
-                                @if($loan->start_date)
-                                {{ \Carbon\Carbon::parse($loan->start_date)->format('d/m/Y') }}
-                              @endif
-                            </td>
-                            <td>
-                                @if($loan->end_date)
-                                {{ \Carbon\Carbon::parse($loan->end_date)->format('d/m/Y') }}
-                              @endif
-                            </td>
+                            <td>{{ \Carbon\Carbon::parse($loan->start_date)->format('d/m/Y') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($loan->end_date)->format('d/m/Y') }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -662,16 +593,8 @@
                         <td>{{ $insurance->insurance_type }}</td>
                         <td>{{ $insurance->company_name }}</td>
                         <td>{{ $insurance->premium }}</td>
-                        <td>
-                            @if($insurance->start_date)
-                            {{ \Carbon\Carbon::parse($insurance->start_date)->format('d/m/Y') }}
-                          @endif
-                        </td>
-                        <td>
-                            @if($insurance->end_date)
-                            {{ \Carbon\Carbon::parse($insurance->end_date)->format('d/m/Y') }}
-                          @endif
-                        </td>
+                        <td>{{ \Carbon\Carbon::parse($insurance->start_date)->format('d/m/Y') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($insurance->end_date)->format('d/m/Y') }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -703,11 +626,7 @@
                     <td>{{ $demat->account_number }}</td>
                     <td>{{ $demat->service_provider }}</td>
                     <td>{{ $demat->plan_name }}</td>
-                    <td>
-                        @if($demat->start_date)
-                        {{ \Carbon\Carbon::parse($demat->start_date)->format('d/m/Y') }}
-                      @endif
-                    </td>
+                    <td>{{ \Carbon\Carbon::parse($demat->start_date)->format('d/m/Y') }}</td>
                 </tr>
             @endforeach
             </tbody>
@@ -738,11 +657,7 @@
                         <td>{{ $mutual->account_number }}</td>
                         <td>{{ $mutual->service_provider }}</td>
                         <td>{{ $mutual->reference_name }}</td>
-                        <td>
-                            @if($mutual->start_date)
-                            {{ \Carbon\Carbon::parse($mutual->start_date)->format('d/m/Y') }}
-                          @endif
-                        </td>
+                        <td>{{ \Carbon\Carbon::parse($mutual->start_date)->format('d/m/Y') }}</td>
                     </tr>
                 @endforeach
             </tbody>
