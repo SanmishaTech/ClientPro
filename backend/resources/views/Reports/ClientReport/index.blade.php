@@ -46,7 +46,7 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th>Mobile</th>
-                <th>Broker Name</th>
+                <th>Premium</th>
                 <th>End Date</th>
             </tr>
         </thead>
@@ -60,8 +60,12 @@
                             <td>{{ $client->client_name }}</td>
                             <td>{{ $client->email }}</td>
                             <td>{{ $client->mobile }}</td>
-                            <td>{{ $mediclaim->broker_name ?? "N/A" }}</td>
-                            <td>{{ \Carbon\Carbon::parse($mediclaim->end_date)->format('d/m/Y') ?? "N/A" }}</td>
+                            <td>{{ $mediclaim->premium ?? "N/A" }}</td>
+                            <td>
+                                @if($mediclaim->end_date)
+                                {{ \Carbon\Carbon::parse($mediclaim->end_date)->format('d/m/Y') ?? "N/A" }}
+                                @endif
+                            </td>
                         </tr>
                     @endif
                 @endforeach
@@ -76,7 +80,11 @@
                                 <td>{{ $familyMember->member_email }}</td>
                                 <td>{{ $familyMember->member_mobile }}</td>
                                 <td>{{ $mediclaim->broker_name ?? "N/A" }}</td>
-                                <td>{{ \Carbon\Carbon::parse($mediclaim->end_date)->format('d/m/Y') ?? "N/A" }}</td>
+                                <td>
+                                    @if($mediclaim->end_date)
+                                    {{ \Carbon\Carbon::parse($mediclaim->end_date)->format('d/m/Y') ?? "N/A" }}
+                                    @endif
+                                </td>
                             </tr>
                         @endif
                     @endforeach
@@ -91,13 +99,15 @@
     <table style="width: 100%">
         <thead>
             <tr>
-                <th colspan="4" style="text-align: center; font-size: 16px; font-weight: bold;">Term Plan</th>
+                <th colspan="6" style="text-align: center; font-size: 16px; font-weight: bold;">Term Plan</th>
             </tr>
             <tr>
                 <th>Date</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Mobile</th>
+                <th>Premium (without gst)</th>
+                <th>End Date</th>
             </tr>
         </thead>
         <tbody>
@@ -110,6 +120,12 @@
                             <td>{{ $client->client_name }}</td>
                             <td>{{ $client->email }}</td>
                             <td>{{ $client->mobile }}</td>
+                            <td>{{ $term->premium_without_gst }}</td>
+                            <td>
+                                @if($term->end_date)
+                                {{ \Carbon\Carbon::parse($term->end_date)->format('d/m/Y') ?? "N/A" }}
+                                @endif
+                            </td>
                         </tr>
                     @endif
                 @endforeach
@@ -123,6 +139,12 @@
                                 <td>{{ $familyMember->family_member_name }}</td>
                                 <td>{{ $familyMember->member_email }}</td>
                                 <td>{{ $familyMember->member_mobile }}</td>
+                                <td>{{ $term->premium_without_gst }}</td>
+                                <td>
+                                    @if($term->end_date)
+                                    {{ \Carbon\Carbon::parse($term->end_date)->format('d/m/Y') ?? "N/A" }}
+                                    @endif
+                                </td>
                             </tr>
                         @endif
                     @endforeach
@@ -137,13 +159,15 @@
     <table style="width: 100%">
         <thead>
             <tr>
-                <th colspan="4" style="text-align: center; font-size: 16px; font-weight: bold;">LIC</th>
+                <th colspan="6" style="text-align: center; font-size: 16px; font-weight: bold;">LIC</th>
             </tr>
             <tr>
                 <th>Date</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Mobile</th>
+                <th>Premium (without gst)</th>
+                <th>End Date</th>
             </tr>
         </thead>
         <tbody>
@@ -156,6 +180,12 @@
                             <td>{{ $client->client_name }}</td>
                             <td>{{ $client->email }}</td>
                             <td>{{ $client->mobile }}</td>
+                            <td>{{ $lic->premium_without_gst }}</td>
+                            <td>
+                                @if($lic->end_date)
+                                {{ \Carbon\Carbon::parse($lic->end_date)->format('d/m/Y') ?? "N/A" }}
+                                @endif
+                            </td>
                         </tr>
                     @endif
                 @endforeach
@@ -169,7 +199,14 @@
                                 <td>{{ $familyMember->family_member_name }}</td>
                                 <td>{{ $familyMember->member_email }}</td>
                                 <td>{{ $familyMember->member_mobile }}</td>
-                            </tr>
+                                <td>{{ $lic->premium_without_gst }}</td>
+                                <td>
+                                    @if($lic->end_date)
+                                    {{ \Carbon\Carbon::parse($lic->end_date)->format('d/m/Y') ?? "N/A" }}
+                                    @endif
+                                </td>
+
+                                </tr>
                         @endif
                     @endforeach
                 @endforeach
@@ -184,13 +221,15 @@
     <table style="width: 100%">
         <thead>
             <tr>
-                <th colspan="4" style="text-align: center; font-size: 16px; font-weight: bold;">General Insurance</th>
+                <th colspan="6" style="text-align: center; font-size: 16px; font-weight: bold;">General Insurance</th>
             </tr>
             <tr>
                 <th>Date</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Mobile</th>
+                <th>Premium</th>
+                <th>End Date</th>
             </tr>
         </thead>
         <tbody>
@@ -203,6 +242,12 @@
                             <td>{{ $client->client_name }}</td>
                             <td>{{ $client->email }}</td>
                             <td>{{ $client->mobile }}</td>
+                            <td>{{ $general->premium }}</td>
+                            <td>
+                                @if($general->end_date)
+                                {{ \Carbon\Carbon::parse($general->end_date)->format('d/m/Y') ?? "N/A" }}
+                                @endif
+                            </td>
                         </tr>
                     @endif
                 @endforeach
@@ -216,6 +261,12 @@
                                 <td>{{ $familyMember->family_member_name }}</td>
                                 <td>{{ $familyMember->member_email }}</td>
                                 <td>{{ $familyMember->member_mobile }}</td>
+                                <td>{{ $general->premium }}</td>
+                                <td>
+                                    @if($general->end_date)
+                                    {{ \Carbon\Carbon::parse($general->end_date)->format('d/m/Y') ?? "N/A" }}
+                                    @endif
+                                </td>
                             </tr>
                         @endif
                     @endforeach
@@ -232,13 +283,15 @@
      <table style="width: 100%">
          <thead>
              <tr>
-                 <th colspan="4" style="text-align: center; font-size: 16px; font-weight: bold;">Demat Account</th>
+                 <th colspan="6" style="text-align: center; font-size: 16px; font-weight: bold;">Demat Account</th>
              </tr>
              <tr>
                  <th>Date</th>
                  <th>Name</th>
                  <th>Email</th>
                  <th>Mobile</th>
+                 <th>Plan Name</th>
+                 <th>Start Date</th>
              </tr>
          </thead>
          <tbody>
@@ -251,6 +304,12 @@
                              <td>{{ $client->client_name }}</td>
                              <td>{{ $client->email }}</td>
                              <td>{{ $client->mobile }}</td>
+                             <td>{{ $demat->plan_name }}</td>
+                             <td>
+                                @if($demat->start_date)
+                                {{ \Carbon\Carbon::parse($demat->start_date)->format('d/m/Y') ?? "N/A" }}
+                                @endif
+                            </td>
                          </tr>
                      @endif
                  @endforeach
@@ -264,6 +323,12 @@
                                  <td>{{ $familyMember->family_member_name }}</td>
                                  <td>{{ $familyMember->member_email }}</td>
                                  <td>{{ $familyMember->member_mobile }}</td>
+                                 <td>{{ $demat->plan_name }}</td>
+                                 <td>
+                                    @if($demat->start_date)
+                                    {{ \Carbon\Carbon::parse($demat->start_date)->format('d/m/Y') ?? "N/A" }}
+                                    @endif
+                                </td>
                              </tr>
                          @endif
                      @endforeach
@@ -279,7 +344,7 @@
       <table style="width: 100%">
           <thead>
               <tr>
-                  <th colspan="5" style="text-align: center; font-size: 16px; font-weight: bold;">Loan</th>
+                  <th colspan="6" style="text-align: center; font-size: 16px; font-weight: bold;">Loan</th>
               </tr>
               <tr>
                   <th>Date</th>
@@ -287,6 +352,7 @@
                   <th>Family Member Name</th>
                   <th>Email</th>
                   <th>Mobile</th>
+                  <th>Loan Type</th>
               </tr>
           </thead>
           <tbody>
@@ -301,6 +367,7 @@
                                 @endif</td>
                               <td>{{ $client->email }}</td>
                               <td>{{ $client->mobile }}</td>
+                              <td>{{ $loan->loan_type }}</td>
                           </tr>
                       @endif
                   @endforeach               
@@ -315,13 +382,15 @@
       <table style="width: 100%">
           <thead>
               <tr>
-                  <th colspan="4" style="text-align: center; font-size: 16px; font-weight: bold;">Mutual Fund</th>
+                  <th colspan="6" style="text-align: center; font-size: 16px; font-weight: bold;">Mutual Fund</th>
               </tr>
               <tr>
                   <th>Date</th>
                   <th>Name</th>
                   <th>Email</th>
                   <th>Mobile</th>
+                  <th>Reference Name</th>
+                  <th>Start Date</th>
               </tr>
           </thead>
           <tbody>
@@ -334,6 +403,12 @@
                               <td>{{ $client->client_name }}</td>
                               <td>{{ $client->email }}</td>
                               <td>{{ $client->mobile }}</td>
+                              <td>{{ $mutual->reference_name }}</td>
+                              <td>
+                                 @if($mutual->start_date)
+                                 {{ \Carbon\Carbon::parse($mutual->start_date)->format('d/m/Y') ?? "N/A" }}
+                                 @endif
+                             </td>
                           </tr>
                       @endif
                   @endforeach
@@ -347,6 +422,12 @@
                                   <td>{{ $familyMember->family_member_name }}</td>
                                   <td>{{ $familyMember->member_email }}</td>
                                   <td>{{ $familyMember->member_mobile }}</td>
+                                  <td>{{ $mutual->reference_name }}</td>
+                              <td>
+                                 @if($mutual->start_date)
+                                 {{ \Carbon\Carbon::parse($mutual->start_date)->format('d/m/Y') ?? "N/A" }}
+                                 @endif
+                             </td>
                               </tr>
                           @endif
                       @endforeach

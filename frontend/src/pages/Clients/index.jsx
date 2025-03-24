@@ -33,6 +33,7 @@ import {
   Trash,
   MoreHorizontal,
   ListFilter,
+  ChevronDown,
 } from "lucide-react";
 
 import Pagination from "@/customComponents/Pagination/Pagination";
@@ -231,7 +232,7 @@ const Index = () => {
                   <TableHead className="">Name</TableHead>{" "}
                   <TableHead className="">Email</TableHead>{" "}
                   <TableHead className="">Mobile</TableHead>{" "}
-                  <TableHead className="">Family Members</TableHead>{" "}
+                  <TableHead className="text-center">Family Members</TableHead>{" "}
                   {/*removed w-[100px] from here */}
                   <TableHead className="text-right">Action</TableHead>
                 </TableRow>
@@ -252,25 +253,31 @@ const Index = () => {
                       <TableCell className="font-medium p-2">
                         {client?.mobile || "N/A"}
                       </TableCell>
-                      <TableCell className="font-medium p-2">
+                      <TableCell className="font-medium p-2 text-center">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">
                               <span className="sr-only">Open menu</span>
                               {client?.Family_members?.length > 0 ? (
                                 <>
-                                  {
+                                  {/* {
                                     client?.Family_members[0]
                                       ?.family_member_name
-                                  }
+                                  } */}
+                                  {
+                                    client?.Family_members[0]?.family_member_name?.split(
+                                      " "
+                                    )[0]
+                                  }{" "}
                                   {` `}
                                   {client?.Family_members.length > 1 ? (
                                     <Badge className="bg-blue-700">
-                                      +{client?.Family_members.length - 1} more
+                                      +{client?.Family_members.length - 1} more{" "}
                                     </Badge>
                                   ) : (
                                     ""
                                   )}
+                                  <ChevronDown />
                                 </>
                               ) : (
                                 "N/A"
