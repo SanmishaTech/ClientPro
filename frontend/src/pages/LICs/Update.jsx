@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
-import { z } from "zod";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import React, { useEffect, useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, Controller } from 'react-hook-form';
+import { z } from 'zod';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 import {
   Select,
@@ -13,19 +13,19 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import axios from "axios";
-import { Button } from "@/components/ui/button";
-import { useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { Loader2, Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/select';
+import axios from 'axios';
+import { Button } from '@/components/ui/button';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { Loader2, Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from '@/components/ui/popover';
 import {
   Command,
   CommandEmpty,
@@ -33,69 +33,69 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
+} from '@/components/ui/command';
 
 const formSchema = z.object({
   // devta_name: z.string().min(2, "Name must be at least 2 characters"),
-  client_id: z.coerce.number().min(1, "Client field is required."),
+  client_id: z.coerce.number().min(1, 'Client field is required.'),
   family_member_id: z.string().optional(),
   company_name: z
     .string()
-    .min(1, "Company name field is required.")
-    .max(100, "Company name must not exceed 100 characters.")
+    .min(1, 'Company name field is required.')
+    .max(100, 'Company name must not exceed 100 characters.')
     .regex(
       /^[A-Za-z\s\u0900-\u097F]+$/,
-      "Company name can only contain letters."
+      'Company name can only contain letters.'
     ),
 
   broker_name: z
     .string() // ensures broker_name is a string
-    .max(100, "Broker name must not exceed 100 characters.") // enforces a max length of 100 characters
-    .refine((val) => val === "" || /^[A-Za-z\s\u0900-\u097F]+$/.test(val), {
-      message: "Broker name can only contain letters.", // ensures only letters and spaces or Hindi characters are allowed
+    .max(100, 'Broker name must not exceed 100 characters.') // enforces a max length of 100 characters
+    .refine((val) => val === '' || /^[A-Za-z\s\u0900-\u097F]+$/.test(val), {
+      message: 'Broker name can only contain letters.', // ensures only letters and spaces or Hindi characters are allowed
     })
     .optional(), // makes the broker_name field optional
 
   policy_number: z
     .string()
-    .min(1, "Policy number field is required.")
-    .max(100, "Policy number must not exceed 100 characters."),
+    .min(1, 'Policy number field is required.')
+    .max(100, 'Policy number must not exceed 100 characters.'),
   plan_name: z
     .string()
-    .min(1, "Plan name field is required.")
-    .max(100, "Plan name must not exceed 100 characters.")
-    .regex(/^[A-Za-z\s\u0900-\u097F]+$/, "Plan name can only contain letters."),
+    .min(1, 'Plan name field is required.')
+    .max(100, 'Plan name must not exceed 100 characters.')
+    .regex(/^[A-Za-z\s\u0900-\u097F]+$/, 'Plan name can only contain letters.'),
   premium_without_gst: z.coerce
     .number()
-    .min(1, "Premium field is required.")
-    .max(99999999, "Premium field must not exceed 9,99,99,999."),
-  commencement_date: z.string().min(1, "Commencement date field is required."),
+    .min(1, 'Premium field is required.')
+    .max(99999999, 'Premium field must not exceed 9,99,99,999.'),
+  commencement_date: z.string().min(1, 'Commencement date field is required.'),
   term: z.coerce
     .number()
-    .min(1, "Term field is required.")
-    .max(50, "Term field must not exceed 50 years"),
+    .min(1, 'Term field is required.')
+    .max(50, 'Term field must not exceed 50 years'),
   ppt: z.coerce
     .number()
-    .min(1, "PPT field field is required.")
-    .max(50, "PPT field must not exceed 50 years."),
+    .min(1, 'PPT field field is required.')
+    .max(50, 'PPT field must not exceed 50 years.'),
 
-  proposal_date: z.string().min(1, "Proposal date field is required."),
+  proposal_date: z.string().min(1, 'Proposal date field is required.'),
 
   premium_payment_mode: z
     .string()
-    .max(100, "Premium payment mode field must not exceed 100 characters."),
+    .max(100, 'Premium payment mode field must not exceed 100 characters.'),
 
   sum_insured: z.coerce
     .number()
-    .min(1, "Sum Insured field is required.")
-    .max(99999999, "Sum Insured must not exceed 9,99,99,999."),
+    .min(1, 'Sum Insured field is required.')
+    .max(99999999, 'Sum Insured must not exceed 9,99,99,999.'),
 
   end_date: z
     .string()
     .optional()
     .refine(
       (val) => !val || !isNaN(Date.parse(val)),
-      "End date must be a valid date if provided."
+      'End date must be a valid date if provided.'
     ),
 });
 
@@ -104,25 +104,25 @@ const Update = () => {
   const [openClient, setOpenClient] = useState(false);
   const queryClient = useQueryClient();
   const { id } = useParams();
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem('user'));
   const token = user.token;
   const navigate = useNavigate();
 
   const defaultValues = {
-    client_id: "",
-    family_member_id: "",
-    company_name: "",
-    policy_number: "",
-    plan_name: "",
-    premium_without_gst: "",
-    ppt: "",
-    term: "",
-    commencement_date: "",
-    broker_name: "",
-    proposal_date: "",
-    premium_payment_mode: "",
-    sum_insured: "",
-    end_date: "",
+    client_id: '',
+    family_member_id: '',
+    company_name: '',
+    policy_number: '',
+    plan_name: '',
+    premium_without_gst: '',
+    ppt: '',
+    term: '',
+    commencement_date: '',
+    broker_name: '',
+    proposal_date: '',
+    premium_payment_mode: '',
+    sum_insured: '',
+    end_date: '',
   };
 
   const {
@@ -130,12 +130,12 @@ const Update = () => {
     isLoading: isAllClientsDataLoading,
     isError: isAllClientsDataError,
   } = useQuery({
-    queryKey: ["all_clients"], // This is the query key
+    queryKey: ['all_clients'], // This is the query key
     queryFn: async () => {
       try {
         const response = await axios.get(`/api/all_clients`, {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
         });
@@ -155,19 +155,19 @@ const Update = () => {
     setError,
     watch,
   } = useForm({ resolver: zodResolver(formSchema), defaultValues });
-  const selectedClient = watch("client_id") || null;
+  const selectedClient = watch('client_id') || null;
 
   const {
     data: editLIC,
     isLoading: isEditLICDataLoading,
     isError: isEditLICDataError,
   } = useQuery({
-    queryKey: ["editLIC", id], // This is the query key
+    queryKey: ['editLIC', id], // This is the query key
     queryFn: async () => {
       try {
         const response = await axios.get(`/api/lics/${id}`, {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
         });
@@ -184,7 +184,7 @@ const Update = () => {
     isLoading: isEditClientDataLoading,
     isError: isEditClientDataError,
   } = useQuery({
-    queryKey: ["editClient", selectedClient], // This is the query key
+    queryKey: ['editClient', selectedClient], // This is the query key
     queryFn: async () => {
       try {
         if (!selectedClient) {
@@ -192,7 +192,7 @@ const Update = () => {
         }
         const response = await axios.get(`/api/clients/${selectedClient}`, {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
         });
@@ -206,27 +206,27 @@ const Update = () => {
 
   useEffect(() => {
     if (editLIC) {
-      setValue("client_id", editLIC.LIC?.client_id || "");
-      setValue("company_name", editLIC.LIC?.company_name || "");
-      setValue("broker_name", editLIC.LIC?.broker_name || "");
-      setValue("proposal_date", editLIC.LIC?.proposal_date || "");
-      setValue("premium_payment_mode", editLIC.LIC?.premium_payment_mode || "");
-      setValue("sum_insured", editLIC.LIC?.sum_insured || "");
-      setValue("end_date", editLIC.LIC?.end_date || "");
-      setValue("policy_number", editLIC.LIC?.policy_number || "");
-      setValue("plan_name", editLIC.LIC?.plan_name || "");
-      setValue("premium_without_gst", editLIC.LIC?.premium_without_gst || "");
-      setValue("ppt", editLIC.LIC?.ppt || "");
-      setValue("term", editLIC.LIC?.term || "");
-      setValue("commencement_date", editLIC.LIC?.commencement_date || "");
+      setValue('client_id', editLIC.LIC?.client_id || '');
+      setValue('company_name', editLIC.LIC?.company_name || '');
+      setValue('broker_name', editLIC.LIC?.broker_name || '');
+      setValue('proposal_date', editLIC.LIC?.proposal_date || '');
+      setValue('premium_payment_mode', editLIC.LIC?.premium_payment_mode || '');
+      setValue('sum_insured', editLIC.LIC?.sum_insured || '');
+      setValue('end_date', editLIC.LIC?.end_date || '');
+      setValue('policy_number', editLIC.LIC?.policy_number || '');
+      setValue('plan_name', editLIC.LIC?.plan_name || '');
+      setValue('premium_without_gst', editLIC.LIC?.premium_without_gst || '');
+      setValue('ppt', editLIC.LIC?.ppt || '');
+      setValue('term', editLIC.LIC?.term || '');
+      setValue('commencement_date', editLIC.LIC?.commencement_date || '');
       setTimeout(() => {
         setValue(
-          "family_member_id",
+          'family_member_id',
           editLIC?.LIC?.family_member_id
             ? String(editLIC?.LIC?.family_member_id)
-            : ""
+            : ''
         );
-      }, 200); // 1000
+      }, 800); // 1000
     }
   }, [editLIC, setValue]);
 
@@ -234,18 +234,18 @@ const Update = () => {
     mutationFn: async (data) => {
       const response = await axios.put(`/api/lics/${id}`, data, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`, // Include the Bearer token
         },
       });
       return response.data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries("lics");
+      queryClient.invalidateQueries('lics');
 
-      toast.success("LIC details Updated Successfully");
+      toast.success('LIC details Updated Successfully');
       setIsLoading(false);
-      navigate("/lics");
+      navigate('/lics');
     },
     onError: (error) => {
       setIsLoading(false);
@@ -254,17 +254,17 @@ const Update = () => {
         const serverErrors = error.response.data.errors;
         if (serverStatus === false) {
           if (serverErrors.company_name) {
-            setError("company_name", {
-              type: "manual",
+            setError('company_name', {
+              type: 'manual',
               message: serverErrors.company_name[0], // The error message from the server
             });
             // toast.error("The poo has already been taken.");
           }
         } else {
-          toast.error("Failed to update LIC details.");
+          toast.error('Failed to update LIC details.');
         }
       } else {
-        toast.error("Failed to update LIC details.");
+        toast.error('Failed to update LIC details.');
       }
     },
   });
@@ -276,8 +276,8 @@ const Update = () => {
       updateMutation.mutate(data);
     } else {
       setIsLoading(false);
-      toast.error("Cannot Update Cancelled LIC.");
-      navigate("/lics");
+      toast.error('Cannot Update Cancelled LIC.');
+      navigate('/lics');
     }
   };
 
@@ -289,7 +289,7 @@ const Update = () => {
           <div className="flex items-center space-x-2 text-gray-700">
             <span className="">
               <Button
-                onClick={() => navigate("/lics")}
+                onClick={() => navigate('/lics')}
                 className="p-0 text-blue-700 text-sm font-light"
                 variant="link"
               >
@@ -355,7 +355,7 @@ const Update = () => {
                         <Button
                           variant="outline"
                           role="combobox"
-                          aria-expanded={openClient ? "true" : "false"} // This should depend on the popover state
+                          aria-expanded={openClient ? 'true' : 'false'} // This should depend on the popover state
                           className=" w-[325px]  md:w-[320px] justify-between mt-1"
                           onClick={() => setOpenClient((prev) => !prev)} // Toggle popover on button click
                         >
@@ -364,7 +364,7 @@ const Update = () => {
                               allClientsData?.Clients.find(
                                 (client) => client.id === field.value
                               )?.client_name
-                            : "Select Client..."}
+                            : 'Select Client...'}
                           <ChevronsUpDown className="opacity-50" />
                         </Button>
                       </PopoverTrigger>
@@ -383,8 +383,8 @@ const Update = () => {
                                     key={client.id}
                                     value={client.id}
                                     onSelect={(currentValue) => {
-                                      setValue("client_id", client.id);
-                                      setValue("family_member_id", "");
+                                      setValue('client_id', client.id);
+                                      setValue('family_member_id', '');
                                       // setSelectedReceiptTypeId(
                                       //   currentValue === selectedReceiptTypeId
                                       //     ? ""
@@ -398,10 +398,10 @@ const Update = () => {
                                     {client.client_name}
                                     <Check
                                       className={cn(
-                                        "ml-auto",
+                                        'ml-auto',
                                         client.id === field.value
-                                          ? "opacity-100"
-                                          : "opacity-0"
+                                          ? 'opacity-100'
+                                          : 'opacity-0'
                                       )}
                                     />
                                   </CommandItem>
@@ -725,7 +725,7 @@ const Update = () => {
               </div>
               <div className="relative">
                 <Label className="font-normal" htmlFor="ppt">
-                  PPT (Policy Payment Term):{" "}
+                  PPT (Policy Payment Term):{' '}
                   <span className="text-red-500">*</span>
                 </Label>
                 <Controller
@@ -754,13 +754,13 @@ const Update = () => {
               <Button
                 type="button"
                 className="dark:text-white shadow-xl bg-red-600 hover:bg-red-700"
-                onClick={() => navigate("/lics")}
+                onClick={() => navigate('/lics')}
               >
                 Cancel
               </Button>
 
               {editLIC?.LIC?.cancelled === 1 ? (
-                ""
+                ''
               ) : (
                 <Button
                   type="submit"
@@ -773,7 +773,7 @@ const Update = () => {
                       Updating...
                     </>
                   ) : (
-                    "Update"
+                    'Update'
                   )}
                 </Button>
               )}

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
-import { z } from "zod";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import React, { useEffect, useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, Controller } from 'react-hook-form';
+import { z } from 'zod';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 import {
   Select,
@@ -13,19 +13,19 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import axios from "axios";
-import { Button } from "@/components/ui/button";
-import { useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { Loader2, Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/select';
+import axios from 'axios';
+import { Button } from '@/components/ui/button';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { Loader2, Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from '@/components/ui/popover';
 import {
   Command,
   CommandEmpty,
@@ -33,41 +33,41 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
-import { toTitleCase } from "../../lib/titleCase.js";
+} from '@/components/ui/command';
+import { toTitleCase } from '../../lib/titleCase.js';
 
 const formSchema = z.object({
   // devta_name: z.string().min(2, "Name must be at least 2 characters"),
-  client_id: z.coerce.number().min(1, "client field is required."),
+  client_id: z.coerce.number().min(1, 'client field is required.'),
   family_member_id: z.string().optional(),
   bank_name: z
     .string()
-    .min(1, "Bank name field is required.")
-    .max(100, "Bank name must be at max 100 characters")
-    .regex(/^[A-Za-z\s\u0900-\u097F]+$/, "Bank name can only contain letters."),
+    .min(1, 'Bank name field is required.')
+    .max(100, 'Bank name must be at max 100 characters')
+    .regex(/^[A-Za-z\s\u0900-\u097F]+$/, 'Bank name can only contain letters.'),
   loan_type: z
     .string()
-    .min(1, "Loan type field is required.")
-    .max(100, "Loan Type must be at max 100 characters")
-    .regex(/^[A-Za-z\s\u0900-\u097F]+$/, "Loan type can only contain letters."),
-  start_date: z.string().min(1, "Start Date is required"),
-  end_date: z.string().min(1, "End date is required"),
+    .min(1, 'Loan type field is required.')
+    .max(100, 'Loan Type must be at max 100 characters')
+    .regex(/^[A-Za-z\s\u0900-\u097F]+$/, 'Loan type can only contain letters.'),
+  start_date: z.string().min(1, 'Start Date is required'),
+  end_date: z.string().min(1, 'End date is required'),
   loan_amount: z.coerce
     .number()
-    .min(1, "Loan amount field is required.")
-    .max(99999999, "Loan amount must not exceed 9,99,99,999."),
+    .min(1, 'Loan amount field is required.')
+    .max(99999999, 'Loan amount must not exceed 9,99,99,999.'),
   term: z.coerce
     .number()
-    .min(1, "Term field is required.")
-    .max(50, "Term field must not exceed 50 years."),
+    .min(1, 'Term field is required.')
+    .max(50, 'Term field must not exceed 50 years.'),
   emi: z.coerce
     .number()
-    .min(1, "Emi field is required.")
-    .max(99999999, "Emi field must not exceed 9,99,99,999."),
+    .min(1, 'Emi field is required.')
+    .max(99999999, 'Emi field must not exceed 9,99,99,999.'),
   roi: z.coerce
     .number()
-    .min(1, "ROI field is required.")
-    .max(100, "ROI field must not exceed 100."),
+    .min(1, 'ROI field is required.')
+    .max(100, 'ROI field must not exceed 100.'),
 });
 
 const Update = () => {
@@ -75,21 +75,21 @@ const Update = () => {
   const [openClient, setOpenClient] = useState(false);
   const queryClient = useQueryClient();
   const { id } = useParams();
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem('user'));
   const token = user.token;
   const navigate = useNavigate();
 
   const defaultValues = {
-    client_id: "",
-    loan_type: "",
-    start_date: "",
-    end_date: "",
-    bank_name: "",
-    loan_amount: "",
-    term: "",
-    emi: "",
-    roi: "",
-    family_member_id: "",
+    client_id: '',
+    loan_type: '',
+    start_date: '',
+    end_date: '',
+    bank_name: '',
+    loan_amount: '',
+    term: '',
+    emi: '',
+    roi: '',
+    family_member_id: '',
   };
 
   const {
@@ -97,12 +97,12 @@ const Update = () => {
     isLoading: isAllClientsDataLoading,
     isError: isAllClientsDataError,
   } = useQuery({
-    queryKey: ["all_clients"], // This is the query key
+    queryKey: ['all_clients'], // This is the query key
     queryFn: async () => {
       try {
         const response = await axios.get(`/api/all_clients`, {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
         });
@@ -123,18 +123,18 @@ const Update = () => {
     watch,
     reset,
   } = useForm({ resolver: zodResolver(formSchema), defaultValues });
-  const selectedClient = watch("client_id") || null;
+  const selectedClient = watch('client_id') || null;
   const {
     data: editLoan,
     isLoading: isEditLoanDataLoading,
     isError: isEditLoanDataError,
   } = useQuery({
-    queryKey: ["editLoan", id], // This is the query key
+    queryKey: ['editLoan', id], // This is the query key
     queryFn: async () => {
       try {
         const response = await axios.get(`/api/loans/${id}`, {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
         });
@@ -151,7 +151,7 @@ const Update = () => {
     isLoading: isEditClientDataLoading,
     isError: isEditClientDataError,
   } = useQuery({
-    queryKey: ["editClient", selectedClient], // This is the query key
+    queryKey: ['editClient', selectedClient], // This is the query key
     queryFn: async () => {
       try {
         if (!selectedClient) {
@@ -159,7 +159,7 @@ const Update = () => {
         }
         const response = await axios.get(`/api/clients/${selectedClient}`, {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
         });
@@ -173,15 +173,15 @@ const Update = () => {
 
   useEffect(() => {
     if (editLoan) {
-      setValue("client_id", editLoan.Loan?.client_id || "");
-      setValue("bank_name", editLoan.Loan?.bank_name || "");
-      setValue("loan_type", editLoan.Loan?.loan_type || "");
-      setValue("loan_amount", editLoan.Loan?.loan_amount || "");
-      setValue("emi", editLoan.Loan?.emi || "");
-      setValue("roi", editLoan.Loan?.roi || "");
-      setValue("term", editLoan.Loan?.term || "");
-      setValue("start_date", editLoan.Loan?.start_date || "");
-      setValue("end_date", editLoan.Loan?.end_date || "");
+      setValue('client_id', editLoan.Loan?.client_id || '');
+      setValue('bank_name', editLoan.Loan?.bank_name || '');
+      setValue('loan_type', editLoan.Loan?.loan_type || '');
+      setValue('loan_amount', editLoan.Loan?.loan_amount || '');
+      setValue('emi', editLoan.Loan?.emi || '');
+      setValue('roi', editLoan.Loan?.roi || '');
+      setValue('term', editLoan.Loan?.term || '');
+      setValue('start_date', editLoan.Loan?.start_date || '');
+      setValue('end_date', editLoan.Loan?.end_date || '');
       // setValue(
       //   "family_member_id",
       //   editLoan?.Loan?.family_member_id
@@ -190,12 +190,12 @@ const Update = () => {
       // );
       setTimeout(() => {
         setValue(
-          "family_member_id",
+          'family_member_id',
           editLoan?.Loan?.family_member_id
             ? String(editLoan?.Loan?.family_member_id)
-            : ""
+            : ''
         );
-      }, 200); // 1000
+      }, 800); // 1000
     }
   }, [editLoan, setValue]);
 
@@ -203,18 +203,18 @@ const Update = () => {
     mutationFn: async (data) => {
       const response = await axios.put(`/api/loans/${id}`, data, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`, // Include the Bearer token
         },
       });
       return response.data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries("loans");
+      queryClient.invalidateQueries('loans');
 
-      toast.success("Loans Updated Successfully");
+      toast.success('Loans Updated Successfully');
       setIsLoading(false);
-      navigate("/loans");
+      navigate('/loans');
     },
     onError: (error) => {
       setIsLoading(false);
@@ -223,17 +223,17 @@ const Update = () => {
         const serverErrors = error.response.data.errors;
         if (serverStatus === false) {
           if (serverErrors.bank_name) {
-            setError("bank_name", {
-              type: "manual",
+            setError('bank_name', {
+              type: 'manual',
               message: serverErrors.bank_name[0], // The error message from the server
             });
             // toast.error("The poo has already been taken.");
           }
         } else {
-          toast.error("Failed to Update loan details.");
+          toast.error('Failed to Update loan details.');
         }
       } else {
-        toast.error("Failed to Update loan details.");
+        toast.error('Failed to Update loan details.');
       }
     },
   });
@@ -250,7 +250,7 @@ const Update = () => {
           <div className="flex items-center space-x-2 text-gray-700">
             <span className="">
               <Button
-                onClick={() => navigate("/loans")}
+                onClick={() => navigate('/loans')}
                 className="p-0 text-blue-700 text-sm font-light"
                 variant="link"
               >
@@ -316,7 +316,7 @@ const Update = () => {
                         <Button
                           variant="outline"
                           role="combobox"
-                          aria-expanded={openClient ? "true" : "false"} // This should depend on the popover state
+                          aria-expanded={openClient ? 'true' : 'false'} // This should depend on the popover state
                           className=" w-[325px]  md:w-[490px] justify-between mt-1"
                           onClick={() => setOpenClient((prev) => !prev)} // Toggle popover on button click
                         >
@@ -325,7 +325,7 @@ const Update = () => {
                               allClientsData?.Clients.find(
                                 (client) => client.id === field.value
                               )?.client_name
-                            : "Select Client..."}
+                            : 'Select Client...'}
                           <ChevronsUpDown className="opacity-50" />
                         </Button>
                       </PopoverTrigger>
@@ -344,8 +344,8 @@ const Update = () => {
                                     key={client.id}
                                     value={client.id}
                                     onSelect={(currentValue) => {
-                                      setValue("client_id", client.id);
-                                      setValue("family_member_id", "");
+                                      setValue('client_id', client.id);
+                                      setValue('family_member_id', '');
                                       // setSelectedReceiptTypeId(
                                       //   currentValue === selectedReceiptTypeId
                                       //     ? ""
@@ -359,10 +359,10 @@ const Update = () => {
                                     {client.client_name}
                                     <Check
                                       className={cn(
-                                        "ml-auto",
+                                        'ml-auto',
                                         client.id === field.value
-                                          ? "opacity-100"
-                                          : "opacity-0"
+                                          ? 'opacity-100'
+                                          : 'opacity-0'
                                       )}
                                     />
                                   </CommandItem>
@@ -631,12 +631,12 @@ const Update = () => {
               <Button
                 type="button"
                 className="dark:text-white shadow-xl bg-red-600 hover:bg-red-700"
-                onClick={() => navigate("/loans")}
+                onClick={() => navigate('/loans')}
               >
                 Cancel
               </Button>
               {editLoan?.Loan?.cancelled === 1 ? (
-                ""
+                ''
               ) : (
                 <Button
                   type="submit"
@@ -649,7 +649,7 @@ const Update = () => {
                       Submitting...
                     </>
                   ) : (
-                    "Submit"
+                    'Submit'
                   )}
                 </Button>
               )}

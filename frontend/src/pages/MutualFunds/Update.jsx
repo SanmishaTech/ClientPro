@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
-import { z } from "zod";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import React, { useEffect, useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, Controller } from 'react-hook-form';
+import { z } from 'zod';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 import {
   Select,
@@ -13,19 +13,19 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import axios from "axios";
-import { Button } from "@/components/ui/button";
-import { useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { Loader2, Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/select';
+import axios from 'axios';
+import { Button } from '@/components/ui/button';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { Loader2, Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from '@/components/ui/popover';
 import {
   Command,
   CommandEmpty,
@@ -33,36 +33,36 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
+} from '@/components/ui/command';
 
 const formSchema = z.object({
-  client_id: z.coerce.number().min(1, "Client field is required."),
+  client_id: z.coerce.number().min(1, 'Client field is required.'),
   family_member_id: z.string().optional(),
   account_number: z
     .string()
-    .min(1, "Account Number field is required")
-    .max(100, "Account Number field can not exceed 100 characters"),
+    .min(1, 'Account Number field is required')
+    .max(100, 'Account Number field can not exceed 100 characters'),
   mutual_fund_name: z
     .string()
-    .min(1, "Name field is required.")
-    .max(100, "Name field must not exceed 100 characters.")
-    .regex(/^[A-Za-z\s\u0900-\u097F]+$/, "Name can only contain letters."),
+    .min(1, 'Name field is required.')
+    .max(100, 'Name field must not exceed 100 characters.')
+    .regex(/^[A-Za-z\s\u0900-\u097F]+$/, 'Name can only contain letters.'),
   reference_name: z
     .string()
-    .min(1, "Reference name field is required.")
-    .max(100, "Reference name field must not exceed 100 characters.")
+    .min(1, 'Reference name field is required.')
+    .max(100, 'Reference name field must not exceed 100 characters.')
     .regex(
       /^[A-Za-z\s\u0900-\u097F]+$/,
-      "Reference name can only contain letters."
+      'Reference name can only contain letters.'
     ),
-  start_date: z.string().min(1, "Start Date field is required"),
+  start_date: z.string().min(1, 'Start Date field is required'),
   service_provider: z
     .string()
-    .min(1, "Service Provider field is required.")
-    .max(100, "Service Provider field must not exceed 100 characters.")
+    .min(1, 'Service Provider field is required.')
+    .max(100, 'Service Provider field must not exceed 100 characters.')
     .regex(
       /^[A-Za-z\s\u0900-\u097F]+$/,
-      "Service Provider can only contain letters."
+      'Service Provider can only contain letters.'
     ), // Make it optional
 });
 
@@ -71,18 +71,18 @@ const Update = () => {
   const [openClient, setOpenClient] = useState(false);
   const queryClient = useQueryClient();
   const { id } = useParams();
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem('user'));
   const token = user.token;
   const navigate = useNavigate();
 
   const defaultValues = {
-    client_id: "",
-    family_member_id: "",
-    reference_name: "",
-    mutual_fund_name: "",
-    service_provider: "",
-    start_date: "",
-    account_number: "",
+    client_id: '',
+    family_member_id: '',
+    reference_name: '',
+    mutual_fund_name: '',
+    service_provider: '',
+    start_date: '',
+    account_number: '',
   };
 
   const {
@@ -90,12 +90,12 @@ const Update = () => {
     isLoading: isAllClientsDataLoading,
     isError: isAllClientsDataError,
   } = useQuery({
-    queryKey: ["all_clients"], // This is the query key
+    queryKey: ['all_clients'], // This is the query key
     queryFn: async () => {
       try {
         const response = await axios.get(`/api/all_clients`, {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
         });
@@ -115,19 +115,19 @@ const Update = () => {
     setError,
     watch,
   } = useForm({ resolver: zodResolver(formSchema), defaultValues });
-  const selectedClient = watch("client_id") || null;
+  const selectedClient = watch('client_id') || null;
 
   const {
     data: editMutual,
     isLoading: isEditMutualDataLoading,
     isError: isEditMutualDataError,
   } = useQuery({
-    queryKey: ["editMutualFund", id], // This is the query key
+    queryKey: ['editMutualFund', id], // This is the query key
     queryFn: async () => {
       try {
         const response = await axios.get(`/api/mutual_funds/${id}`, {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
         });
@@ -144,7 +144,7 @@ const Update = () => {
     isLoading: isEditClientDataLoading,
     isError: isEditClientDataError,
   } = useQuery({
-    queryKey: ["editClient", selectedClient], // This is the query key
+    queryKey: ['editClient', selectedClient], // This is the query key
     queryFn: async () => {
       try {
         if (!selectedClient) {
@@ -152,7 +152,7 @@ const Update = () => {
         }
         const response = await axios.get(`/api/clients/${selectedClient}`, {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
         });
@@ -166,27 +166,27 @@ const Update = () => {
 
   useEffect(() => {
     if (editMutual) {
-      setValue("client_id", editMutual.MutualFund?.client_id || "");
+      setValue('client_id', editMutual.MutualFund?.client_id || '');
       setValue(
-        "mutual_fund_name",
-        editMutual.MutualFund?.mutual_fund_name || ""
+        'mutual_fund_name',
+        editMutual.MutualFund?.mutual_fund_name || ''
       );
-      setValue("reference_name", editMutual.MutualFund?.reference_name || "");
+      setValue('reference_name', editMutual.MutualFund?.reference_name || '');
       setValue(
-        "service_provider",
-        editMutual.MutualFund?.service_provider || ""
+        'service_provider',
+        editMutual.MutualFund?.service_provider || ''
       );
-      setValue("start_date", editMutual.MutualFund?.start_date || "");
-      setValue("account_number", editMutual.MutualFund?.account_number || "");
+      setValue('start_date', editMutual.MutualFund?.start_date || '');
+      setValue('account_number', editMutual.MutualFund?.account_number || '');
 
       setTimeout(() => {
         setValue(
-          "family_member_id",
+          'family_member_id',
           editMutual?.MutualFund?.family_member_id
             ? String(editMutual?.MutualFund?.family_member_id)
-            : ""
+            : ''
         );
-      }, 200); // 1000
+      }, 800); // 1000
     }
   }, [editMutual, setValue]);
 
@@ -194,18 +194,18 @@ const Update = () => {
     mutationFn: async (data) => {
       const response = await axios.put(`/api/mutual_funds/${id}`, data, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`, // Include the Bearer token
         },
       });
       return response.data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries("mutual_funds");
+      queryClient.invalidateQueries('mutual_funds');
 
-      toast.success("Mutual Fund details Updated Successfully");
+      toast.success('Mutual Fund details Updated Successfully');
       setIsLoading(false);
-      navigate("/mutual_funds");
+      navigate('/mutual_funds');
     },
     onError: (error) => {
       setIsLoading(false);
@@ -214,17 +214,17 @@ const Update = () => {
         const serverErrors = error.response.data.errors;
         if (serverStatus === false) {
           if (serverErrors.mutual_fund_name) {
-            setError("mutual_fund_name", {
-              type: "manual",
+            setError('mutual_fund_name', {
+              type: 'manual',
               message: serverErrors.mutual_fund_name[0], // The error message from the server
             });
             // toast.error("The poo has already been taken.");
           }
         } else {
-          toast.error("Failed to update Mutual Fund details.");
+          toast.error('Failed to update Mutual Fund details.');
         }
       } else {
-        toast.error("Failed to update Mutual Fund details.");
+        toast.error('Failed to update Mutual Fund details.');
       }
     },
   });
@@ -236,8 +236,8 @@ const Update = () => {
       updateMutation.mutate(data);
     } else {
       setIsLoading(false);
-      toast.error("Cannot Update Cancelled Mutual Fund.");
-      navigate("/mutual_funds");
+      toast.error('Cannot Update Cancelled Mutual Fund.');
+      navigate('/mutual_funds');
     }
   };
 
@@ -249,7 +249,7 @@ const Update = () => {
           <div className="flex items-center space-x-2 text-gray-700">
             <span className="">
               <Button
-                onClick={() => navigate("/mutual_funds")}
+                onClick={() => navigate('/mutual_funds')}
                 className="p-0 text-blue-700 text-sm font-light"
                 variant="link"
               >
@@ -315,7 +315,7 @@ const Update = () => {
                         <Button
                           variant="outline"
                           role="combobox"
-                          aria-expanded={openClient ? "true" : "false"} // This should depend on the popover state
+                          aria-expanded={openClient ? 'true' : 'false'} // This should depend on the popover state
                           className=" w-[325px]  md:w-[320px] justify-between mt-1"
                           onClick={() => setOpenClient((prev) => !prev)} // Toggle popover on button click
                         >
@@ -324,7 +324,7 @@ const Update = () => {
                               allClientsData?.Clients.find(
                                 (client) => client.id === field.value
                               )?.client_name
-                            : "Select Client..."}
+                            : 'Select Client...'}
                           <ChevronsUpDown className="opacity-50" />
                         </Button>
                       </PopoverTrigger>
@@ -343,8 +343,8 @@ const Update = () => {
                                     key={client.id}
                                     value={client.id}
                                     onSelect={(currentValue) => {
-                                      setValue("client_id", client.id);
-                                      setValue("family_member_id", "");
+                                      setValue('client_id', client.id);
+                                      setValue('family_member_id', '');
                                       // setSelectedReceiptTypeId(
                                       //   currentValue === selectedReceiptTypeId
                                       //     ? ""
@@ -358,10 +358,10 @@ const Update = () => {
                                     {client.client_name}
                                     <Check
                                       className={cn(
-                                        "ml-auto",
+                                        'ml-auto',
                                         client.id === field.value
-                                          ? "opacity-100"
-                                          : "opacity-0"
+                                          ? 'opacity-100'
+                                          : 'opacity-0'
                                       )}
                                     />
                                   </CommandItem>
@@ -539,13 +539,13 @@ const Update = () => {
               <Button
                 type="button"
                 className="dark:text-white shadow-xl bg-red-600 hover:bg-red-700"
-                onClick={() => navigate("/mutual_funds")}
+                onClick={() => navigate('/mutual_funds')}
               >
                 Cancel
               </Button>
 
               {editMutual?.MutualFund?.cancelled === 1 ? (
-                ""
+                ''
               ) : (
                 <Button
                   type="submit"
@@ -558,7 +558,7 @@ const Update = () => {
                       Updating...
                     </>
                   ) : (
-                    "Update"
+                    'Update'
                   )}
                 </Button>
               )}

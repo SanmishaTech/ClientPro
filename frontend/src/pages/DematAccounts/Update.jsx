@@ -187,12 +187,12 @@ const Update = () => {
 
       setTimeout(() => {
         setValue(
-          "family_member_id",
+          'family_member_id',
           editDematAccount?.DematAccount?.family_member_id
             ? String(editDematAccount?.DematAccount?.family_member_id)
-            : ""
+            : ''
         );
-      }, 200); // 1000
+      }, 800); // 1000
     }
   }, [editDematAccount, setValue]);
 

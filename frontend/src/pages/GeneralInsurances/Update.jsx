@@ -184,12 +184,12 @@ const Update = () => {
       setValue("premium", editGeneralInsurance.GeneralInsurance?.premium || "");
       setTimeout(() => {
         setValue(
-          "family_member_id",
+          'family_member_id',
           editGeneralInsurance?.GeneralInsurance?.family_member_id
             ? String(editGeneralInsurance?.GeneralInsurance?.family_member_id)
-            : ""
+            : ''
         );
-      }, 200); // 1000
+      }, 800); // 1000
     }
   }, [editGeneralInsurance, setValue]);
 
