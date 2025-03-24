@@ -191,36 +191,30 @@ const DisplayDocuments = ({ id }) => {
 
             {/* end */}
 
-            {/* member start */}
+            <h1>Member Documents</h1>
+
             {editClient?.Client?.Family_members?.length > 0 ? (
               editClient?.Client?.Family_members.map((member) => (
                 <div key={member.id}>
                   <h1>{member.family_member_name}</h1>
                   {member?.member_documents?.length > 0 ? (
-                    <>
-                      {/* Render the table headers once per family member */}
-                      <Table className="mb-2">
-                        <TableCaption className="mb-2">
-                          <div className="flex justify-end"></div>
-                        </TableCaption>
-                        <TableHeader className="dark:bg-background bg-gray-100 rounded-md">
-                          <TableRow>
-                            <TableHead className="p-2">Document Name</TableHead>
-                            <TableHead className="text-right">
-                              Documents
-                            </TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {member.member_documents.map((document) => (
-                            <TableRow
-                              key={document.id}
-                              className="dark:border-b dark:border-gray-600"
-                            >
-                              <TableCell className="font-medium p-2">
+                    member.member_documents.map((document) => (
+                      <div key={document.id} className="space-y-4">
+                        <table className="w-full table-auto">
+                          <thead>
+                            <tr>
+                              <th className="px-4 py-2 text-left">
+                                Document Name
+                              </th>
+                              <th className="px-4 py-2 text-left">Documents</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr key={document.id}>
+                              <td className="px-4 py-2">
                                 {document.document_name}
-                              </TableCell>
-                              <TableCell className="font-medium p-2 text-right">
+                              </td>
+                              <td className="px-4 py-2">
                                 <Button
                                   onClick={() =>
                                     handleViewDocument(document.document)
@@ -230,12 +224,12 @@ const DisplayDocuments = ({ id }) => {
                                 >
                                   View Document
                                 </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    ))
                   ) : (
                     <p>No documents available for this family member.</p>
                   )}
@@ -245,6 +239,66 @@ const DisplayDocuments = ({ id }) => {
               <p>No family members available for this client.</p>
             )}
 
+            {/* member start */}
+            {editClient?.Client?.Family_members?.length > 0 ? (
+              editClient?.Client?.Family_members.map((member) => (
+                <div key={member.id}>
+                  <h1>{member.family_member_name}</h1>
+                  {member?.member_documents?.length > 0 ? (
+                    member.member_documents.map((document) => (
+                      <div key={document.id} className="space-y-4">
+                        <Table className="mb-2">
+                          <TableCaption className="mb-2">
+                            <div className="flex justify-end"></div>
+                          </TableCaption>
+                          <TableHeader className="dark:bg-background bg-gray-100  rounded-md">
+                            <TableRow>
+                              <TableHead className="p-2">
+                                Document Name
+                              </TableHead>
+                              <TableHead className="text-right">
+                                Documents
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {editClient?.Client?.client_documents &&
+                              editClient?.Client?.client_documents.map(
+                                (document) => (
+                                  <TableRow
+                                    key={document.id}
+                                    className=" dark:border-b dark:border-gray-600"
+                                  >
+                                    <TableCell className="font-medium p-2">
+                                      {document.document_name}
+                                      {/* {new Date(denomination.deposit_date).toLocaleDateString("en-GB")} */}
+                                    </TableCell>
+                                    <TableCell className="font-medium p-2 text-right">
+                                      <Button
+                                        onClick={() =>
+                                          handleViewDocument(document.document)
+                                        }
+                                        type="button"
+                                        className="bg-blue-500"
+                                      >
+                                        view Document
+                                      </Button>
+                                    </TableCell>
+                                  </TableRow>
+                                )
+                              )}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No documents available for this family member.</p>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p>No family members available for this client.</p>
+            )}
             {/* member end */}
 
             <DialogFooter>
